@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Captions v1.0.0</string>
+    <string name="scan_qr">Scan new code</string>
+    <string name="scan_instruction">Scan code from host phone\n to join session.</string>
+    <string name="sign_in">Sign In</string>
+    <string name="sample_caption">This is step one with one interestingly long word.</string>
+</resources>
