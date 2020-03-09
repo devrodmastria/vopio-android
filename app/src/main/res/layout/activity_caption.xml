@@ -19,11 +19,13 @@
         android:id="@+id/messageRecyclerView"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
+        android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         android:textAlignment="center"
         app:layout_constraintBottom_toTopOf="@+id/scanAgainButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/webView"
         app:spanCount="1"
         tools:itemCount="5" />
 
@@ -42,6 +44,21 @@
         android:textStyle="normal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/micButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="8dp"
+        android:background="@android:color/transparent"
+        android:textAllCaps="false"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="12sp"
+        android:textStyle="normal"
+        android:text="@string/enable_speech"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

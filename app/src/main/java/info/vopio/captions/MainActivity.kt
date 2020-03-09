@@ -10,7 +10,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.zxing.Result
+import info.vopio.captions.DataModel.MessageUploader
 import kotlinx.android.synthetic.main.activity_main.*
 import me.dm7.barcodescanner.zxing.ZXingScannerView
 import timber.log.Timber
@@ -18,10 +20,12 @@ import timber.log.Timber
 class MainActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
 
     lateinit var xingScannerView: ZXingScannerView
+    lateinit var localUser: String
 
     companion object {
         private val REQUEST_CAMERA = 1 // this is used to request permission from user
         val SESSION_KEY = "SESSION_KEY"
+        val SESSION_USER = "SESSION_USER"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,22 +43,48 @@ class MainActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
             startActivity(Intent(this, SignInActivity::class.java))
             finish()
             return
+        } else {
+            localUser = thisFirebaseUser.displayName ?: "name N/A"
+        }
+
+        hostSessionButton.setOnClickListener {
+
+            Toast.makeText(this@MainActivity, "Feature not ready", Toast.LENGTH_SHORT).show()
+
+            val email: String = thisFirebaseUser.email!!
+            Timber.wtf("-->>Gmail email $email")
+            // check email against https://www.ltu.edu/facultyandstaff/directory/index.asp
+
+            //todo authenticate professor email
+            //todo create new session id
+            //todo create new QR code for session id
+            //todo start CaptionActivity with QR code in it
+
+
         }
 
         scanButton.setOnClickListener {
 
-            // Request user permission to use camera
-            if (ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            //todo: debug only
+            val intent = Intent(this, CaptionActivity::class.java)
+            intent.putExtra(SESSION_KEY, "-M1vHwJf-UW9tpVegpJE")
+            intent.putExtra(SESSION_USER, localUser)
+            startActivity(intent)
+            finish()
 
-                startScanner()
-
-            } else {
-                ActivityCompat.requestPermissions(
-                    this@MainActivity,
-                    arrayOf(Manifest.permission.CAMERA),
-                    MainActivity.REQUEST_CAMERA
-                )
-            }
+            //todo  uncomment when done testing
+            //Request user permission to use camera
+//            if (ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+//
+//                startScanner()
+//
+//            } else {
+//                ActivityCompat.requestPermissions(
+//                    this@MainActivity,
+//                    arrayOf(Manifest.permission.CAMERA),
+//                    MainActivity.REQUEST_CAMERA
+//                )
+//            }
 
         }
 
@@ -87,6 +117,7 @@ class MainActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
             xingScannerView.stopCamera()
             val intent = Intent(this@MainActivity, CaptionActivity::class.java)
             intent.putExtra(SESSION_KEY, QRresult)
+            intent.putExtra(SESSION_USER, localUser)
             startActivity(intent)
             finish()
         } else {

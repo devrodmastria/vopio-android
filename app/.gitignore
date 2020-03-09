@@ -1,1 +1,4 @@
+# Android
 /build
+google-services.json
+/src/main/res/raw/credential.json

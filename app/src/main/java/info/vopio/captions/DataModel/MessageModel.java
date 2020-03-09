@@ -8,7 +8,7 @@ public class MessageModel {
 
     public MessageModel(){}
 
-    public MessageModel(String text, String name, String photoUrl, String imageUrl) {
+    public MessageModel(String text, String name) {
         this.text = text;
         this.name = name;
     }
@@ -23,6 +23,18 @@ public class MessageModel {
 
     public String getText() {
         return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
 

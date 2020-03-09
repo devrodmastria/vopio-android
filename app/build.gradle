@@ -1,10 +1,13 @@
 apply plugin: 'com.android.application'
-
 apply plugin: 'kotlin-android'
-
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'com.google.gms.google-services' // used for login with Gmail
+apply plugin: 'com.google.protobuf' // used by Google Speech API
 
-apply plugin: 'com.google.gms.google-services'
+ext {
+    supportLibraryVersion = '26.1.0'
+    grpcVersion = '1.4.0'
+}
 
 android {
     compileSdkVersion 29
@@ -23,6 +26,37 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/INDEX.LIST'
+    }
+
+}
+
+//used by Speech to Text API
+protobuf {
+    protoc {
+        artifact =  'com.google.protobuf:protoc:3.3.0'
+    }
+    plugins {
+        javalite {
+            artifact = 'com.google.protobuf:protoc-gen-javalite:3.0.0'
+        }
+        grpc {
+            artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}"
+        }
+    }
+    generateProtoTasks {
+        all().each { task ->
+            task.plugins {
+                javalite {}
+                grpc {
+                    // Options added to --grpc_out
+                    option 'lite'
+                }
+            }
+        }
+    }
 }
 
 dependencies {
@@ -31,8 +65,23 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.core:core-ktx:1.2.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'javax.annotation:javax.annotation-api:1.3.2'
+
+    // gRPC
+    implementation 'io.grpc:grpc-okhttp:1.27.1'
+//    implementation 'io.grpc:grpc-stub:1.27.1'      //doesn't do anything
+//    implementation "io.grpc:grpc-protobuf-lite:1.27.1" // breaks on compile time
+
+    protobuf 'com.google.protobuf:protobuf-java:3.11.4'
+
+    // OAuth2 for Google API
+    implementation('com.google.auth:google-auth-library-oauth2-http:0.20.0') {
+        exclude module: 'httpclient'
+    }
 
     implementation 'com.google.android.gms:play-services-auth:17.0.0'
+    implementation 'com.google.cloud:google-cloud-bom:0.108.0-alpha' //for dependency management as it will help ensure you are using compatible artifacts provided by google-cloud-java
+    implementation 'com.google.cloud:google-cloud-speech:1.17.0' // 1.17.0 is the highest version that will run
 
     // Firebase
     implementation platform('com.google.firebase:firebase-bom:25.0.0')

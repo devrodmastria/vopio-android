@@ -13,6 +13,7 @@ import com.google.android.gms.common.api.GoogleApiClient
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.android.synthetic.main.activity_sign_in.*
+import timber.log.Timber
 
 
 class SignInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedListener {
@@ -69,6 +70,7 @@ class SignInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
                     Log.w(TAG, "signInWithCredential", task.exception)
                     Toast.makeText(this@SignInActivity, "Authentication failed.", Toast.LENGTH_SHORT).show()
                 } else {
+
                     startActivity(Intent(this@SignInActivity, MainActivity::class.java))
                     finish()
                 }
