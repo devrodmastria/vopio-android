@@ -159,7 +159,7 @@ public class VoiceRecorder {
                 continue;
             }
 
-            final AudioRecord audioRecord = new AudioRecord(MediaRecorder.AudioSource.DEFAULT,
+            final AudioRecord audioRecord = new AudioRecord(MediaRecorder.AudioSource.VOICE_RECOGNITION,
                     sampleRate, CHANNEL, ENCODING, sizeInBytes);
             if (audioRecord.getState() == AudioRecord.STATE_INITIALIZED) {
                 mBuffer = new byte[sizeInBytes];
