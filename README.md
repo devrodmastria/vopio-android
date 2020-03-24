@@ -11,6 +11,6 @@ v1.0.0
 
 **Demo** video avaiable at: https://youtu.be/em5_wLCC-Kk
 
-**Data dictionary**: the vopio name is a collage of **v** for voice and **oppia** which means "to learn" in the Finnish language.
+**Data dictionary**: the vopio name is a collage of **v** for voice and **oppia** (which means "to learn" in the Finnish language).
 
 For inquiries, please email me at rmesquita@ltu.edu
