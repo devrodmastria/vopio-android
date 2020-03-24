@@ -7,6 +7,8 @@ v1.0.0
 
 **SRS**: Software Requirements Specification document available upon request.
 
+**iOS** codebase also available for review upon request.
+
 **Demo** video avaiable at: https://youtu.be/em5_wLCC-Kk
 
 **Data dictionary**: the vopio name is a collage of **v** for voice and **oppia** which means "to learn" in the Finnish language.
