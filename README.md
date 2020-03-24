@@ -5,7 +5,7 @@ v1.0.0
 
 **Scope**: This mobile app is being developed as part of my startup project at TechTown Detroit.
 
-Software Requirements Specification document available upon request.
+**SRS**: Software Requirements Specification document available upon request.
 
 **Demo** video avaiable at: https://youtu.be/em5_wLCC-Kk
 
