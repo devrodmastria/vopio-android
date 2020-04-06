@@ -41,6 +41,12 @@ class MainActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
             return
         }
 
+        hostButton.setOnClickListener {
+
+            createNewSession()
+
+        }
+
         scanButton.setOnClickListener {
 
             // Request user permission to use camera
@@ -57,6 +63,14 @@ class MainActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
             }
 
         }
+
+    }
+
+    private fun createNewSession(){
+
+        val intent = Intent(this@MainActivity, HostActivity::class.java)
+        startActivity(intent)
+        finish()
 
     }
 
