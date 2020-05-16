@@ -1,5 +1,4 @@
 # vopio-android
-v1.0.0
 
 **Vision**: to make on-campus college lectures truly accessible to students and professors who struggle to keep up with verbal communication.
 
@@ -9,9 +8,7 @@ v1.0.0
 
 **iOS** codebase also available for review upon request.
 
-**Demo** video avaiable at: https://youtu.be/em5_wLCC-Kk
-
-**Data dictionary**: the vopio name is a collage of **v** for voice and **oppia** (which means "to learn" in the Finnish language).
+**Data dictionary**: the vopio name is a collage of **v** for voice and **oppia**, which means "to learn" in the Finnish language.
 
 **Licensing**: This repo contains proprietary software as well as external libraries from third parties.
 
