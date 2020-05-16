@@ -36,7 +36,7 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.zxing.Result
 import info.vopio.captions.DataModel.MessageModel
-import info.vopio.captions.DataModel.MessageUploader
+import info.vopio.captions.Utilities.MessageUploader
 import info.vopio.captions.Services.SpeechService
 import info.vopio.captions.Services.VoiceRecorder
 import kotlinx.android.synthetic.main.activity_caption.*
@@ -189,8 +189,8 @@ class CaptionActivity : AppCompatActivity(),
     }
 
     override fun onPause() {
-        thisFirebaseAdapter.stopListening()
-        stopSession()
+//        thisFirebaseAdapter.stopListening()
+//        stopSession()
         super.onPause()
     }
 
@@ -239,7 +239,8 @@ class CaptionActivity : AppCompatActivity(),
                     if (isFinal) {
 
                         Timber.i("-->>SpeechX: CAPTION: $text")
-                        MessageUploader().sendCaptions(thisFirebaseDBref, sessionId, "$localUser $text", this.localUser)
+                        MessageUploader()
+                            .sendCaptions(thisFirebaseDBref, sessionId, "$localUser $text", this.localUser)
 
                     } else {
                         Timber.i("-->>SpeechX: PARTIAL CAPTION: $text")
@@ -269,7 +270,8 @@ class CaptionActivity : AppCompatActivity(),
             // Prepare Cloud Speech API - this starts the Speech API if user is signed in with Google
             bindService(Intent(this, SpeechService::class.java), thisServiceConnection, BIND_AUTO_CREATE)
 
-            MessageUploader().sendCaptions(thisFirebaseDBref, sessionId, "$localUser has joined", this.localUser)
+            MessageUploader()
+                .sendCaptions(thisFirebaseDBref, sessionId, "$localUser has joined", this.localUser)
         }
 
         startVoiceRecorder()
@@ -286,6 +288,7 @@ class CaptionActivity : AppCompatActivity(),
             if (thisSpeechService != null){
                 thisSpeechService?.removeListener(thisSpeechServiceListener)
                 thisSpeechService?.stopSelf()
+
             }
             unbindService(thisServiceConnection)
         }
@@ -337,7 +340,7 @@ class CaptionActivity : AppCompatActivity(),
                         val wordArray =
                             caption.split(" ").toTypedArray()
                         for (wordIs in wordArray) {
-                            if (wordIs.length > 8) {
+                            if (wordIs.length > 6) {
                                 val beginIndex = caption.indexOf(wordIs)
                                 val endIndex = beginIndex + wordIs.length
                                 val clickableSpan: ClickableSpan = object : ClickableSpan() {

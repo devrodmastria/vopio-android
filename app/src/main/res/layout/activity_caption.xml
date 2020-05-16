@@ -17,17 +17,17 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/messageRecyclerView"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_marginTop="8dp"
+        android:layout_width="0dp"
+        android:layout_height="200dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="4dp"
         android:layout_marginBottom="8dp"
         android:textAlignment="center"
         app:layout_constraintBottom_toTopOf="@+id/scanAgainButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/webView"
         app:spanCount="1"
-        tools:itemCount="5" />
+        tools:itemCount="1" />
 
     <Button
         android:id="@+id/scanAgainButton"
@@ -37,7 +37,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
         android:background="@android:color/transparent"
-        android:text="@string/scan_qr"
+        android:text="@string/scan_new_qr"
         android:textAllCaps="false"
         android:textColor="@android:color/darker_gray"
         android:textSize="12sp"
