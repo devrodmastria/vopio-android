@@ -1,4 +1,4 @@
-package info.vopio.captions
+package info.vopio.android
 
 import android.content.Intent
 import android.os.Bundle
@@ -26,7 +26,7 @@ import com.google.android.gms.common.api.GoogleApiClient
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.zxing.Result
-import info.vopio.captions.DataModel.MessageModel
+import info.vopio.android.DataModel.MessageModel
 import kotlinx.android.synthetic.main.activity_caption.*
 import me.dm7.barcodescanner.zxing.ZXingScannerView
 import timber.log.Timber

@@ -1,14 +1,16 @@
-package info.vopio.captions
+package info.vopio.android
 
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import com.google.firebase.auth.FirebaseAuth
 import com.google.zxing.Result
 import kotlinx.android.synthetic.main.activity_main.*
@@ -42,9 +44,7 @@ class MainActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
         }
 
         hostButton.setOnClickListener {
-
-            createNewSession()
-
+            //createNewSession()
         }
 
         scanButton.setOnClickListener {

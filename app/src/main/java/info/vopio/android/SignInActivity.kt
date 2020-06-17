@@ -1,4 +1,4 @@
-package info.vopio.captions
+package info.vopio.android
 
 import android.content.Intent
 import android.os.Bundle
@@ -84,9 +84,8 @@ class SignInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
 
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == GOOGLE_SIGN_IN) {
-            val result =
-                Auth.GoogleSignInApi.getSignInResultFromIntent(data)
-            if (result.isSuccess) {
+            val result = Auth.GoogleSignInApi.getSignInResultFromIntent(data)
+            if (result != null && result.isSuccess) {
                 // Google Sign-In was successful, authenticate with Firebase
                 val account = result.signInAccount
                 firebaseAuthWithGoogle(account!!)

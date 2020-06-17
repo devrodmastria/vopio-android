@@ -1,6 +1,5 @@
-package info.vopio.captions
+package info.vopio.android
 
-import android.content.res.Resources
 import android.graphics.Bitmap
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
