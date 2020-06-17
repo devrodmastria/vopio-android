@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package info.vopio.captions.Services;
+package info.vopio.android.Services;
 
 import android.media.AudioFormat;
 import android.media.AudioRecord;

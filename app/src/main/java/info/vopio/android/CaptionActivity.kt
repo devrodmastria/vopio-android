@@ -1,4 +1,4 @@
-package info.vopio.captions
+package info.vopio.android
 
 import android.Manifest
 import android.content.ComponentName
@@ -35,10 +35,10 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.zxing.Result
-import info.vopio.captions.DataModel.MessageModel
-import info.vopio.captions.Utilities.MessageUploader
-import info.vopio.captions.Services.SpeechService
-import info.vopio.captions.Services.VoiceRecorder
+import info.vopio.android.DataModel.MessageModel
+import info.vopio.android.Utilities.MessageUploader
+import info.vopio.android.Services.SpeechService
+import info.vopio.android.Services.VoiceRecorder
 import kotlinx.android.synthetic.main.activity_caption.*
 import me.dm7.barcodescanner.zxing.ZXingScannerView
 import timber.log.Timber
@@ -94,6 +94,25 @@ class CaptionActivity : AppCompatActivity(),
         }
     }
 
+    private val thisSpeechServiceListener: SpeechService.Listener =
+        SpeechService.Listener { text, isFinal ->
+            if (isFinal) {
+                thisVoiceRecorder?.dismiss()
+            }
+            if (!TextUtils.isEmpty(text)) {
+                runOnUiThread {
+                    if (isFinal) {
+
+                        Timber.i("-->>SpeechX: CAPTION: $text")
+                        MessageUploader().sendCaptions(thisFirebaseDBref, sessionId, "$localUser $text", this.localUser)
+
+                    } else {
+                        Timber.i("-->>SpeechX: PARTIAL CAPTION: $text")
+                    }
+                }
+            }
+        }
+
     private val thisServiceConnection: ServiceConnection = object : ServiceConnection {
 
         override fun onServiceConnected(componentName: ComponentName, binder: IBinder) {
@@ -116,7 +135,6 @@ class CaptionActivity : AppCompatActivity(),
 
         Timber.i("-->>SpeechX: onCreate")
 
-
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         webView.visibility = View.INVISIBLE
@@ -125,19 +143,19 @@ class CaptionActivity : AppCompatActivity(),
 
         micButton.setOnClickListener {
 
-            if (thisVoiceRecorder != null) { // it's listening
-                micButton.setText(R.string.enable_speech)
-                stopSession()
-            } else { // it's off
-                micButton.setText(R.string.disable_speech)
-                requestMicPermission()
-            }
+            Timber.i("-->>SpeechX: micButton")
 
-            //request access to mic
-            //start/stop voice recorder service
-            //start/stop speech service listener
-            //send captions to Firebase
-            //MessageUploader().sendCaptions(thisFirebaseDBref, sessionId, "test 20200308", this.localUserEmail)
+            if (thisVoiceRecorder != null) {
+                // recorder ON
+
+                Timber.i("-->>SpeechX: micButton disable_speech")
+                micButton.text = getString(R.string.disable_speech)
+                stopSession()
+            } else { // recorder OFF
+                Timber.i("-->>SpeechX: micButton enable_speech")
+                micButton.text = getString(R.string.enable_speech)
+                requestMicPermission() // start Speech
+            }
 
         }
 
@@ -189,8 +207,8 @@ class CaptionActivity : AppCompatActivity(),
     }
 
     override fun onPause() {
-//        thisFirebaseAdapter.stopListening()
-//        stopSession()
+        thisFirebaseAdapter.stopListening()
+        stopSession()
         super.onPause()
     }
 
@@ -229,25 +247,15 @@ class CaptionActivity : AppCompatActivity(),
 
     }
 
-    private val thisSpeechServiceListener: SpeechService.Listener =
-        SpeechService.Listener { text, isFinal ->
-            if (isFinal) {
-                thisVoiceRecorder?.dismiss()
-            }
-            if (!TextUtils.isEmpty(text)) {
-                runOnUiThread {
-                    if (isFinal) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
-                        Timber.i("-->>SpeechX: CAPTION: $text")
-                        MessageUploader()
-                            .sendCaptions(thisFirebaseDBref, sessionId, "$localUser $text", this.localUser)
-
-                    } else {
-                        Timber.i("-->>SpeechX: PARTIAL CAPTION: $text")
-                    }
-                }
+        for (permission in grantResults){
+            if (permission == PackageManager.PERMISSION_GRANTED){
+                startSession()
             }
         }
+    }
 
     private fun startVoiceRecorder() {
         if (thisVoiceRecorder != null) {
@@ -265,16 +273,22 @@ class CaptionActivity : AppCompatActivity(),
     }
 
     private fun startSession() {
+
+        //start/stop voice recorder service
+        //start/stop speech service listener
+        //notify Firebase - MessageUploader().sendCaptions(thisFirebaseDBref, sessionId, "test 20200308", this.localUserEmail)
+
+
         if (thisFirebaseUser != null) {
 
             // Prepare Cloud Speech API - this starts the Speech API if user is signed in with Google
             bindService(Intent(this, SpeechService::class.java), thisServiceConnection, BIND_AUTO_CREATE)
 
-            MessageUploader()
-                .sendCaptions(thisFirebaseDBref, sessionId, "$localUser has joined", this.localUser)
-        }
+            MessageUploader().sendCaptions(thisFirebaseDBref, sessionId, "$localUser has joined", this.localUser)
 
-        startVoiceRecorder()
+            startVoiceRecorder()
+
+        }
 
     }
 
@@ -286,8 +300,8 @@ class CaptionActivity : AppCompatActivity(),
         // Stop Cloud Speech API
         if (thisSpeechServiceListener != null) {
             if (thisSpeechService != null){
-                thisSpeechService?.removeListener(thisSpeechServiceListener)
-                thisSpeechService?.stopSelf()
+                thisSpeechService.removeListener(thisSpeechServiceListener)
+                thisSpeechService.stopSelf()
 
             }
             unbindService(thisServiceConnection)

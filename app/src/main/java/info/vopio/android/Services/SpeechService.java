@@ -20,7 +20,7 @@
 // https://github.com/GoogleCloudPlatform/android-docs-samples/tree/master/speech/Speech
 // https://cloud.google.com/speech-to-text/docs/samples
 
-package info.vopio.captions.Services;
+package info.vopio.android.Services;
 
 import android.app.Service;
 import android.content.Context;
@@ -63,7 +63,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import info.vopio.captions.R;
+import info.vopio.android.R;
 import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.ClientCall;
@@ -266,7 +266,7 @@ public class SpeechService extends Service {
                                 .setSampleRateHertz(sampleRate))
                         .setInterimResults(true)
                         .setSingleUtterance(true))
-                .buildPartial()
+                .build()
         );
     }
 

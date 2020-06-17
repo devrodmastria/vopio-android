@@ -1,4 +1,4 @@
-package info.vopio.captions.DataModel;
+package info.vopio.android.DataModel;
 
 public class MessageModel {
 

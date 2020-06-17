@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="info.vopio.captions">
+    package="info.vopio.android">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
@@ -14,9 +14,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
 
-        <activity android:name=".CaptionActivity"></activity>
-        <activity android:name=".SignInActivity" />
-        <activity android:name=".MainActivity">
+        <activity android:name="info.vopio.android.CaptionActivity"/>
+        <activity android:name="info.vopio.android.SignInActivity" />
+        <activity android:name="info.vopio.android.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -24,7 +24,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".Services.SpeechService"/>
+        <service android:name="info.vopio.android.Services.SpeechService"/>
 
     </application>
 

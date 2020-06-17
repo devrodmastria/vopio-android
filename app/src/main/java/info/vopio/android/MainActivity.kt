@@ -1,17 +1,15 @@
-package info.vopio.captions
+package info.vopio.android
 
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.google.zxing.Result
 import kotlinx.android.synthetic.main.activity_main.*
 import me.dm7.barcodescanner.zxing.ZXingScannerView
@@ -47,7 +45,6 @@ class MainActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
             localUser = thisFirebaseUser.displayName ?: "name N/A"
         }
 
-//        hostSessionButton.visibility = View.INVISIBLE
         hostSessionButton.setOnClickListener {
 
             Toast.makeText(this@MainActivity, "Feature not ready", Toast.LENGTH_SHORT).show()
@@ -64,21 +61,23 @@ class MainActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
 
         }
 
+        //todo: for testing only
+        scanButton.setOnLongClickListener {
+
+            val intent = Intent(this, CaptionActivity::class.java)
+            intent.putExtra(SESSION_KEY, "-M1vHwJf-UW9tpVegpJE")
+            intent.putExtra(SESSION_USER, localUser)
+            startActivity(intent)
+            finish()
+
+            false
+        }
+
         scanButton.setOnClickListener {
 
-            //todo: debug only
-//            val intent = Intent(this, CaptionActivity::class.java)
-//            intent.putExtra(SESSION_KEY, "-M1vHwJf-UW9tpVegpJE")
-//            intent.putExtra(SESSION_USER, localUser)
-//            startActivity(intent)
-//            finish()
-
-            //todo  uncomment when done testing
             //Request user permission to use camera
             if (ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-
                 startScanner()
-
             } else {
                 ActivityCompat.requestPermissions(
                     this@MainActivity,

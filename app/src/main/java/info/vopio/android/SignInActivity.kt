@@ -1,4 +1,4 @@
-package info.vopio.captions
+package info.vopio.android
 
 import android.content.Intent
 import android.os.Bundle
@@ -13,7 +13,6 @@ import com.google.android.gms.common.api.GoogleApiClient
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.android.synthetic.main.activity_sign_in.*
-import timber.log.Timber
 
 
 class SignInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedListener {
@@ -88,7 +87,7 @@ class SignInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
         if (requestCode == GOOGLE_SIGN_IN) {
             val result =
                 Auth.GoogleSignInApi.getSignInResultFromIntent(data)
-            if (result.isSuccess) {
+            if (result != null && result.isSuccess) {
                 // Google Sign-In was successful, authenticate with Firebase
                 val account = result.signInAccount
                 firebaseAuthWithGoogle(account!!)
