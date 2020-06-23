@@ -2,9 +2,11 @@ package info.vopio.android
 
 import android.Manifest
 import android.content.ComponentName
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.IBinder
 import android.text.SpannableString
@@ -17,11 +19,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.webkit.WebSettings
+import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import android.widget.Toolbar
 import androidx.annotation.NonNull
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.database.FirebaseRecyclerAdapter
@@ -30,15 +36,13 @@ import com.firebase.ui.database.SnapshotParser
 import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.*
 import com.google.zxing.Result
 import info.vopio.android.DataModel.MessageModel
-import info.vopio.android.Utilities.MessageUploader
 import info.vopio.android.Services.SpeechService
 import info.vopio.android.Services.VoiceRecorder
+import info.vopio.android.Utilities.MessageUploader
+import info.vopio.android.Utilities.QRgenerator
 import kotlinx.android.synthetic.main.activity_caption.*
 import me.dm7.barcodescanner.zxing.ZXingScannerView
 import timber.log.Timber
@@ -48,24 +52,30 @@ class CaptionActivity : AppCompatActivity(),
 
     lateinit var xingScannerView : ZXingScannerView
     lateinit var webSettings : WebSettings
-    lateinit var thisFirebaseDBref : DatabaseReference
-    lateinit var sessionId : String
-    lateinit var localUser : String
+    lateinit var thisFirebaseDatabaseReference : DatabaseReference
 
-    lateinit var thisFirebaseUser : FirebaseUser
+    lateinit var sessionId : String
+    lateinit var captionId : String
+    lateinit var captionAuthor : String // author could be any un-muted app user in the session
+
+    lateinit var incomingSessionId : String
+    lateinit var thisFirebaseUser : String
     lateinit var thisFirebaseAdapter : FirebaseRecyclerAdapter<MessageModel, MessageViewHolder>
     lateinit var thisGoogleApiClient : GoogleApiClient
     lateinit var thisLinearLayoutManager : LinearLayoutManager
 
-    lateinit var thisSpeechService: SpeechService
+    private var thisSpeechService: SpeechService? = null
     private var thisVoiceRecorder: VoiceRecorder? = null
+
+    var lastSelectedWord: String = "placeholder"
 
     companion object{
         const val REQUEST_RECORD_AUDIO_PERMISSION = 1
     }
 
     class MessageViewHolder(v: View) : RecyclerView.ViewHolder(v) {
-        var messageTextView: TextView = itemView.findViewById(R.id.messageTextView)
+        var captionTextView: TextView = itemView.findViewById(R.id.captionTextView)
+        var authorTextView: TextView = itemView.findViewById(R.id.authorTextView)
     }
 
     private val thisVoiceCallback: VoiceRecorder.Callback = object : VoiceRecorder.Callback() {
@@ -73,23 +83,21 @@ class CaptionActivity : AppCompatActivity(),
             Timber.i("-->>SpeechX: HEARING VOICE")
 
             if (thisSpeechService != null) {
-                thisSpeechService.startRecognizing(thisVoiceRecorder!!.sampleRate)
+                thisVoiceRecorder?.sampleRate?.let { thisSpeechService?.startRecognizing(it) }
             }
-
         }
 
         override fun onVoice(data: ByteArray?, size: Int) {
             if (thisSpeechService != null) {
-                thisSpeechService.recognize(data, size)
+                thisSpeechService?.recognize(data, size)
             }
-
         }
 
         override fun onVoiceEnd() {
             Timber.i("-->>SpeechX: NOT HEARING VOICE")
 
             if (thisSpeechService != null) {
-                thisSpeechService.finishRecognizing()
+                thisSpeechService?.finishRecognizing()
             }
         }
     }
@@ -101,14 +109,14 @@ class CaptionActivity : AppCompatActivity(),
             }
             if (!TextUtils.isEmpty(text)) {
                 runOnUiThread {
+
                     if (isFinal) {
-
                         Timber.i("-->>SpeechX: CAPTION: $text")
-                        MessageUploader().sendCaptions(thisFirebaseDBref, sessionId, "$localUser $text", this.localUser)
-
+                        MessageUploader().sendCaptions(thisFirebaseDatabaseReference, sessionId, text, thisFirebaseUser)
                     } else {
                         Timber.i("-->>SpeechX: PARTIAL CAPTION: $text")
                     }
+
                 }
             }
         }
@@ -118,14 +126,14 @@ class CaptionActivity : AppCompatActivity(),
         override fun onServiceConnected(componentName: ComponentName, binder: IBinder) {
 
             thisSpeechService = SpeechService.from(binder)
-            thisSpeechService.addListener(thisSpeechServiceListener)
+            thisSpeechService?.addListener(thisSpeechServiceListener)
 
             Timber.i("-->>SpeechX: LISTENING")
 
         }
 
         override fun onServiceDisconnected(componentName: ComponentName) {
-            thisSpeechService.stopSelf()
+            thisSpeechService = null
         }
     }
 
@@ -135,9 +143,28 @@ class CaptionActivity : AppCompatActivity(),
 
         Timber.i("-->>SpeechX: onCreate")
 
+        feedbackButton.visibility = View.INVISIBLE
+
+        thisFirebaseDatabaseReference = FirebaseDatabase.getInstance().reference
+
+        val extras = intent.extras
+        if (extras != null) {
+
+            val localUser = extras.getString(MainActivity.SESSION_USER)
+            localUser?.let {
+
+                val nameArray =
+                    localUser.split(" ").toTypedArray()
+
+                thisFirebaseUser = nameArray[0] + " " + nameArray[1].first()
+            }
+
+            incomingSessionId = extras.getString(MainActivity.SESSION_KEY).toString()
+
+        }
+
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
-        webView.visibility = View.INVISIBLE
         webSettings = webView.settings
         webSettings.javaScriptEnabled = true
 
@@ -145,35 +172,29 @@ class CaptionActivity : AppCompatActivity(),
 
             Timber.i("-->>SpeechX: micButton")
 
-            if (thisVoiceRecorder != null) {
-                // recorder ON
+            if (thisVoiceRecorder != null) { // speech service is ON - turn it OFF
 
                 Timber.i("-->>SpeechX: micButton disable_speech")
                 micButton.text = getString(R.string.disable_speech)
                 stopSession()
-            } else { // recorder OFF
+
+            } else { // speech service is OFF - turn it ON
+
                 Timber.i("-->>SpeechX: micButton enable_speech")
                 micButton.text = getString(R.string.enable_speech)
-                requestMicPermission() // start Speech
+                startSession()
             }
 
         }
 
-        scanAgainButton.setOnClickListener {
+        feedbackButton.setOnClickListener {
 
-            xingScannerView = ZXingScannerView(CaptionActivity@this)
-            setContentView(xingScannerView)
-            xingScannerView.setResultHandler(CaptionActivity@this)
-            xingScannerView.startCamera()
-        }
+            // update feedback to database
+            val childUpdates = HashMap<String, Any>()
+            childUpdates["/feedback/"] = "Review Pronunciation of word: $lastSelectedWord"
+            thisFirebaseDatabaseReference.child(sessionId).child(captionId).updateChildren(childUpdates)
+            feedbackButton.visibility = View.INVISIBLE
 
-        val thisFirebaseAuth = FirebaseAuth.getInstance()
-        thisFirebaseUser = thisFirebaseAuth.currentUser!!
-        if (thisFirebaseUser == null){
-            //launch sign in activity
-            startActivity(Intent(this, SignInActivity::class.java))
-            finish()
-            return
         }
 
         thisGoogleApiClient = GoogleApiClient.Builder(this)
@@ -186,36 +207,8 @@ class CaptionActivity : AppCompatActivity(),
         thisLinearLayoutManager.stackFromEnd = true
         messageRecyclerView.layoutManager = thisLinearLayoutManager
 
-
-        val extras = intent.extras
-        if (extras != null) {
-
-            val sessionId = extras.getString(MainActivity.SESSION_KEY)
-            sessionId?.let {
-
-                this.sessionId = sessionId
-                configureDatabase(sessionId)
-            }
-
-            val localUser = extras.getString(MainActivity.SESSION_USER)
-            localUser?.let {
-                this.localUser = localUser
-            }
-
-        }
-
     }
 
-    override fun onPause() {
-        thisFirebaseAdapter.stopListening()
-        stopSession()
-        super.onPause()
-    }
-
-    override fun onConnectionFailed(p0: ConnectionResult) {
-        Toast.makeText(this, "Google Play Services error: " + p0.errorMessage, Toast.LENGTH_SHORT).show()
-
-    }
 
     override fun handleResult(p0: Result?) { //results from QR scanner
         val QRresult: String = p0?.text.toString()
@@ -223,27 +216,111 @@ class CaptionActivity : AppCompatActivity(),
         if (QRresult.length == 20) {
             xingScannerView.stopCamera()
             setContentView(R.layout.activity_caption)
-            configureDatabase(QRresult)
+            configureDatabaseSnapshotParser(QRresult)
         }
     }
 
-    private fun requestMicPermission(){
+    override fun onStart() {
+        super.onStart()
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+        incomingSessionId.let {
 
-            Timber.wtf("-->>requestMicPermission GRANTED")
+            if (incomingSessionId.contentEquals(MainActivity.THIS_IS_THE_HOST)){
 
-            startSession()
+                webView.visibility = View.INVISIBLE
+                QRimageView.visibility = View.VISIBLE
 
-        } else if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.RECORD_AUDIO)) {
-            showPermissionMessageDialog()
-        } else {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), REQUEST_RECORD_AUDIO_PERMISSION)
+                this.sessionId = thisFirebaseDatabaseReference.push().key.toString()
+                val lastFourDigits = sessionId.substring(sessionId.length.minus(4))
+
+                setTitle("session code: $lastFourDigits")
+                QRimageView.visibility = View.INVISIBLE
+
+                Timber.i("-->>SpeechX: incomingSessionId ${this.sessionId}")
+
+                val sessionBitmapQR : Bitmap = QRgenerator().encodeToQR(this.sessionId, this)
+                QRimageView.setImageBitmap(sessionBitmapQR)
+
+                MessageUploader().sendCaptions(
+                    thisFirebaseDatabaseReference,
+                    this.sessionId, "[ Session Started ]",
+                    thisFirebaseUser)
+
+                Timber.i("-->>SpeechX: AUTO enable_speech")
+                micButton.text = getString(R.string.disable_speech)
+                startSession()
+
+            } else {
+
+                webView.visibility = View.VISIBLE
+                QRimageView.visibility = View.INVISIBLE
+                this.sessionId = incomingSessionId
+
+            }
+            configureDatabaseSnapshotParser(this.sessionId)
+        }
+
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (incomingSessionId.contentEquals(MainActivity.THIS_IS_THE_HOST)) {
+            MessageUploader().sendCaptions(thisFirebaseDatabaseReference, sessionId, "[ Session Ended ]", thisFirebaseUser)
+        }
+
+        if (thisVoiceRecorder != null) { // speech service is ON - turn it OFF
+
+            Timber.i("-->>SpeechX: onPause disable_speech")
+            micButton.text = getString(R.string.disable_speech)
+            stopSession()
         }
     }
 
-    private fun showPermissionMessageDialog(){
-        Toast.makeText(this, R.string.permission_message, Toast.LENGTH_SHORT).show()
+    private fun startSession() {
+
+        if (thisFirebaseUser.isNotEmpty()) {
+
+            // Prepare Cloud Speech API - this starts the Speech API if user is signed in with Google
+            bindService(Intent(this, SpeechService::class.java), thisServiceConnection, BIND_AUTO_CREATE)
+            Timber.i("-->>SpeechX: SpeechService bindService")
+
+            MessageUploader().sendCaptions(thisFirebaseDatabaseReference, sessionId, "[ $thisFirebaseUser has joined ]", thisFirebaseUser)
+
+            // Start listening to microphone
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+                startVoiceRecorder()
+            } else if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.RECORD_AUDIO)) {
+//                showPermissionDialog()
+                Timber.wtf("-->>startSpeechService startSession showPermissionMessageDialog")
+            } else {
+                Timber.wtf("-->>requestMicPermission startSpeechService else")
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), REQUEST_RECORD_AUDIO_PERMISSION)
+            }
+
+        }
+    }
+
+    private fun stopSession() {
+        Timber.i("-->>SpeechX: stopSession")
+
+        thisFirebaseDatabaseReference.child(this.sessionId).removeValue()
+
+        stopVoiceRecorder()
+
+        // Stop Cloud Speech API
+        if (thisSpeechService != null){
+            thisSpeechService!!.removeListener(thisSpeechServiceListener)
+            thisSpeechService!!.stopSelf()
+            unbindService(thisServiceConnection)
+        }
+        thisSpeechService = null
+
+        thisFirebaseAdapter.stopListening()
+
+    }
+
+    override fun onConnectionFailed(p0: ConnectionResult) {
+        Toast.makeText(this, "Google Play Services error: " + p0.errorMessage, Toast.LENGTH_SHORT).show()
 
     }
 
@@ -251,8 +328,18 @@ class CaptionActivity : AppCompatActivity(),
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
         for (permission in grantResults){
+
+            Timber.wtf("-->>onRequestPermissionsResult loop $permission")
+
+
             if (permission == PackageManager.PERMISSION_GRANTED){
+                Timber.wtf("-->>onRequestPermissionsResult startSession")
+
                 startSession()
+            } else {
+                Timber.wtf("-->>onRequestPermissionsResult permission DENIED")
+                Toast.makeText(this, R.string.permission_message, Toast.LENGTH_SHORT).show()
+
             }
         }
     }
@@ -272,48 +359,10 @@ class CaptionActivity : AppCompatActivity(),
         }
     }
 
-    private fun startSession() {
+    private fun configureDatabaseSnapshotParser(MESSAGES_CHILD: String) {
 
-        //start/stop voice recorder service
-        //start/stop speech service listener
-        //notify Firebase - MessageUploader().sendCaptions(thisFirebaseDBref, sessionId, "test 20200308", this.localUserEmail)
-
-
-        if (thisFirebaseUser != null) {
-
-            // Prepare Cloud Speech API - this starts the Speech API if user is signed in with Google
-            bindService(Intent(this, SpeechService::class.java), thisServiceConnection, BIND_AUTO_CREATE)
-
-            MessageUploader().sendCaptions(thisFirebaseDBref, sessionId, "$localUser has joined", this.localUser)
-
-            startVoiceRecorder()
-
-        }
-
-    }
-
-    private fun stopSession() {
-        Timber.i("-->>SpeechX: stopSession")
-
-        stopVoiceRecorder()
-
-        // Stop Cloud Speech API
-        if (thisSpeechServiceListener != null) {
-            if (thisSpeechService != null){
-                thisSpeechService.removeListener(thisSpeechServiceListener)
-                thisSpeechService.stopSelf()
-
-            }
-            unbindService(thisServiceConnection)
-        }
-
-    }
-
-    private fun configureDatabase(MESSAGES_CHILD: String) {
         val parser: SnapshotParser<MessageModel> =
-
             SnapshotParser<MessageModel> { dataSnapshot ->
-
                 val friendlyMessage: MessageModel? = dataSnapshot.getValue(MessageModel::class.java)
 
                 if (friendlyMessage != null) {
@@ -322,15 +371,21 @@ class CaptionActivity : AppCompatActivity(),
                 friendlyMessage!!
             }
 
-        thisFirebaseDBref = FirebaseDatabase.getInstance().reference.child(MESSAGES_CHILD)
-
-        val messagesRef: DatabaseReference = thisFirebaseDBref
+        val messagesRef: DatabaseReference = thisFirebaseDatabaseReference.child(MESSAGES_CHILD)
         val options: FirebaseRecyclerOptions<MessageModel> =
             FirebaseRecyclerOptions.Builder<MessageModel>()
                 .setQuery(messagesRef, parser)
                 .build()
+
         thisFirebaseAdapter =
             object : FirebaseRecyclerAdapter<MessageModel, MessageViewHolder>(options) {
+
+                override fun onError(error: DatabaseError) {
+                    super.onError(error)
+
+                    Toast.makeText(this@CaptionActivity, "Database access denied", Toast.LENGTH_SHORT).show()
+                    
+                }
 
                 override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): MessageViewHolder {
                     val inflater = LayoutInflater.from(viewGroup.context)
@@ -349,33 +404,49 @@ class CaptionActivity : AppCompatActivity(),
                     friendlyMessage: MessageModel
                 ) {
                     if (friendlyMessage.text != null) {
+
+                        captionId = friendlyMessage.id
+                        captionAuthor = friendlyMessage.name
+
                         val caption: String = friendlyMessage.text
                         val spanString = SpannableString(caption)
-                        val wordArray =
-                            caption.split(" ").toTypedArray()
-                        for (wordIs in wordArray) {
-                            if (wordIs.length > 6) {
-                                val beginIndex = caption.indexOf(wordIs)
-                                val endIndex = beginIndex + wordIs.length
-                                val clickableSpan: ClickableSpan = object : ClickableSpan() {
-                                    override fun onClick(@NonNull view: View) {
-                                        val url =
-                                            "https://duckduckgo.com/?q=define+$wordIs&t=ffab&ia=definition"
-                                        webView.loadUrl(url)
-                                        webView.visibility = View.VISIBLE
+
+                        if (!caption.contains("[")) { // do not hyperlink system notes
+
+                            val wordArray =
+                                caption.split(" ").toTypedArray()
+                            for (wordIs in wordArray) {
+                                if (wordIs.length > 5) {
+                                    val beginIndex = caption.indexOf(wordIs)
+                                    val endIndex = beginIndex + wordIs.length
+                                    val clickableSpan: ClickableSpan = object : ClickableSpan() {
+                                        override fun onClick(@NonNull view: View) {
+
+                                            lastSelectedWord = wordIs
+                                            feedbackButton.visibility = View.VISIBLE
+
+                                            if (QRimageView.visibility == View.INVISIBLE) {
+                                                val url =
+                                                    "https://duckduckgo.com/?q=define+$wordIs&t=ffab&ia=definition"
+                                                webView.loadUrl(url)
+                                                webView.visibility = View.VISIBLE
+
+                                            }
+                                        }
                                     }
+                                    spanString.setSpan(
+                                        clickableSpan,
+                                        beginIndex,
+                                        endIndex,
+                                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                                    )
                                 }
-                                spanString.setSpan(
-                                    clickableSpan,
-                                    beginIndex,
-                                    endIndex,
-                                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                                )
                             }
                         }
 
-                        viewHolder.messageTextView.text = spanString
-                        viewHolder.messageTextView.movementMethod = LinkMovementMethod.getInstance()
+                        viewHolder.authorTextView.text = captionAuthor
+                        viewHolder.captionTextView.text = spanString
+                        viewHolder.captionTextView.movementMethod = LinkMovementMethod.getInstance()
                     }
                 }
             }

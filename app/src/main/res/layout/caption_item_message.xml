@@ -5,11 +5,21 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/messageTextView"
+        android:id="@+id/authorTextView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:textAlignment="center"
+        android:text="Author"
+        android:textAlignment="viewStart"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/captionTextView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:text="Caption"
+        android:textAlignment="viewStart"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textSize="24sp" />
 

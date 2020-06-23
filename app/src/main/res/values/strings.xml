@@ -1,7 +1,8 @@
 <resources>
-    <string name="app_name">vopio 2.0</string>
+    <string name="app_name">vopio 1.3.0</string>
     <string name="scan_qr">Join session</string>
     <string name="scan_new_qr">Join new session</string>
+    <string name="send_feedback">Notify user about pronunciation</string>
     <string name="scan_instruction">Scan code from host phone\n to join session.</string>
     <string name="create_session">Host session</string>
     <string name="sign_in">Sign In</string>
@@ -9,4 +10,5 @@
     <string name="permission_message">This app needs to capture audio to recognize your speech.</string>
     <string name="disable_speech">Mute</string>
     <string name="enable_speech">Unmute</string>
+    <string name="share_code">Share QR code</string>
 </resources>

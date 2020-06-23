@@ -376,7 +376,7 @@ public class SpeechService extends Service {
 
                 return token;
             } catch (IOException e) {
-                Log.e(TAG, "Failed to obtain access token.", e);
+                Log.e(TAG, "-->>Failed to obtain access token.", e);
             }
             return null;
         }

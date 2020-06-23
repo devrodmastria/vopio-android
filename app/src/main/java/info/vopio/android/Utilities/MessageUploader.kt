@@ -5,15 +5,13 @@ import info.vopio.android.DataModel.MessageModel
 
 class MessageUploader() {
 
-    fun sendCaptions(dbRef : DatabaseReference, sessionId : String, caption: String, username: String){
+    fun sendCaptions(sessionReferenceInDatabase : DatabaseReference, sessionId : String, caption: String, username: String){
         if (caption.isNotEmpty()){
 
             val captionMessage =
                 MessageModel(caption, username)
 
-            dbRef.push().setValue(captionMessage) // the dbRef is already aware of the session node, so push value directly to new node.
-
+            sessionReferenceInDatabase.child(sessionId).push().setValue(captionMessage)
         }
     }
-
 }

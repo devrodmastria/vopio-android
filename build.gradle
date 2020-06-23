@@ -12,7 +12,6 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'com.google.gms:google-services:4.3.3'
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.8' // used by Google Speech API
-
     }
 }
 

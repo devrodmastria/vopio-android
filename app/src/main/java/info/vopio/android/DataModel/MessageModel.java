@@ -5,12 +5,14 @@ public class MessageModel {
     private String id;
     private String text;
     private String name;
+    private String feedback;
 
     public MessageModel(){}
 
     public MessageModel(String text, String name) {
         this.text = text;
         this.name = name;
+        this.feedback = "n/a";
     }
 
     public String getId() {
@@ -37,5 +39,8 @@ public class MessageModel {
         this.name = name;
     }
 
+    public String getFeedback() { return feedback; }
+
+    public void setFeedback(String feedback) {this.feedback = feedback;}
 
 }
