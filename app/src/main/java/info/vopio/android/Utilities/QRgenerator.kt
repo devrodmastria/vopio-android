@@ -2,6 +2,7 @@ package info.vopio.android.Utilities
 
 import android.content.Context
 import android.graphics.Bitmap
+import androidx.core.content.ContextCompat
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.MultiFormatWriter
 import com.google.zxing.common.BitMatrix
@@ -43,12 +44,12 @@ class QRgenerator() {
             for (x in 0 until bitMatrixWidth) {
 
                 pixels[offset + x] = if (bitMatrix.get(x, y))
-                    context.resources.getColor(android.R.color.black)
+                    ContextCompat.getColor(context, android.R.color.black) // black
                 else
-                    context.resources.getColor(android.R.color.transparent)
+                    ContextCompat.getColor(context, android.R.color.transparent) // white
             }
         }
-        val bitmap = Bitmap.createBitmap(bitMatrixWidth, bitMatrixHeight, Bitmap.Config.ARGB_4444)
+        val bitmap = Bitmap.createBitmap(bitMatrixWidth, bitMatrixHeight, Bitmap.Config.ARGB_8888)
 
         bitmap.setPixels(pixels, 0, strideSize, 0, 0, bitMatrixWidth, bitMatrixHeight)
         return bitmap

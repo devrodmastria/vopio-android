@@ -337,6 +337,7 @@ public class SpeechService extends Service {
         }
     };
 
+    //todo use RxJava
     private class AccessTokenTask extends AsyncTask<Void, Void, AccessToken> {
 
         @Override
@@ -359,7 +360,6 @@ public class SpeechService extends Service {
             // folder of this client app. You should never do this in your app. Instead, store
             // the file in your server and obtain an access token from there.
             // *******************
-            // TODO: 2/11/18 REMOVE credential file
             final InputStream stream = getResources().openRawResource(R.raw.credential);
             try {
                 final GoogleCredentials credentials = GoogleCredentials.fromStream(stream)

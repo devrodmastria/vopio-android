@@ -19,7 +19,7 @@ import com.google.firebase.database.*
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import com.google.zxing.Result
-import kotlinx.android.synthetic.main.activity_main.*
+import info.vopio.android.databinding.ActivityMainBinding
 import me.dm7.barcodescanner.zxing.ZXingScannerView
 import timber.log.Timber
 
@@ -30,6 +30,7 @@ class MainActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
     lateinit var thisFirebaseRemoteConfig: FirebaseRemoteConfig
     lateinit var thisFirebaseDatabaseReference : DatabaseReference
     lateinit var dataSnapshotList : DataSnapshot
+    private lateinit var binding: ActivityMainBinding
 
     companion object {
         private val REQUEST_CAMERA = 1 // this is used to request permission from user
@@ -41,8 +42,9 @@ class MainActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
         Timber.plant(Timber.DebugTree())
 
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -66,7 +68,7 @@ class MainActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
             localUser = thisFirebaseUser.displayName ?: "name N/A"
         }
 
-        hostSessionButton.setOnClickListener {
+        binding.hostSessionButton.setOnClickListener {
 
             var hostCode = THIS_IS_NOT_A_HOST
 
@@ -124,7 +126,7 @@ class MainActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
 
         }
 
-        scanButton.setOnClickListener {
+        binding.scanButton.setOnClickListener {
 
             //look for active sessions
             //fetch codes for active sessions

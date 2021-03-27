@@ -6,19 +6,21 @@ import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.auth.api.Auth
+import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.ConnectionResult
-import com.google.android.gms.common.api.GoogleApiClient
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-import kotlinx.android.synthetic.main.activity_sign_in.*
+import info.vopio.android.databinding.ActivitySignInBinding
 
 
-class SignInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedListener {
+class SignInActivity : AppCompatActivity(){
 
-    lateinit var thisGoogleApiClient : GoogleApiClient
+    lateinit var thisGoogleSignInClient: GoogleSignInClient
     lateinit var thisFirebaseAuth : FirebaseAuth
+    private lateinit var binding: ActivitySignInBinding
 
     companion object {
         private const val TAG = "SignInActivity"
@@ -27,8 +29,9 @@ class SignInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_sign_in)
-
+        binding = ActivitySignInBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
         thisFirebaseAuth = FirebaseAuth.getInstance()
 
         // Configure Google Sign In
@@ -38,19 +41,16 @@ class SignInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
                 .requestEmail()
                 .build()
 
-        thisGoogleApiClient = GoogleApiClient.Builder(this)
-            .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
-            .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-            .build()
+        thisGoogleSignInClient = GoogleSignIn.getClient(this, gso)
 
-        sign_in_button.setOnClickListener {
+        binding.signInButton.setOnClickListener {
             signIn()
         }
 
     }
 
     private fun signIn() {
-        val signInIntent: Intent = Auth.GoogleSignInApi.getSignInIntent(thisGoogleApiClient)
+        val signInIntent: Intent = thisGoogleSignInClient.signInIntent
         startActivityForResult(signInIntent, GOOGLE_SIGN_IN)
     }
 
@@ -74,10 +74,6 @@ class SignInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
                     finish()
                 }
             }
-    }
-
-    override fun onConnectionFailed(p0: ConnectionResult) {
-        Toast.makeText(this, "Google Play Services error.", Toast.LENGTH_SHORT).show()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

@@ -35,7 +35,6 @@ import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.firebase.ui.database.SnapshotParser
 import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.common.ConnectionResult
-import com.google.android.gms.common.api.GoogleApiClient
 import com.google.firebase.database.*
 import com.google.zxing.Result
 import info.vopio.android.DataModel.MessageModel
@@ -43,12 +42,11 @@ import info.vopio.android.Services.SpeechService
 import info.vopio.android.Services.VoiceRecorder
 import info.vopio.android.Utilities.MessageUploader
 import info.vopio.android.Utilities.QRgenerator
-import kotlinx.android.synthetic.main.activity_caption.*
+import info.vopio.android.databinding.ActivityCaptionBinding
 import me.dm7.barcodescanner.zxing.ZXingScannerView
 import timber.log.Timber
 
-class CaptionActivity : AppCompatActivity(),
-    GoogleApiClient.OnConnectionFailedListener, ZXingScannerView.ResultHandler {
+class CaptionActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
 
     lateinit var xingScannerView : ZXingScannerView
     lateinit var webSettings : WebSettings
@@ -61,11 +59,12 @@ class CaptionActivity : AppCompatActivity(),
     lateinit var incomingSessionId : String
     lateinit var thisFirebaseUser : String
     lateinit var thisFirebaseAdapter : FirebaseRecyclerAdapter<MessageModel, MessageViewHolder>
-    lateinit var thisGoogleApiClient : GoogleApiClient
     lateinit var thisLinearLayoutManager : LinearLayoutManager
 
     private var thisSpeechService: SpeechService? = null
     private var thisVoiceRecorder: VoiceRecorder? = null
+
+    private lateinit var binding: ActivityCaptionBinding
 
     var lastSelectedWord: String = "placeholder"
 
@@ -139,11 +138,13 @@ class CaptionActivity : AppCompatActivity(),
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_caption)
+        binding = ActivityCaptionBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
 
         Timber.i("-->>SpeechX: onCreate")
 
-        feedbackButton.visibility = View.INVISIBLE
+        binding.feedbackButton.visibility = View.INVISIBLE
 
         thisFirebaseDatabaseReference = FirebaseDatabase.getInstance().reference
 
@@ -165,47 +166,42 @@ class CaptionActivity : AppCompatActivity(),
 
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
-        webSettings = webView.settings
+        webSettings = binding.webView.settings
         webSettings.javaScriptEnabled = true
 
-        micButton.setOnClickListener {
+        binding.micButton.setOnClickListener {
 
             Timber.i("-->>SpeechX: micButton")
 
             if (thisVoiceRecorder != null) { // speech service is ON - turn it OFF
 
                 Timber.i("-->>SpeechX: micButton disable_speech")
-                micButton.text = getString(R.string.disable_speech)
+                binding.micButton.text = getString(R.string.disable_speech)
                 stopSession()
 
             } else { // speech service is OFF - turn it ON
 
                 Timber.i("-->>SpeechX: micButton enable_speech")
-                micButton.text = getString(R.string.enable_speech)
+                binding.micButton.text = getString(R.string.enable_speech)
                 startSession()
             }
 
         }
 
-        feedbackButton.setOnClickListener {
+        binding.feedbackButton.setOnClickListener {
 
             // update feedback to database
             val childUpdates = HashMap<String, Any>()
             childUpdates["/feedback/"] = "Review Pronunciation of word: $lastSelectedWord"
             thisFirebaseDatabaseReference.child(sessionId).child(captionId).updateChildren(childUpdates)
-            feedbackButton.visibility = View.INVISIBLE
+            binding.feedbackButton.visibility = View.INVISIBLE
 
         }
-
-        thisGoogleApiClient = GoogleApiClient.Builder(this)
-            .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
-            .addApi(Auth.GOOGLE_SIGN_IN_API)
-            .build()
 
         // setup RecyclerView with last item showing first
         thisLinearLayoutManager = LinearLayoutManager(this)
         thisLinearLayoutManager.stackFromEnd = true
-        messageRecyclerView.layoutManager = thisLinearLayoutManager
+        binding.messageRecyclerView.layoutManager = thisLinearLayoutManager
 
     }
 
@@ -227,19 +223,19 @@ class CaptionActivity : AppCompatActivity(),
 
             if (incomingSessionId.contentEquals(MainActivity.THIS_IS_THE_HOST)){
 
-                webView.visibility = View.INVISIBLE
-                QRimageView.visibility = View.VISIBLE
+                binding.webView.visibility = View.INVISIBLE
+                binding.QRimageView.visibility = View.VISIBLE
 
                 this.sessionId = thisFirebaseDatabaseReference.push().key.toString()
                 val lastFourDigits = sessionId.substring(sessionId.length.minus(4))
 
                 setTitle("session code: $lastFourDigits")
-                QRimageView.visibility = View.INVISIBLE
+                binding.QRimageView.visibility = View.INVISIBLE
 
                 Timber.i("-->>SpeechX: incomingSessionId ${this.sessionId}")
 
                 val sessionBitmapQR : Bitmap = QRgenerator().encodeToQR(this.sessionId, this)
-                QRimageView.setImageBitmap(sessionBitmapQR)
+                binding.QRimageView.setImageBitmap(sessionBitmapQR)
 
                 MessageUploader().sendCaptions(
                     thisFirebaseDatabaseReference,
@@ -247,13 +243,13 @@ class CaptionActivity : AppCompatActivity(),
                     thisFirebaseUser)
 
                 Timber.i("-->>SpeechX: AUTO enable_speech")
-                micButton.text = getString(R.string.disable_speech)
+                binding.micButton.text = getString(R.string.disable_speech)
                 startSession()
 
             } else {
 
-                webView.visibility = View.VISIBLE
-                QRimageView.visibility = View.INVISIBLE
+                binding.webView.visibility = View.VISIBLE
+                binding.QRimageView.visibility = View.INVISIBLE
                 this.sessionId = incomingSessionId
 
             }
@@ -271,7 +267,7 @@ class CaptionActivity : AppCompatActivity(),
         if (thisVoiceRecorder != null) { // speech service is ON - turn it OFF
 
             Timber.i("-->>SpeechX: onPause disable_speech")
-            micButton.text = getString(R.string.disable_speech)
+            binding.micButton.text = getString(R.string.disable_speech)
             stopSession()
         }
     }
@@ -316,11 +312,6 @@ class CaptionActivity : AppCompatActivity(),
         thisSpeechService = null
 
         thisFirebaseAdapter.stopListening()
-
-    }
-
-    override fun onConnectionFailed(p0: ConnectionResult) {
-        Toast.makeText(this, "Google Play Services error: " + p0.errorMessage, Toast.LENGTH_SHORT).show()
 
     }
 
@@ -423,13 +414,13 @@ class CaptionActivity : AppCompatActivity(),
                                         override fun onClick(@NonNull view: View) {
 
                                             lastSelectedWord = wordIs
-                                            feedbackButton.visibility = View.VISIBLE
+                                            binding.feedbackButton.visibility = View.VISIBLE
 
-                                            if (QRimageView.visibility == View.INVISIBLE) {
+                                            if (binding.QRimageView.visibility == View.INVISIBLE) {
                                                 val url =
                                                     "https://duckduckgo.com/?q=define+$wordIs&t=ffab&ia=definition"
-                                                webView.loadUrl(url)
-                                                webView.visibility = View.VISIBLE
+                                                binding.webView.loadUrl(url)
+                                                binding.webView.visibility = View.VISIBLE
 
                                             }
                                         }
@@ -463,11 +454,11 @@ class CaptionActivity : AppCompatActivity(),
                     positionStart >= friendlyMessageCount - 1 &&
                     lastVisiblePosition == positionStart - 1
                 ) {
-                    messageRecyclerView.scrollToPosition(positionStart)
+                    binding.messageRecyclerView.scrollToPosition(positionStart)
                 }
             }
         })
-        messageRecyclerView.adapter = thisFirebaseAdapter
+        binding.messageRecyclerView.adapter = thisFirebaseAdapter
         thisFirebaseAdapter.startListening()
     }
 
