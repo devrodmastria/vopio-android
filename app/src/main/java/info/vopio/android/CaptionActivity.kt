@@ -21,26 +21,27 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter
 import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.firebase.ui.database.SnapshotParser
 import com.google.android.gms.auth.api.Auth
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.common.ConnectionResult
-import com.google.android.gms.common.api.GoogleApiClient
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.zxing.Result
 import info.vopio.android.DataModel.MessageModel
-import kotlinx.android.synthetic.main.activity_caption.*
+import info.vopio.android.databinding.ActivityCaptionBinding
 import me.dm7.barcodescanner.zxing.ZXingScannerView
 import timber.log.Timber
 
-class CaptionActivity : AppCompatActivity(),
-    GoogleApiClient.OnConnectionFailedListener, ZXingScannerView.ResultHandler {
+class CaptionActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
 
     lateinit var xingScannerView : ZXingScannerView
     lateinit var webSettings : WebSettings
     lateinit var thisFirebaseDBref : DatabaseReference
 
     lateinit var thisFirebaseAdapter : FirebaseRecyclerAdapter<MessageModel, MessageViewHolder>
-    lateinit var thisGoogleApiClient : GoogleApiClient
     lateinit var thisLinearLayoutManager : LinearLayoutManager
+
+    private lateinit var binding: ActivityCaptionBinding
 
     class MessageViewHolder(v: View) : RecyclerView.ViewHolder(v) {
         var messageTextView: TextView = itemView.findViewById(R.id.messageTextView)
@@ -48,15 +49,17 @@ class CaptionActivity : AppCompatActivity(),
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_caption)
+        binding = ActivityCaptionBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
 
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
-        webView.visibility = View.INVISIBLE
-        webSettings = webView.settings
+        binding.webView.visibility = View.INVISIBLE
+        webSettings = binding.webView.settings
         webSettings.javaScriptEnabled = true
 
-        scanAgainButton.setOnClickListener {
+        binding.scanAgainButton.setOnClickListener {
 
             xingScannerView = ZXingScannerView(CaptionActivity@this)
             setContentView(xingScannerView)
@@ -73,15 +76,10 @@ class CaptionActivity : AppCompatActivity(),
             return
         }
 
-        thisGoogleApiClient = GoogleApiClient.Builder(this)
-            .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
-            .addApi(Auth.GOOGLE_SIGN_IN_API)
-            .build()
-
         // setup RecyclerView with last item showing first
         thisLinearLayoutManager = LinearLayoutManager(this)
         thisLinearLayoutManager.stackFromEnd = true
-        messageRecyclerView.layoutManager = thisLinearLayoutManager
+        binding.messageRecyclerView.layoutManager = thisLinearLayoutManager
 
 
         val extras = intent.extras
@@ -98,11 +96,6 @@ class CaptionActivity : AppCompatActivity(),
     override fun onPause() {
         thisFirebaseAdapter.stopListening()
         super.onPause()
-    }
-
-    override fun onConnectionFailed(p0: ConnectionResult) {
-        Toast.makeText(this, "Google Play Services error: " + p0.errorMessage, Toast.LENGTH_SHORT).show()
-
     }
 
     override fun handleResult(p0: Result?) { //results from QR scanner
@@ -168,8 +161,8 @@ class CaptionActivity : AppCompatActivity(),
                                     override fun onClick(@NonNull view: View) {
                                         val url =
                                             "https://duckduckgo.com/?q=define+$wordIs&t=ffab&ia=definition"
-                                        webView.loadUrl(url)
-                                        webView.visibility = View.VISIBLE
+                                        binding.webView.loadUrl(url)
+                                        binding.webView.visibility = View.VISIBLE
                                     }
                                 }
                                 spanString.setSpan(
@@ -199,12 +192,13 @@ class CaptionActivity : AppCompatActivity(),
                 if (lastVisiblePosition == -1 ||
                     positionStart >= friendlyMessageCount - 1 &&
                     lastVisiblePosition == positionStart - 1
-                ) {
-                    messageRecyclerView.scrollToPosition(positionStart)
+                )
+                {
+                    binding.messageRecyclerView.scrollToPosition(positionStart)
                 }
             }
         })
-        messageRecyclerView.setAdapter(thisFirebaseAdapter)
+        binding.messageRecyclerView.setAdapter(thisFirebaseAdapter)
         thisFirebaseAdapter.startListening()
     }
 

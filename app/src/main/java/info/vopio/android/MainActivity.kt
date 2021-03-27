@@ -4,22 +4,21 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.view.isVisible
 import com.google.firebase.auth.FirebaseAuth
 import com.google.zxing.Result
-import kotlinx.android.synthetic.main.activity_main.*
+import info.vopio.android.databinding.ActivityMainBinding
 import me.dm7.barcodescanner.zxing.ZXingScannerView
 import timber.log.Timber
 
 class MainActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
 
     lateinit var xingScannerView: ZXingScannerView
+    private lateinit var binding: ActivityMainBinding
 
     companion object {
         private val REQUEST_CAMERA = 1 // this is used to request permission from user
@@ -28,7 +27,9 @@ class MainActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
 
         Timber.plant(Timber.DebugTree())
 
@@ -43,11 +44,11 @@ class MainActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
             return
         }
 
-        hostButton.setOnClickListener {
+        binding.hostButton.setOnClickListener {
             //createNewSession()
         }
 
-        scanButton.setOnClickListener {
+        binding.scanButton.setOnClickListener {
 
             // Request user permission to use camera
             if (ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
@@ -58,7 +59,7 @@ class MainActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
                 ActivityCompat.requestPermissions(
                     this@MainActivity,
                     arrayOf(Manifest.permission.CAMERA),
-                    MainActivity.REQUEST_CAMERA
+                    REQUEST_CAMERA
                 )
             }
 

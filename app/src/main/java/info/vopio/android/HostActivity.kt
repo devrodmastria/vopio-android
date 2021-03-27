@@ -3,19 +3,24 @@ package info.vopio.android
 import android.graphics.Bitmap
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.core.content.ContextCompat
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.MultiFormatWriter
 import com.google.zxing.WriterException
 import com.google.zxing.common.BitMatrix
-import kotlinx.android.synthetic.main.activity_host.*
+import info.vopio.android.databinding.ActivityHostBinding
 import timber.log.Timber
 import java.lang.IllegalArgumentException
 
 class HostActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityHostBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_host)
+        binding = ActivityHostBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
 
         Timber.plant(Timber.DebugTree())
 
@@ -32,7 +37,7 @@ class HostActivity : AppCompatActivity() {
 
         try {
             val bitMapQR = encodeToQR("LTU session key")
-            QRimageView.setImageBitmap(bitMapQR)
+            binding.QRimageView.setImageBitmap(bitMapQR)
         } catch (illegalArg: WriterException) {
             Timber.i("-->>SpeechX: QR error %s", illegalArg)
 
@@ -72,12 +77,12 @@ class HostActivity : AppCompatActivity() {
             for (x in 0 until bitMatrixWidth) {
 
                 pixels[offset + x] = if (bitMatrix.get(x, y))
-                    resources.getColor(android.R.color.black) // black
+                    ContextCompat.getColor(this, android.R.color.black) // black
                 else
-                    resources.getColor(android.R.color.transparent) // white
+                    ContextCompat.getColor(this, android.R.color.transparent) // white
             }
         }
-        val bitmap = Bitmap.createBitmap(bitMatrixWidth, bitMatrixHeight, Bitmap.Config.ARGB_4444)
+        val bitmap = Bitmap.createBitmap(bitMatrixWidth, bitMatrixHeight, Bitmap.Config.ARGB_8888)
 
         bitmap.setPixels(pixels, 0, 500, 0, 0, bitMatrixWidth, bitMatrixHeight)
         return bitmap
