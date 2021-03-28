@@ -35,6 +35,7 @@ class OnboardingActivity : AppCompatActivity() {
     lateinit var zero: ImageView
     lateinit var one: ImageView
     lateinit var two: ImageView
+    lateinit var three: ImageView
     lateinit var indicators: Array<ImageView>
     lateinit var thisViewPager: ViewPager
 
@@ -51,18 +52,19 @@ class OnboardingActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
-        thisFirebaseAnalytics = FirebaseAnalytics.getInstance(this)
+        thisFirebaseAnalytics = FirebaseAnalytics.getInstance(applicationContext)
 
         thisSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
 
-        skipBtn = binding.introBtnSkip
+        skipBtn = binding.introBtnSignIn
         finishBtn = binding.introBtnFinish
         nextBtn = binding.introBtnNext
 
         zero = binding.introIndicator0
         one = binding.introIndicator1
         two = binding.introIndicator2
-        indicators = arrayOf(zero, one, two)
+        three = binding.introIndicator3
+        indicators = arrayOf(zero, one, two, three)
 
         thisViewPager = binding.container
         thisViewPager.adapter = thisSectionsPagerAdapter
@@ -72,8 +74,9 @@ class OnboardingActivity : AppCompatActivity() {
         val color1 = ContextCompat.getColor(this, R.color.page_one)
         val color2 = ContextCompat.getColor(this, R.color.page_two)
         val color3 = ContextCompat.getColor(this, R.color.page_three)
+        val color4 = ContextCompat.getColor(this, R.color.page_two)
 
-        val colorList = intArrayOf(color1, color2, color3)
+        val colorList = intArrayOf(color1, color2, color3, color4)
         val evaluator = ArgbEvaluator()
 
         thisViewPager.addOnPageChangeListener(object : OnPageChangeListener {
@@ -88,7 +91,7 @@ class OnboardingActivity : AppCompatActivity() {
                  */
                 val colorUpdate = evaluator.evaluate(
                     positionOffset, colorList[position],
-                    colorList[if (position == 2) position else position + 1]
+                    colorList[if (position == 3) position else position + 1]
                 ) as Int
                 thisViewPager.setBackgroundColor(colorUpdate)
             }
@@ -100,9 +103,10 @@ class OnboardingActivity : AppCompatActivity() {
                     0 -> thisViewPager.setBackgroundColor(color1)
                     1 -> thisViewPager.setBackgroundColor(color2)
                     2 -> thisViewPager.setBackgroundColor(color3)
+                    3 -> thisViewPager.setBackgroundColor(color4)
                 }
-                nextBtn.visibility = if (position == 2) View.GONE else View.VISIBLE
-                finishBtn.visibility = if (position == 2) View.VISIBLE else View.GONE
+                nextBtn.visibility = if (position == 3) View.GONE else View.VISIBLE
+                finishBtn.visibility = if (position == 3) View.VISIBLE else View.GONE
             }
 
             override fun onPageScrollStateChanged(state: Int) {}
@@ -182,20 +186,32 @@ class OnboardingActivity : AppCompatActivity() {
             val section = requireArguments().getInt(ARG_SECTION_NUMBER)
             when (section) {
                 1 -> {
+                    // Icon made by https://www.flaticon.com/authors/smashicons
+                    // https://www.flaticon.com/authors/eucalyp
                     textView.text = getString(R.string.onboard_one)
                     textTitle.text = getString(R.string.onboard_one_title)
-                    imageView.setBackgroundResource(R.drawable.ic_translate_white_48px)
+                    imageView.setBackgroundResource(R.drawable.ic_instructor)
                 }
                 2 -> {
-                    textView.text = res.getString(R.string.onboard_two, 30)
+                    // Icon made by https://creativemarket.com/eucalyp
+                    textView.text = res.getString(R.string.onboard_two)
                     textTitle.text = getString(R.string.onboard_two_title)
-                    imageView.setBackgroundResource(R.drawable.ic_replay_30_white_48px)
+                    imageView.setBackgroundResource(R.drawable.ic_support)
                 }
                 3 -> {
+                    // Icon made by https://www.flaticon.com/authors/smashicons
+                    // icon made by www.freepik.com
                     textView.text = getString(R.string.onboard_three)
                     textTitle.text = getString(R.string.onboard_three_title)
-                    imageView.setBackgroundResource(R.drawable.ic_chat_white_48px)
+                    imageView.setBackgroundResource(R.drawable.ic_search_engine)
                 }
+                4 -> {
+                    // Icon made by https://creativemarket.com/eucalyp
+                    textView.text = res.getString(R.string.onboard_four)
+                    textTitle.text = getString(R.string.onboard_four_title)
+                    imageView.setBackgroundResource(R.drawable.ic_languages)
+                }
+
                 else -> {
                     textView.text = getString(R.string.onboard_three)
                     Log.d("Log", "Default onboard view " + ARG_SECTION_NUMBER)
@@ -237,7 +253,7 @@ class OnboardingActivity : AppCompatActivity() {
 
         override fun getCount(): Int {
             // Show number total pages.
-            return 3
+            return 4
         }
 
         override fun getPageTitle(position: Int): CharSequence? {
@@ -245,6 +261,7 @@ class OnboardingActivity : AppCompatActivity() {
                 0 -> return "SECTION 1"
                 1 -> return "SECTION 2"
                 2 -> return "SECTION 3"
+                3 -> return "SECTION 4"
             }
             return null
         }
