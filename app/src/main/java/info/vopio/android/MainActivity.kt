@@ -60,12 +60,9 @@ class MainActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
         val thisFirebaseAuth = FirebaseAuth.getInstance()
         val thisFirebaseUser = thisFirebaseAuth.currentUser
         if (thisFirebaseUser == null){
-            //launch sign in activity
-            startActivity(Intent(this, SignInActivity::class.java))
-            finish()
-            return
+            startActivity(Intent(this, OnboardingActivity::class.java))
         } else {
-            localUser = thisFirebaseUser.displayName ?: "name N/A"
+            localUser = thisFirebaseUser.displayName ?: "username"
         }
 
         binding.hostSessionButton.setOnClickListener {
@@ -92,9 +89,8 @@ class MainActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
                 .setTitle("Please enter host code")
                 .setView(textInputView)
                 .setCancelable(true)
-                .setPositiveButton("Submit", DialogInterface.OnClickListener {
-                        dialog, which ->
-                    if (hostCode != THIS_IS_NOT_A_HOST && hostCode == textInputView.text.toString()){
+                .setPositiveButton("Submit") { dialog, which ->
+                    if (hostCode != THIS_IS_NOT_A_HOST && hostCode == textInputView.text.toString()) {
                         Timber.i("-->>SpeechX: host code OK!")
 
                         val intent = Intent(this, CaptionActivity::class.java)
@@ -107,10 +103,10 @@ class MainActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
                         Toast.makeText(this, "Please try again.", Toast.LENGTH_LONG).show()
                         Timber.i("-->>SpeechX: host code incorrect")
                     }
-                })
-                .setNegativeButton("Cancel", DialogInterface.OnClickListener {
-                        dialog, which -> dialog.cancel()
-                })
+                }
+                .setNegativeButton("Cancel") { dialog, which ->
+                    dialog.cancel()
+                }
 
             val alertDialog = alertDialogBuilder.create()
             alertDialog.show()
@@ -164,11 +160,14 @@ class MainActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
             alertDialogBuilder
                 .setTitle("Please enter session code\n(case sensitive)")
                 .setView(textInputView)
-                .setNeutralButton("Scan QR", DialogInterface.OnClickListener {
-                        dialog, which ->
+                .setNeutralButton("Scan QR") { dialog, which ->
 
                     //Request user permission to use camera
-                    if (ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                    if (ContextCompat.checkSelfPermission(
+                            applicationContext,
+                            Manifest.permission.CAMERA
+                        ) == PackageManager.PERMISSION_GRANTED
+                    ) {
                         startScanner()
                     } else {
                         ActivityCompat.requestPermissions(
@@ -178,11 +177,10 @@ class MainActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
                         )
                     }
 
-                })
-                .setPositiveButton("Submit", DialogInterface.OnClickListener {
-                        dialog, which ->
+                }
+                .setPositiveButton("Submit") { dialog, which ->
 
-                    if (dataSnapshotList.exists()){
+                    if (dataSnapshotList.exists()) {
 
                         var matchFound = false
 
@@ -191,7 +189,7 @@ class MainActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
                             val snapshotSize = snapshot.key?.length
                             val lastFourDigits = snapshot.key?.substring(snapshotSize!!.minus(4))
 
-                            if (lastFourDigits == textInputView.text.toString()){
+                            if (lastFourDigits == textInputView.text.toString()) {
 
                                 matchFound = true
 
@@ -206,20 +204,21 @@ class MainActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
 
                         }
 
-                        if (!matchFound){
+                        if (!matchFound) {
                             Timber.i("-->>SpeechX: dataSnapshotList Please try again")
                             Toast.makeText(this, "Please try again.", Toast.LENGTH_LONG).show()
 
                         }
                     } else {
-                        Toast.makeText(this, "Sessions not available offline.", Toast.LENGTH_LONG).show()
+                        Toast.makeText(this, "Sessions not available offline.", Toast.LENGTH_LONG)
+                            .show()
                         Timber.i("-->>SpeechX: dataSnapshotList invalid")
                     }
 
-                })
-                .setNegativeButton("Cancel", DialogInterface.OnClickListener {
-                        dialog, which -> dialog.cancel()
-                })
+                }
+                .setNegativeButton("Cancel") { dialog, which ->
+                    dialog.cancel()
+                }
 
             val alertDialog = alertDialogBuilder.create()
             alertDialog.show()

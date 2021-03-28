@@ -3,9 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="info.vopio.android">
 
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <application
         android:allowBackup="true"
@@ -15,9 +16,13 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name="info.vopio.android.CaptionActivity" />
-        <activity android:name="info.vopio.android.SignInActivity" />
-        <activity android:name="info.vopio.android.MainActivity">
+
+        <activity android:name=".OnboardingActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
+
+        <activity android:name=".CaptionActivity" />
+        <activity android:name=".SignInActivity" />
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -26,7 +31,6 @@
         </activity>
 
         <service android:name=".Services.SpeechService" />
-
     </application>
 
 </manifest>

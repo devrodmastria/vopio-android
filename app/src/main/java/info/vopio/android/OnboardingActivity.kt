@@ -1,0 +1,253 @@
+package info.vopio.android
+
+import android.animation.ArgbEvaluator
+import android.content.Intent
+import android.graphics.Typeface
+import android.os.Bundle
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatImageView
+import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentPagerAdapter
+import androidx.viewpager.widget.ViewPager
+import androidx.viewpager.widget.ViewPager.OnPageChangeListener
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.auth.FirebaseAuth
+import info.vopio.android.databinding.ActivityOnboardingBinding
+
+class OnboardingActivity : AppCompatActivity() {
+
+    lateinit var thisSectionsPagerAdapter: SectionsPagerAdapter
+    lateinit var nextBtn: Button
+    lateinit var skipBtn: Button
+    lateinit var finishBtn: Button
+
+    lateinit var zero: ImageView
+    lateinit var one: ImageView
+    lateinit var two: ImageView
+    lateinit var indicators: Array<ImageView>
+    lateinit var thisViewPager: ViewPager
+
+    lateinit var thisFirebaseAnalytics: FirebaseAnalytics
+    lateinit var thisFirebaseAuth: FirebaseAuth
+
+    private var page = 0
+
+    private lateinit var binding: ActivityOnboardingBinding
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityOnboardingBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
+
+        thisFirebaseAnalytics = FirebaseAnalytics.getInstance(this)
+
+        thisSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
+
+        skipBtn = binding.introBtnSkip
+        finishBtn = binding.introBtnFinish
+        nextBtn = binding.introBtnNext
+
+        zero = binding.introIndicator0
+        one = binding.introIndicator1
+        two = binding.introIndicator2
+        indicators = arrayOf(zero, one, two)
+
+        thisViewPager = binding.container
+        thisViewPager.adapter = thisSectionsPagerAdapter
+        thisViewPager.currentItem = page
+        updateIndicators(page)
+
+        val color1 = ContextCompat.getColor(this, R.color.page_one)
+        val color2 = ContextCompat.getColor(this, R.color.page_two)
+        val color3 = ContextCompat.getColor(this, R.color.page_three)
+
+        val colorList = intArrayOf(color1, color2, color3)
+        val evaluator = ArgbEvaluator()
+
+        thisViewPager.addOnPageChangeListener(object : OnPageChangeListener {
+            override fun onPageScrolled(
+                position: Int,
+                positionOffset: Float,
+                positionOffsetPixels: Int
+            ) {
+
+                /*
+                color update
+                 */
+                val colorUpdate = evaluator.evaluate(
+                    positionOffset, colorList[position],
+                    colorList[if (position == 2) position else position + 1]
+                ) as Int
+                thisViewPager.setBackgroundColor(colorUpdate)
+            }
+
+            override fun onPageSelected(position: Int) {
+                page = position
+                updateIndicators(page)
+                when (position) {
+                    0 -> thisViewPager.setBackgroundColor(color1)
+                    1 -> thisViewPager.setBackgroundColor(color2)
+                    2 -> thisViewPager.setBackgroundColor(color3)
+                }
+                nextBtn.visibility = if (position == 2) View.GONE else View.VISIBLE
+                finishBtn.visibility = if (position == 2) View.VISIBLE else View.GONE
+            }
+
+            override fun onPageScrollStateChanged(state: Int) {}
+        })
+
+        nextBtn.setOnClickListener {
+            page += 1
+            thisViewPager.setCurrentItem(page, true)
+        }
+
+        skipBtn.setOnClickListener {
+            val eventMessage = "Skipped_onboarding"
+            val bundle = Bundle()
+            bundle.putString(FirebaseAnalytics.Param.ACHIEVEMENT_ID, "skipped_onboarding")
+            thisFirebaseAnalytics.logEvent(eventMessage, bundle)
+
+            trySignIn()
+        }
+
+        finishBtn.setOnClickListener {
+            val eventMessage = "Finished_onboarding"
+            val bundle = Bundle()
+            bundle.putString(FirebaseAnalytics.Param.ACHIEVEMENT_ID, "finished_onboard")
+            thisFirebaseAnalytics.logEvent(eventMessage, bundle)
+
+            trySignIn()
+
+        }
+
+    }
+
+    private fun trySignIn(){
+
+        // Initialize Firebase Auth
+        thisFirebaseAuth = FirebaseAuth.getInstance()
+        val thisFirebaseUser = thisFirebaseAuth.currentUser
+        if (thisFirebaseUser == null) {
+            // Not signed in, launch the Sign In activity
+            startActivity(Intent(this, SignInActivity::class.java))
+            finish()
+        } else {
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+        }
+
+    }
+
+    private fun updateIndicators(position: Int) {
+        for (i in indicators.indices) {
+            indicators.get(i).setBackgroundResource(
+                if (i == position) R.drawable.indicator_selected else R.drawable.indicator_unselected
+            )
+        }
+    }
+
+    /**
+     * A placeholder fragment containing a simple view.
+     */
+
+    class PlaceholderFragment: Fragment() {
+
+        override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?): View {
+
+            val rootView: View = inflater.inflate(R.layout.fragment_on_boarding, container, false)
+            val textView = rootView.findViewById<View>(R.id.section_label) as TextView
+            val textTitle = rootView.findViewById<View>(R.id.section_title) as TextView
+            val imageView = rootView.findViewById<View>(R.id.imageViewOnBoard) as AppCompatImageView
+
+            val typeface = context?.let { ResourcesCompat.getFont(it, R.font.titillium_regular) }
+
+            textView.setTypeface(typeface, Typeface.NORMAL)
+            textTitle.setTypeface(typeface, Typeface.NORMAL)
+            val res = resources
+            val section = requireArguments().getInt(ARG_SECTION_NUMBER)
+            when (section) {
+                1 -> {
+                    textView.text = getString(R.string.onboard_one)
+                    textTitle.text = getString(R.string.onboard_one_title)
+                    imageView.setBackgroundResource(R.drawable.ic_translate_white_48px)
+                }
+                2 -> {
+                    textView.text = res.getString(R.string.onboard_two, 30)
+                    textTitle.text = getString(R.string.onboard_two_title)
+                    imageView.setBackgroundResource(R.drawable.ic_replay_30_white_48px)
+                }
+                3 -> {
+                    textView.text = getString(R.string.onboard_three)
+                    textTitle.text = getString(R.string.onboard_three_title)
+                    imageView.setBackgroundResource(R.drawable.ic_chat_white_48px)
+                }
+                else -> {
+                    textView.text = getString(R.string.onboard_three)
+                    Log.d("Log", "Default onboard view " + ARG_SECTION_NUMBER)
+                }
+            }
+
+            return rootView
+        }
+
+        companion object {
+            /**
+             * The fragment argument representing the section number for this
+             * fragment.
+             */
+            private const val ARG_SECTION_NUMBER = "section_number"
+
+            /**
+             * Returns a new instance of this fragment for the given section
+             * number.
+             */
+            fun newInstance(sectionNumber: Int): PlaceholderFragment {
+                val fragment = PlaceholderFragment()
+                val args = Bundle()
+                args.putInt(ARG_SECTION_NUMBER, sectionNumber)
+                fragment.arguments = args
+                return fragment
+            }
+        }
+    }
+
+    class SectionsPagerAdapter(fm: FragmentManager?) : FragmentPagerAdapter(fm!!) {
+        override fun getItem(position: Int): Fragment {
+            // getItem is called to instantiate the fragment for the given page.
+            // Return a PlaceholderFragment (defined as a static inner class below).
+            return PlaceholderFragment.newInstance(
+                position + 1
+            )
+        }
+
+        override fun getCount(): Int {
+            // Show number total pages.
+            return 3
+        }
+
+        override fun getPageTitle(position: Int): CharSequence? {
+            when (position) {
+                0 -> return "SECTION 1"
+                1 -> return "SECTION 2"
+                2 -> return "SECTION 3"
+            }
+            return null
+        }
+    }
+
+}
