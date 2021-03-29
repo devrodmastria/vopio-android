@@ -1,9 +1,15 @@
 package info.vopio.android
 
+import android.R.attr.delay
 import android.animation.ArgbEvaluator
 import android.content.Intent
+import android.graphics.Color
 import android.graphics.Typeface
+import android.graphics.drawable.ColorDrawable
+import android.os.AsyncTask
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +17,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.content.ContextCompat
@@ -20,10 +27,10 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
-import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FirebaseAuth
 import info.vopio.android.databinding.ActivityOnboardingBinding
+
 
 class OnboardingActivity : AppCompatActivity() {
 
@@ -45,6 +52,22 @@ class OnboardingActivity : AppCompatActivity() {
     private var page = 0
 
     private lateinit var binding: ActivityOnboardingBinding
+
+    lateinit var swipeHandler: Handler
+
+    private val autoSwipeTask = object : Runnable{
+        override fun run() {
+
+            // start at page 0
+            thisViewPager.setCurrentItem(page, true)
+
+            // update to next page for next swipe - zero-index
+            if (page < 4) { page += 1 } else { page = 0 }
+
+            swipeHandler.postDelayed(this, 7000)
+        }
+
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,6 +102,8 @@ class OnboardingActivity : AppCompatActivity() {
         val colorList = intArrayOf(color1, color2, color3, color4)
         val evaluator = ArgbEvaluator()
 
+        swipeHandler = Handler(Looper.getMainLooper())
+
         thisViewPager.addOnPageChangeListener(object : OnPageChangeListener {
             override fun onPageScrolled(
                 position: Int,
@@ -100,13 +125,22 @@ class OnboardingActivity : AppCompatActivity() {
                 page = position
                 updateIndicators(page)
                 when (position) {
-                    0 -> thisViewPager.setBackgroundColor(color1)
-                    1 -> thisViewPager.setBackgroundColor(color2)
-                    2 -> thisViewPager.setBackgroundColor(color3)
-                    3 -> thisViewPager.setBackgroundColor(color4)
+                    0 -> { thisViewPager.setBackgroundColor(color1)
+//                        supportActionBar?.setBackgroundDrawable(ColorDrawable(Color.parseColor(android.R.color.holo_blue_dark.toString())))
+                    }
+                    1 -> { thisViewPager.setBackgroundColor(color2)
+//                        supportActionBar?.setBackgroundDrawable(ColorDrawable(Color.parseColor(android.R.color.holo_green_dark.toString())))
+                    }
+                    2 -> {
+                        thisViewPager.setBackgroundColor(color3)
+//                        supportActionBar?.setBackgroundDrawable(ColorDrawable(Color.parseColor(android.R.color.holo_orange_dark.toString())))
+                    }
+                    3 -> { thisViewPager.setBackgroundColor(color4)
+//                        supportActionBar?.setBackgroundDrawable(ColorDrawable(Color.parseColor(android.R.color.holo_green_dark.toString())))
+                    }
                 }
                 nextBtn.visibility = if (position == 3) View.GONE else View.VISIBLE
-                finishBtn.visibility = if (position == 3) View.VISIBLE else View.GONE
+//                finishBtn.visibility = if (position == 3) View.VISIBLE else View.GONE
             }
 
             override fun onPageScrollStateChanged(state: Int) {}
@@ -136,6 +170,18 @@ class OnboardingActivity : AppCompatActivity() {
 
         }
 
+    }
+
+    override fun onPause() {
+        super.onPause()
+        // stop auto swipe
+        swipeHandler.removeCallbacks(autoSwipeTask)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // begin auto swipe
+        swipeHandler.post(autoSwipeTask)
     }
 
     private fun trySignIn(){
@@ -171,7 +217,8 @@ class OnboardingActivity : AppCompatActivity() {
         override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
-            savedInstanceState: Bundle?): View {
+            savedInstanceState: Bundle?
+        ): View {
 
             val rootView: View = inflater.inflate(R.layout.fragment_on_boarding, container, false)
             val textView = rootView.findViewById<View>(R.id.section_label) as TextView

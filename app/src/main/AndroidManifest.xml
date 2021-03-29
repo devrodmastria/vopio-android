@@ -17,8 +17,8 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
 
-        <activity android:name=".OnboardingActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity android:name=".OnboardingActivity"/>
+<!--            android:theme="@style/AppTheme.NoActionBar"/>-->
 
         <activity android:name=".CaptionActivity" />
         <activity android:name=".SignInActivity" />
