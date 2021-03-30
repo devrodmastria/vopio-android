@@ -1,15 +1,16 @@
 package info.vopio.android
 
-import android.R.attr.delay
 import android.animation.ArgbEvaluator
 import android.content.Intent
-import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
-import android.os.AsyncTask
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.StyleSpan
+import android.text.style.TypefaceSpan
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -17,7 +18,6 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.content.ContextCompat
@@ -102,6 +102,20 @@ class OnboardingActivity : AppCompatActivity() {
         val colorList = intArrayOf(color1, color2, color3, color4)
         val evaluator = ArgbEvaluator()
 
+        // setup action bar color to match first viewpager fragment
+        supportActionBar?.setBackgroundDrawable(
+            ColorDrawable(
+                ContextCompat.getColor(
+                    applicationContext,
+                    android.R.color.holo_blue_dark
+                )
+            )
+        )
+        val appTitle: String = getString(R.string.app_name)
+        val spanString = SpannableString(appTitle)
+        spanString.setSpan(StyleSpan(R.font.titillium_regular), 0, appTitle.length-1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        supportActionBar?.title = spanString
+
         swipeHandler = Handler(Looper.getMainLooper())
 
         thisViewPager.addOnPageChangeListener(object : OnPageChangeListener {
@@ -125,18 +139,51 @@ class OnboardingActivity : AppCompatActivity() {
                 page = position
                 updateIndicators(page)
                 when (position) {
-                    0 -> { thisViewPager.setBackgroundColor(color1)
-//                        supportActionBar?.setBackgroundDrawable(ColorDrawable(Color.parseColor(android.R.color.holo_blue_dark.toString())))
+                    0 -> {
+                        thisViewPager.setBackgroundColor(color1)
+
+                        // make sure to change this in the onCreate section whenever it's changed here.
+                        supportActionBar?.setBackgroundDrawable(
+                            ColorDrawable(
+                                ContextCompat.getColor(
+                                    applicationContext,
+                                    android.R.color.holo_blue_dark
+                                )
+                            )
+                        )
                     }
-                    1 -> { thisViewPager.setBackgroundColor(color2)
-//                        supportActionBar?.setBackgroundDrawable(ColorDrawable(Color.parseColor(android.R.color.holo_green_dark.toString())))
+                    1 -> {
+                        thisViewPager.setBackgroundColor(color2)
+                        supportActionBar?.setBackgroundDrawable(
+                            ColorDrawable(
+                                ContextCompat.getColor(
+                                    applicationContext,
+                                    android.R.color.holo_green_dark
+                                )
+                            )
+                        )
                     }
                     2 -> {
                         thisViewPager.setBackgroundColor(color3)
-//                        supportActionBar?.setBackgroundDrawable(ColorDrawable(Color.parseColor(android.R.color.holo_orange_dark.toString())))
+                        supportActionBar?.setBackgroundDrawable(
+                            ColorDrawable(
+                                ContextCompat.getColor(
+                                    applicationContext,
+                                    android.R.color.holo_orange_dark
+                                )
+                            )
+                        )
                     }
-                    3 -> { thisViewPager.setBackgroundColor(color4)
-//                        supportActionBar?.setBackgroundDrawable(ColorDrawable(Color.parseColor(android.R.color.holo_green_dark.toString())))
+                    3 -> {
+                        thisViewPager.setBackgroundColor(color4)
+                        supportActionBar?.setBackgroundDrawable(
+                            ColorDrawable(
+                                ContextCompat.getColor(
+                                    applicationContext,
+                                    android.R.color.holo_green_dark
+                                )
+                            )
+                        )
                     }
                 }
                 nextBtn.visibility = if (position == 3) View.GONE else View.VISIBLE

@@ -1,10 +1,12 @@
 package info.vopio.android
 
 import android.content.Intent
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -32,6 +34,8 @@ class SignInActivity : AppCompatActivity(){
         binding = ActivitySignInBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
+        supportActionBar?.setBackgroundDrawable(ColorDrawable(ContextCompat.getColor(applicationContext, android.R.color.holo_blue_dark)))
+
         thisFirebaseAuth = FirebaseAuth.getInstance()
 
         // Configure Google Sign In
@@ -47,6 +51,11 @@ class SignInActivity : AppCompatActivity(){
             signIn()
         }
 
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        this.finishAffinity() // exit app if user tries to go back to welcome fragments
     }
 
     private fun signIn() {

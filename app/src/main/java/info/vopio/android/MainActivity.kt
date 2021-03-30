@@ -42,6 +42,7 @@ class MainActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
@@ -61,6 +62,7 @@ class MainActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
         val thisFirebaseUser = thisFirebaseAuth.currentUser
         if (thisFirebaseUser == null){
             startActivity(Intent(this, OnboardingActivity::class.java))
+            finish() // finish it before it shows on the screen
         } else {
             localUser = thisFirebaseUser.displayName ?: "username"
         }
