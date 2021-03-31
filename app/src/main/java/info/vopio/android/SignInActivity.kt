@@ -79,11 +79,7 @@ class SignInActivity : AppCompatActivity(){
                 // signed in user can be handled in the listener.
                 if (!task.isSuccessful) {
                     Log.w(TAG, "signInWithCredential", task.exception)
-                    Toast.makeText(this@SignInActivity, "Authentication failed.", Toast.LENGTH_SHORT).show()
-
-//                    Snackbar.make(binding.root, "Sign-In failed.", Snackbar.LENGTH_LONG).show();
-
-
+                    Toast.makeText(this@SignInActivity, "Sign In didn't work.", Toast.LENGTH_SHORT).show()
                 } else {
 
                     startActivity(Intent(this@SignInActivity, MainActivity::class.java))
@@ -105,7 +101,7 @@ class SignInActivity : AppCompatActivity(){
                 firebaseAuthWithGoogle(account!!)
             } else {
                 // Google Sign-In failed
-                Snackbar.make(binding.root, "Sign-In failed.", Snackbar.LENGTH_LONG).show();
+                Snackbar.make(binding.root, "Sign In didn't work.", Snackbar.LENGTH_LONG).show()
 
             }
         }

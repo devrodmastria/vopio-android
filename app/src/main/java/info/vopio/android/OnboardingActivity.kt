@@ -7,10 +7,6 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.text.Spannable
-import android.text.SpannableString
-import android.text.style.StyleSpan
-import android.text.style.TypefaceSpan
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -111,13 +107,6 @@ class OnboardingActivity : AppCompatActivity() {
                 )
             )
         )
-
-        val appTitle: String = getString(R.string.app_name)
-        //attempted to set custom font on action bar - ignored by Android - requires its own view
-        val typeface = this.let { ResourcesCompat.getFont(this, R.font.titillium_regular) }
-        val spanString = SpannableString(appTitle)
-        spanString.setSpan(typeface?.style, 0, appTitle.length-1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-        supportActionBar?.title = spanString
 
         swipeHandler = Handler(Looper.getMainLooper())
 
