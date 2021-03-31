@@ -111,9 +111,12 @@ class OnboardingActivity : AppCompatActivity() {
                 )
             )
         )
+
         val appTitle: String = getString(R.string.app_name)
+        //attempted to set custom font on action bar - ignored by Android - requires its own view
+        val typeface = this.let { ResourcesCompat.getFont(this, R.font.titillium_regular) }
         val spanString = SpannableString(appTitle)
-        spanString.setSpan(StyleSpan(R.font.titillium_regular), 0, appTitle.length-1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        spanString.setSpan(typeface?.style, 0, appTitle.length-1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
         supportActionBar?.title = spanString
 
         swipeHandler = Handler(Looper.getMainLooper())

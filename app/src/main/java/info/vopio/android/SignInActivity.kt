@@ -13,6 +13,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.SignInButton
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import info.vopio.android.databinding.ActivitySignInBinding
@@ -47,6 +49,7 @@ class SignInActivity : AppCompatActivity(){
 
         thisGoogleSignInClient = GoogleSignIn.getClient(this, gso)
 
+        binding.signInButton.setSize(SignInButton.SIZE_WIDE)
         binding.signInButton.setOnClickListener {
             signIn()
         }
@@ -77,6 +80,10 @@ class SignInActivity : AppCompatActivity(){
                 if (!task.isSuccessful) {
                     Log.w(TAG, "signInWithCredential", task.exception)
                     Toast.makeText(this@SignInActivity, "Authentication failed.", Toast.LENGTH_SHORT).show()
+
+//                    Snackbar.make(binding.root, "Sign-In failed.", Snackbar.LENGTH_LONG).show();
+
+
                 } else {
 
                     startActivity(Intent(this@SignInActivity, MainActivity::class.java))
@@ -98,7 +105,8 @@ class SignInActivity : AppCompatActivity(){
                 firebaseAuthWithGoogle(account!!)
             } else {
                 // Google Sign-In failed
-                Log.e("signInWithCredential", "Google Sign-In failed.")
+                Snackbar.make(binding.root, "Sign-In failed.", Snackbar.LENGTH_LONG).show();
+
             }
         }
 
