@@ -2,11 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="info.vopio.android">
-
-    <!--    Firebase analystics -->
+    <!-- Firebase analystics -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
@@ -17,12 +15,13 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
+        android:theme="@style/AppTheme.NoActionBar"
         tools:ignore="GoogleAppIndexingWarning">
-
-        <activity android:name=".OnboardingActivity"/>
-        <activity android:name=".SignInActivity"
-            android:noHistory="true"/> <!-- this will close the app if back navigation is pressed on sign in. -->
+        <activity android:name=".UserProfileActivity"/>
+        <activity android:name=".OnboardingActivity" />
+        <activity
+            android:name=".SignInActivity"
+            android:noHistory="true" /> <!-- this will close the app if back navigation is pressed on sign in. -->
         <activity android:name=".CaptionActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>

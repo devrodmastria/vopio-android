@@ -82,7 +82,7 @@ class SignInActivity : AppCompatActivity(){
                     Toast.makeText(this@SignInActivity, "Sign In didn't work.", Toast.LENGTH_SHORT).show()
                 } else {
 
-                    startActivity(Intent(this@SignInActivity, MainActivity::class.java))
+                    startActivity(Intent(this@SignInActivity, UserProfileActivity::class.java))
                     finish()
                 }
             }

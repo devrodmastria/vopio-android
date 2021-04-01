@@ -1,20 +1,22 @@
 package info.vopio.android
 
 import android.Manifest
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.text.InputType
 import android.view.View
 import android.view.WindowManager
+import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
@@ -47,7 +49,10 @@ class MainActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
-        supportActionBar?.setBackgroundDrawable(ColorDrawable(ContextCompat.getColor(applicationContext, android.R.color.holo_blue_dark)))
+
+        val toolbar = findViewById<View>(R.id.toolbar) as Toolbar
+        setSupportActionBar(toolbar)
+
         Timber.plant(Timber.DebugTree())
 
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -69,7 +74,14 @@ class MainActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
             localUser = thisFirebaseUser.displayName ?: "username"
         }
 
-        binding.hostSessionButton.setOnClickListener {
+        val drawer = findViewById<View>(R.id.drawer_layout) as DrawerLayout
+        val toggle = ActionBarDrawerToggle(
+            this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
+        )
+        toggle.syncState()
+
+        val hostBtn : Button = findViewById(R.id.hostSessionButton)
+        hostBtn.setOnClickListener {
 
             var hostCode = THIS_IS_NOT_A_HOST
 
@@ -118,7 +130,8 @@ class MainActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
             textInputView.setOnFocusChangeListener(object : View.OnFocusChangeListener {
                 override fun onFocusChange(v: View?, hasFocus: Boolean) {
                     if (hasFocus) {
-                        alertDialog.getWindow()?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
+                        alertDialog.getWindow()
+                            ?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
                     }
                 }
             })
@@ -126,7 +139,8 @@ class MainActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
 
         }
 
-        binding.scanButton.setOnClickListener {
+        val scanBtn : Button = findViewById(R.id.scanButton)
+        scanBtn.setOnClickListener {
 
             //look for active sessions
             //fetch codes for active sessions
@@ -230,7 +244,8 @@ class MainActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
             textInputView.setOnFocusChangeListener(object : View.OnFocusChangeListener {
                 override fun onFocusChange(v: View?, hasFocus: Boolean) {
                     if (hasFocus) {
-                        alertDialog.getWindow()?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
+                        alertDialog.getWindow()
+                            ?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
                     } else {
                         Timber.i("-->>SpeechX: textInputView lost focus")
                     }
@@ -248,7 +263,11 @@ class MainActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
         xingScannerView.startCamera()
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
         for (permission in grantResults){
