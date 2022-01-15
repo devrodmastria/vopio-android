@@ -37,15 +37,6 @@
         android:paddingRight="@dimen/activity_horizontal_margin"
         app:layout_constraintBottom_toBottomOf="@+id/container">
 
-        <Button
-            android:id="@+id/intro_btn_sign_in"
-            style="@style/Widget.AppCompat.Button.Borderless"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start|center"
-            android:text="@string/sign_in"
-            android:textColor="@android:color/white" />
-
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -76,15 +67,25 @@
                 android:layout_marginRight="@dimen/activity_margin_half"
                 android:background="@drawable/indicator_unselected" />
 
-            <ImageView
-                android:id="@+id/intro_indicator_3"
-                android:layout_width="8dp"
-                android:layout_height="8dp"
-                android:layout_marginEnd="@dimen/activity_margin_half"
-                android:layout_marginRight="@dimen/activity_margin_half"
-                android:background="@drawable/indicator_unselected" />
+<!--            <ImageView-->
+<!--                android:id="@+id/intro_indicator_3"-->
+<!--                android:layout_width="8dp"-->
+<!--                android:layout_height="8dp"-->
+<!--                android:layout_marginEnd="@dimen/activity_margin_half"-->
+<!--                android:layout_marginRight="@dimen/activity_margin_half"-->
+<!--                android:background="@drawable/indicator_unselected" />-->
 
         </LinearLayout>
+
+        <Button
+            android:id="@+id/intro_btn_sign_in"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start|center"
+            android:text="@string/sign_in"
+            android:textColor="@android:color/white" />
+
         <!-- This overlaps the next button in the last slide -->
         <Button
             android:id="@+id/intro_btn_finish"

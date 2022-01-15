@@ -26,3 +26,7 @@
   io.grpc.okhttp.OkHttpChannelBuilder sslSocketFactory(javax.net.ssl.SSLSocketFactory);
   io.grpc.okhttp.OkHttpChannelBuilder transportExecutor(java.util.concurrent.Executor);
 }
+
+-keepattributes LineNumberTable,SourceFile
+-renamesourcefileattribute SourceFile
+-printmapping mapping.txt

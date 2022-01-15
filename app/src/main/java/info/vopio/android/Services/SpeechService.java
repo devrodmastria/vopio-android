@@ -35,6 +35,10 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -51,10 +55,12 @@ import com.google.cloud.speech.v1.StreamingRecognizeRequest;
 import com.google.cloud.speech.v1.StreamingRecognizeResponse;
 import com.google.protobuf.ByteString;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -330,12 +336,7 @@ public class SpeechService extends Service {
 
     }
 
-    private final Runnable mFetchAccessTokenRunnable = new Runnable() {
-        @Override
-        public void run() {
-            fetchAccessToken();
-        }
-    };
+    private final Runnable mFetchAccessTokenRunnable = this::fetchAccessToken;
 
     //todo use RxJava
     private class AccessTokenTask extends AsyncTask<Void, Void, AccessToken> {
@@ -347,6 +348,8 @@ public class SpeechService extends Service {
             String tokenValue = prefs.getString(PREF_ACCESS_TOKEN_VALUE, null);
             long expirationTime = prefs.getLong(PREF_ACCESS_TOKEN_EXPIRATION_TIME, -1);
 
+
+
             // Check if the current token is still valid for a while
             if (tokenValue != null && expirationTime > 0) {
                 if (expirationTime
@@ -355,15 +358,18 @@ public class SpeechService extends Service {
                 }
             }
 
+
+
             // ***** WARNING *****
             // In this sample, we load the credential from a JSON file stored in a raw resource
             // folder of this client app. You should never do this in your app. Instead, store
             // the file in your server and obtain an access token from there.
             // *******************
-            final InputStream stream = getResources().openRawResource(R.raw.credential);
+            InputStream credentialStream = getResources().openRawResource(R.raw.mobile_app_credential);
             try {
-                final GoogleCredentials credentials = GoogleCredentials.fromStream(stream)
-                        .createScoped(SCOPE);
+
+                final GoogleCredentials credentials = GoogleCredentials.fromStream(credentialStream).createScoped(SCOPE);
+
                 final AccessToken token = credentials.refreshAccessToken();
                 prefs.edit()
                         .putString(PREF_ACCESS_TOKEN_VALUE, token.getTokenValue())
@@ -395,12 +401,12 @@ public class SpeechService extends Service {
             mApi = SpeechGrpc.newStub(channel);
 
             // Schedule access token refresh before it expires
-            if (mHandler != null) {
-                mHandler.postDelayed(mFetchAccessTokenRunnable,
-                        Math.max(accessToken.getExpirationTime().getTime()
-                                - System.currentTimeMillis()
-                                - ACCESS_TOKEN_FETCH_MARGIN, ACCESS_TOKEN_EXPIRATION_TOLERANCE));
-            }
+//            if (mHandler != null) {
+//                mHandler.postDelayed(mFetchAccessTokenRunnable,
+//                        Math.max(accessToken.getExpirationTime().getTime()
+//                                - System.currentTimeMillis()
+//                                - ACCESS_TOKEN_FETCH_MARGIN, ACCESS_TOKEN_EXPIRATION_TOLERANCE));
+//            }
         }
     }
 

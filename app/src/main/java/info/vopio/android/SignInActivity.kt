@@ -1,34 +1,26 @@
 package info.vopio.android
 
 import android.content.Intent
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
-import com.google.android.gms.auth.api.Auth
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.ConnectionResult
-import com.google.android.gms.common.SignInButton
+import com.firebase.ui.auth.AuthUI
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GoogleAuthProvider
+import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
+import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+
 import info.vopio.android.databinding.ActivitySignInBinding
 
 
 class SignInActivity : AppCompatActivity(){
 
-    lateinit var thisGoogleSignInClient: GoogleSignInClient
-    lateinit var thisFirebaseAuth : FirebaseAuth
+    private val signIn: ActivityResultLauncher<Intent> = registerForActivityResult(FirebaseAuthUIActivityResultContract(), this::onSignInResult)
     private lateinit var binding: ActivitySignInBinding
 
     companion object {
         private const val TAG = "SignInActivity"
-        const val GOOGLE_SIGN_IN = 9001
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,75 +28,33 @@ class SignInActivity : AppCompatActivity(){
         binding = ActivitySignInBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
-        supportActionBar?.setBackgroundDrawable(ColorDrawable(ContextCompat.getColor(applicationContext, android.R.color.holo_blue_dark)))
 
-        thisFirebaseAuth = FirebaseAuth.getInstance()
+    }
 
-        // Configure Google Sign In
-        val gso =
-            GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
+    override fun onStart() {
+        super.onStart()
+
+        if (Firebase.auth.currentUser == null) {
+            val signInIntent = AuthUI.getInstance()
+                .createSignInIntentBuilder()
+                .setLogo(R.mipmap.ic_launcher)
+                .setAvailableProviders(listOf(
+                    AuthUI.IdpConfig.GoogleBuilder().build(),
+                ))
                 .build()
 
-        thisGoogleSignInClient = GoogleSignIn.getClient(this, gso)
-
-        binding.signInButton.setSize(SignInButton.SIZE_WIDE)
-        binding.signInButton.setOnClickListener {
-            signIn()
+            signIn.launch(signInIntent)
+        } else {
+            startActivity(Intent(this@SignInActivity, MainActivity::class.java))
         }
-
     }
 
-    override fun onBackPressed() {
-        super.onBackPressed()
-        this.finishAffinity() // exit app if user tries to go back to welcome fragments
-    }
-
-    private fun signIn() {
-        val signInIntent: Intent = thisGoogleSignInClient.signInIntent
-        startActivityForResult(signInIntent, GOOGLE_SIGN_IN)
-    }
-
-    private fun firebaseAuthWithGoogle(acct: GoogleSignInAccount) {
-        Log.d(TAG, "firebaseAuthWithGooogle:" + acct.id)
-        val credential = GoogleAuthProvider.getCredential(acct.idToken, null)
-        thisFirebaseAuth.signInWithCredential(credential)
-            .addOnCompleteListener(this) { task ->
-                Log.d(TAG,
-                    "signInWithCredential:onComplete:" + task.isSuccessful)
-
-                // If sign in fails, display a message to the user. If sign in succeeds
-                // the auth state listener will be notified and logic to handle the
-                // signed in user can be handled in the listener.
-                if (!task.isSuccessful) {
-                    Log.w(TAG, "signInWithCredential", task.exception)
-                    Toast.makeText(this@SignInActivity, "Sign In didn't work.", Toast.LENGTH_SHORT).show()
-                } else {
-
-                    startActivity(Intent(this@SignInActivity, UserProfileActivity::class.java))
-                    finish()
-                }
-            }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
-        if (requestCode == GOOGLE_SIGN_IN) {
-            val result =
-                Auth.GoogleSignInApi.getSignInResultFromIntent(data)
-            if (result != null && result.isSuccess) {
-                // Google Sign-In was successful, authenticate with Firebase
-                val account = result.signInAccount
-                firebaseAuthWithGoogle(account!!)
-            } else {
-                // Google Sign-In failed
-                Snackbar.make(binding.root, "Sign In didn't work.", Snackbar.LENGTH_LONG).show()
-
-            }
+    private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
+        if (result.resultCode == RESULT_OK) {
+            startActivity(Intent(this@SignInActivity, MainActivity::class.java))
+        } else {
+            Snackbar.make(binding.root, "No internet connection?", Snackbar.LENGTH_LONG).show()
         }
-
     }
+
 }

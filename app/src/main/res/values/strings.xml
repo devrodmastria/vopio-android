@@ -1,11 +1,13 @@
 <resources>
     <string name="app_name">vopio</string>
-    <string name="scan_qr">Join session</string>
+    <string name="join_session">Join session</string>
     <string name="scan_new_qr">Join new session</string>
+    <string name="leave_session">Leave session</string>
     <string name="send_feedback">Notify user about pronunciation</string>
     <string name="scan_instruction">Scan code from host phone\n to join session.</string>
-    <string name="create_session">Host session</string>
+    <string name="create_session">New Session</string>
     <string name="sign_in">Sign In</string>
+    <string name="logout">Logout</string>
     <string name="sample_caption">This is one interestingly long word.</string>
     <string name="permission_message">This app needs to capture audio to recognize your speech.</string>
     <string name="disable_speech">Mute</string>
@@ -13,23 +15,19 @@
     <string name="share_code">Share QR code</string>
     <string name="title_activity_onboarding">OnboardingActivity</string>
 
-    <string name="onboard_one_title">Interactive Captions For On-campus Lectures</string>
-    <string name="onboard_one">Unleash your academic experience.
-        Let us help you take excellent notes from class.</string>
+    <string name="library_header">List of saved words</string>
+
+    <string name="onboard_one_title">Connect To Instructor</string>
+    <string name="onboard_one">Students can enter a code that the instructor generates on their smartphone.
+        The captions then appear on the student\'s phone</string>
 
 
-    <string name="onboard_two_title">Live Support During Class</string>
-    <string name="onboard_two">Type in a 4-digit code that your instructor generates on their smartphone.
-        The captions then appear on the app.
-    </string>
+    <string name="onboard_two_title">Enjoy Interactive Learning</string>
+    <string name="onboard_two">Captions are hyperlinked to an online dictionary so students can select those words
+        and get instant definitions in the app</string>
 
-    <string name="onboard_three_title">In-Depth Interaction With Lecture Content</string>
-    <string name="onboard_three">Clickable captions are hyperlinked to an online dictionary so you can select those words and get instant definitions.
-    </string>
-
-    <string name="onboard_four_title">Curated Study Guide</string>
-    <string name="onboard_four">Your selected words are saved into a curated study guide in the app. You won\'t even need to raise your hand.
-    </string>
+    <string name="onboard_three_title">Build Your Dictionary</string>
+    <string name="onboard_three">The selected words are saved into a curated study guide in the app</string>
 
     <!--
 This string is used for square devices and overridden by hello_world in
@@ -45,6 +43,8 @@ values-round/strings.xml for round devices.
     <string name="about">About</string>
     <string name="invite_menu_label">Invite</string>
     <string name="schedule">Schedule</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 
 </resources>

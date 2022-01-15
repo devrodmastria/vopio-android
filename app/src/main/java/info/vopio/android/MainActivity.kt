@@ -1,22 +1,21 @@
 package info.vopio.android
 
-import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.text.InputType
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
-import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.Fragment
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
@@ -26,37 +25,62 @@ import info.vopio.android.databinding.ActivityMainBinding
 import me.dm7.barcodescanner.zxing.ZXingScannerView
 import timber.log.Timber
 
-class MainActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
 
-    lateinit var xingScannerView: ZXingScannerView
-    lateinit var localUser: String
+class MainActivity : AppCompatActivity() {
+
+    lateinit var localUsername: String
+    lateinit var localUserEmail: String
     lateinit var thisFirebaseRemoteConfig: FirebaseRemoteConfig
+    lateinit var thisFirebaseAuth : FirebaseAuth
     lateinit var thisFirebaseDatabaseReference : DatabaseReference
-    lateinit var dataSnapshotList : DataSnapshot
+    lateinit var targetFragment : Fragment
+    private var hostCode = MainActivity.NOT_HOST_TAG
+
     private lateinit var binding: ActivityMainBinding
 
     companion object {
-        private val REQUEST_CAMERA = 1 // this is used to request permission from user
         val SESSION_KEY = "SESSION_KEY"
-        val SESSION_USER = "SESSION_USER"
-        val THIS_IS_THE_HOST = "_isHost_"
-        val THIS_IS_NOT_A_HOST = "_notHost_"
+        val SESSION_USERNAME = "SESSION_USER"
+        val SESSION_USER_EMAIL = "SESSION_USER_EMAIL"
+        val HOST_TAG = "_isHost_"
+        val NOT_HOST_TAG = "_notHost_"
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.toolbar_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        when(item.itemId){
+            R.id.nav_logout -> {
+                thisFirebaseAuth.signOut()
+                startActivity(Intent(this, OnboardingActivity::class.java))
+            }
+        }
+
+        return true
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = ActivityMainBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
+        val rootView = binding.root
+        setContentView(rootView)
 
         val toolbar = findViewById<View>(R.id.toolbar) as Toolbar
         setSupportActionBar(toolbar)
+
+        val themeColor = applicationContext.getColor(R.color.purple_300)
+        window.statusBarColor = themeColor
+        toolbar.setBackgroundColor(themeColor)
 
         Timber.plant(Timber.DebugTree())
 
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
+        thisFirebaseAuth = FirebaseAuth.getInstance()
         thisFirebaseDatabaseReference = FirebaseDatabase.getInstance().reference
 
         thisFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance()
@@ -71,228 +95,36 @@ class MainActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
             startActivity(Intent(this, OnboardingActivity::class.java))
             finish() // finish it before it shows on the screen
         } else {
-            localUser = thisFirebaseUser.displayName ?: "username"
+            localUsername = thisFirebaseUser.displayName.toString()
+            localUserEmail = thisFirebaseUser.email.toString()
         }
 
-        val drawer = findViewById<View>(R.id.drawer_layout) as DrawerLayout
-        val toggle = ActionBarDrawerToggle(
-            this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
-        )
-        toggle.syncState()
+        targetFragment = HostFragment.newInstance(hostCode, localUsername, localUserEmail)
+        supportFragmentManager.beginTransaction().replace(R.id.main_fragment_container, targetFragment).commit()
 
-        val hostBtn : Button = findViewById(R.id.hostSessionButton)
-        hostBtn.setOnClickListener {
+        binding.tabNavigation.setOnItemSelectedListener {
 
-            var hostCode = THIS_IS_NOT_A_HOST
-
-            thisFirebaseRemoteConfig.fetchAndActivate()
-                .addOnCompleteListener(this) { task ->
-                    if (task.isSuccessful) {
-                        val updated = task.result
-                        Timber.i("-->>SpeechX: Fetch and activate succeeded: $updated")
-                        hostCode = thisFirebaseRemoteConfig.getLong(THIS_IS_THE_HOST).toString()
-
-                    } else {
-                        Timber.i("-->>SpeechX: Fetch and activate failed")
-                    }
-                }
-
-            val textInputView = EditText(this)
-            textInputView.inputType = InputType.TYPE_CLASS_NUMBER
-
-            val alertDialogBuilder = AlertDialog.Builder(this)
-            alertDialogBuilder
-                .setTitle("Please enter host code")
-                .setView(textInputView)
-                .setCancelable(true)
-                .setPositiveButton("Submit") { dialog, which ->
-                    if (hostCode != THIS_IS_NOT_A_HOST && hostCode == textInputView.text.toString()) {
-                        Timber.i("-->>SpeechX: host code OK!")
-
-                        val intent = Intent(this, CaptionActivity::class.java)
-                        intent.putExtra(SESSION_KEY, THIS_IS_THE_HOST)
-                        intent.putExtra(SESSION_USER, localUser)
-                        startActivity(intent)
-                        finish()
-
-                    } else {
-                        Toast.makeText(this, "Please try again.", Toast.LENGTH_LONG).show()
-                        Timber.i("-->>SpeechX: host code incorrect")
-                    }
-                }
-                .setNegativeButton("Cancel") { dialog, which ->
-                    dialog.cancel()
-                }
-
-            val alertDialog = alertDialogBuilder.create()
-            alertDialog.show()
-
-            textInputView.setOnFocusChangeListener(object : View.OnFocusChangeListener {
-                override fun onFocusChange(v: View?, hasFocus: Boolean) {
-                    if (hasFocus) {
-                        alertDialog.getWindow()
-                            ?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
-                    }
-                }
-            })
-
-
-        }
-
-        val scanBtn : Button = findViewById(R.id.scanButton)
-        scanBtn.setOnClickListener {
-
-            //look for active sessions
-            //fetch codes for active sessions
-            //show a list of active sessions names?
-            //check code against user input
-
-            thisFirebaseDatabaseReference.root
-                .addListenerForSingleValueEvent(object : ValueEventListener {
-
-                    override fun onDataChange(dataSnapshot: DataSnapshot) {
-
-                        dataSnapshotList = dataSnapshot
-
-                        for (snapshot in dataSnapshot.getChildren()) {
-
-                            val snapshotSize = snapshot.key?.length
-
-                            val lastFourDigits = snapshot.key?.substring(snapshotSize!!.minus(4))
-
-                            Timber.i("-->>SpeechX: session id $lastFourDigits")
-
-                        }
-                    }
-
-                    override fun onCancelled(p0: DatabaseError) {
-                        Timber.i("-->>SpeechX: DatabaseError ${p0.message}")
-                    }
-
-                })
-
-            val textInputView = EditText(this)
-            textInputView.inputType = InputType.TYPE_CLASS_TEXT
-
-            val alertDialogBuilder = AlertDialog.Builder(this)
-            alertDialogBuilder
-                .setTitle("Please enter session code\n(case sensitive)")
-                .setView(textInputView)
-                .setNeutralButton("Scan QR") { dialog, which ->
-
-                    //Request user permission to use camera
-                    if (ContextCompat.checkSelfPermission(
-                            applicationContext,
-                            Manifest.permission.CAMERA
-                        ) == PackageManager.PERMISSION_GRANTED
-                    ) {
-                        startScanner()
-                    } else {
-                        ActivityCompat.requestPermissions(
-                            this@MainActivity,
-                            arrayOf(Manifest.permission.CAMERA),
-                            MainActivity.REQUEST_CAMERA
-                        )
-                    }
+            when (it.itemId){
+                R.id.tab_item_prof -> {
+                    targetFragment = HostFragment.newInstance(hostCode, localUsername, localUserEmail)
 
                 }
-                .setPositiveButton("Submit") { dialog, which ->
-
-                    if (dataSnapshotList.exists()) {
-
-                        var matchFound = false
-
-                        for (snapshot in dataSnapshotList.getChildren()) {
-
-                            val snapshotSize = snapshot.key?.length
-                            val lastFourDigits = snapshot.key?.substring(snapshotSize!!.minus(4))
-
-                            if (lastFourDigits == textInputView.text.toString()) {
-
-                                matchFound = true
-
-                                Timber.i("-->>SpeechX: session code OK!")
-
-                                val intent = Intent(this@MainActivity, CaptionActivity::class.java)
-                                intent.putExtra(SESSION_KEY, snapshot.key)
-                                intent.putExtra(SESSION_USER, localUser)
-                                startActivity(intent)
-                                finish()
-                            }
-
-                        }
-
-                        if (!matchFound) {
-                            Timber.i("-->>SpeechX: dataSnapshotList Please try again")
-                            Toast.makeText(this, "Please try again.", Toast.LENGTH_LONG).show()
-
-                        }
-                    } else {
-                        Toast.makeText(this, "Sessions not available offline.", Toast.LENGTH_LONG)
-                            .show()
-                        Timber.i("-->>SpeechX: dataSnapshotList invalid")
-                    }
+                R.id.tab_item_stu -> {
+                    targetFragment = GuestFragment.newInstance(hostCode, localUsername)
 
                 }
-                .setNegativeButton("Cancel") { dialog, which ->
-                    dialog.cancel()
+                R.id.tab_item_lib -> {
+                    targetFragment = LibraryFragment.newInstance(localUsername, localUserEmail)
+
                 }
-
-            val alertDialog = alertDialogBuilder.create()
-            alertDialog.show()
-
-            textInputView.setOnFocusChangeListener(object : View.OnFocusChangeListener {
-                override fun onFocusChange(v: View?, hasFocus: Boolean) {
-                    if (hasFocus) {
-                        alertDialog.getWindow()
-                            ?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
-                    } else {
-                        Timber.i("-->>SpeechX: textInputView lost focus")
-                    }
+                else -> {
+                    targetFragment = HostFragment.newInstance(hostCode, localUsername, localUserEmail)
                 }
-            })
-
-        }
-
-    }
-
-    private fun startScanner(){
-        xingScannerView = ZXingScannerView(this@MainActivity)
-        setContentView(xingScannerView)
-        xingScannerView.setResultHandler(this@MainActivity)
-        xingScannerView.startCamera()
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-
-        for (permission in grantResults){
-            if (permission == PackageManager.PERMISSION_GRANTED){
-                startScanner()
             }
-        }
-    }
 
-    override fun handleResult(p0: Result?) { //results from QR scanner
+            supportFragmentManager.beginTransaction().replace(R.id.main_fragment_container, targetFragment).commit()
+            return@setOnItemSelectedListener true
 
-        val QRresult: String = p0?.text.toString()
-
-        xingScannerView.stopCamera()
-
-        if (QRresult.length == 20) {
-            xingScannerView.stopCamera()
-            val intent = Intent(this@MainActivity, CaptionActivity::class.java)
-            intent.putExtra(SESSION_KEY, QRresult)
-            intent.putExtra(SESSION_USER, localUser)
-            startActivity(intent)
-            finish()
-        } else {
-            Toast.makeText(this, "Invalid QR code", Toast.LENGTH_SHORT).show()
-            setContentView(R.layout.activity_main)
         }
 
     }

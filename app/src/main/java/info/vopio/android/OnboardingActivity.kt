@@ -35,10 +35,9 @@ class OnboardingActivity : AppCompatActivity() {
     lateinit var skipBtn: Button
     lateinit var finishBtn: Button
 
-    lateinit var zero: ImageView
-    lateinit var one: ImageView
-    lateinit var two: ImageView
-    lateinit var three: ImageView
+    lateinit var imageZero: ImageView
+    lateinit var imageOne: ImageView
+    lateinit var imageTwo: ImageView
     lateinit var indicators: Array<ImageView>
     lateinit var thisViewPager: ViewPager
 
@@ -46,6 +45,7 @@ class OnboardingActivity : AppCompatActivity() {
     lateinit var thisFirebaseAuth: FirebaseAuth
 
     private var page = 0
+    val SLIDER_DURATION : Long = 7000
 
     private lateinit var binding: ActivityOnboardingBinding
 
@@ -58,9 +58,9 @@ class OnboardingActivity : AppCompatActivity() {
             thisViewPager.setCurrentItem(page, true)
 
             // update to next page for next swipe - zero-index
-            if (page < 4) { page += 1 } else { page = 0 }
+            if (page < 2) { page += 1 } else { page = 0 }
 
-            swipeHandler.postDelayed(this, 7000)
+            swipeHandler.postDelayed(this, SLIDER_DURATION)
         }
 
     }
@@ -79,11 +79,10 @@ class OnboardingActivity : AppCompatActivity() {
         finishBtn = binding.introBtnFinish
         nextBtn = binding.introBtnNext
 
-        zero = binding.introIndicator0
-        one = binding.introIndicator1
-        two = binding.introIndicator2
-        three = binding.introIndicator3
-        indicators = arrayOf(zero, one, two, three)
+        imageZero = binding.introIndicator0
+        imageOne = binding.introIndicator1
+        imageTwo = binding.introIndicator2
+        indicators = arrayOf(imageZero, imageOne, imageTwo)
 
         thisViewPager = binding.container
         thisViewPager.adapter = thisSectionsPagerAdapter
@@ -93,9 +92,8 @@ class OnboardingActivity : AppCompatActivity() {
         val color1 = ContextCompat.getColor(this, R.color.page_one)
         val color2 = ContextCompat.getColor(this, R.color.page_two)
         val color3 = ContextCompat.getColor(this, R.color.page_three)
-        val color4 = ContextCompat.getColor(this, R.color.page_two)
 
-        val colorList = intArrayOf(color1, color2, color3, color4)
+        val colorList = intArrayOf(color1, color2, color3)
         val evaluator = ArgbEvaluator()
 
         // setup action bar color to match first viewpager fragment
@@ -122,7 +120,7 @@ class OnboardingActivity : AppCompatActivity() {
                  */
                 val colorUpdate = evaluator.evaluate(
                     positionOffset, colorList[position],
-                    colorList[if (position == 3) position else position + 1]
+                    colorList[if (position == 2) position else position + 1]
                 ) as Int
                 thisViewPager.setBackgroundColor(colorUpdate)
             }
@@ -166,20 +164,8 @@ class OnboardingActivity : AppCompatActivity() {
                             )
                         )
                     }
-                    3 -> {
-                        thisViewPager.setBackgroundColor(color4)
-                        supportActionBar?.setBackgroundDrawable(
-                            ColorDrawable(
-                                ContextCompat.getColor(
-                                    applicationContext,
-                                    android.R.color.holo_green_dark
-                                )
-                            )
-                        )
-                    }
                 }
-                nextBtn.visibility = if (position == 3) View.GONE else View.VISIBLE
-//                finishBtn.visibility = if (position == 3) View.VISIBLE else View.GONE
+                nextBtn.visibility = if (position == 2) View.GONE else View.VISIBLE
             }
 
             override fun onPageScrollStateChanged(state: Int) {}
@@ -291,12 +277,6 @@ class OnboardingActivity : AppCompatActivity() {
                     textTitle.text = getString(R.string.onboard_three_title)
                     imageView.setBackgroundResource(R.drawable.ic_search_engine)
                 }
-                4 -> {
-                    // Icon made by https://creativemarket.com/eucalyp
-                    textView.text = res.getString(R.string.onboard_four)
-                    textTitle.text = getString(R.string.onboard_four_title)
-                    imageView.setBackgroundResource(R.drawable.ic_languages)
-                }
 
                 else -> {
                     textView.text = getString(R.string.onboard_three)
@@ -338,8 +318,8 @@ class OnboardingActivity : AppCompatActivity() {
         }
 
         override fun getCount(): Int {
-            // Show number total pages.
-            return 4
+            // Show total number of pages.
+            return 3
         }
 
         override fun getPageTitle(position: Int): CharSequence? {

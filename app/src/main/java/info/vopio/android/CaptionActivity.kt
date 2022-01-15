@@ -2,11 +2,11 @@ package info.vopio.android
 
 import android.Manifest
 import android.content.ComponentName
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.IBinder
@@ -15,28 +15,20 @@ import android.text.Spanned
 import android.text.TextUtils
 import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.WindowManager
+import android.view.*
 import android.webkit.WebSettings
-import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
-import android.widget.Toolbar
 import androidx.annotation.NonNull
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.database.FirebaseRecyclerAdapter
 import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.firebase.ui.database.SnapshotParser
-import com.google.android.gms.auth.api.Auth
-import com.google.android.gms.common.ConnectionResult
 import com.google.firebase.database.*
 import com.google.zxing.Result
 import info.vopio.android.DataModel.MessageModel
@@ -60,6 +52,7 @@ class CaptionActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
 
     lateinit var incomingSessionId : String
     lateinit var thisFirebaseUser : String
+    lateinit var thisFirebaseEmail : String
     lateinit var thisFirebaseAdapter : FirebaseRecyclerAdapter<MessageModel, MessageViewHolder>
     lateinit var thisLinearLayoutManager : LinearLayoutManager
 
@@ -138,12 +131,32 @@ class CaptionActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.caption_toolbar_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        when(item.itemId){
+            R.id.nav_leave -> {
+                Timber.i("-->>SpeechX: LEAVE SESH")
+                stopSession()
+
+            }
+        }
+
+        return true
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityCaptionBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
-        supportActionBar?.setBackgroundDrawable(ColorDrawable(ContextCompat.getColor(applicationContext, android.R.color.holo_blue_dark)))
+
+        val toolbar = findViewById<View>(R.id.toolbar) as Toolbar
+        setSupportActionBar(toolbar)
 
         Timber.i("-->>SpeechX: onCreate")
 
@@ -154,13 +167,20 @@ class CaptionActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
         val extras = intent.extras
         if (extras != null) {
 
-            val localUser = extras.getString(MainActivity.SESSION_USER)
+            val localUser = extras.getString(MainActivity.SESSION_USERNAME)
             localUser?.let {
 
                 val nameArray =
                     localUser.split(" ").toTypedArray()
 
-                thisFirebaseUser = nameArray[0] + " " + nameArray[1].first()
+                thisFirebaseUser =
+                    if (nameArray.size > 1) nameArray[0] + " " + nameArray[1].first() else nameArray[0]
+
+            }
+
+            val localEmail = extras.getString(MainActivity.SESSION_USER_EMAIL)
+            localEmail?.let {
+                thisFirebaseEmail = it
             }
 
             incomingSessionId = extras.getString(MainActivity.SESSION_KEY).toString()
@@ -224,21 +244,16 @@ class CaptionActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
 
         incomingSessionId.let {
 
-            if (incomingSessionId.contentEquals(MainActivity.THIS_IS_THE_HOST)){
+            if (incomingSessionId.contentEquals(MainActivity.HOST_TAG)){
 
                 binding.webView.visibility = View.INVISIBLE
-                binding.QRimageView.visibility = View.VISIBLE
 
                 this.sessionId = thisFirebaseDatabaseReference.push().key.toString()
                 val lastFourDigits = sessionId.substring(sessionId.length.minus(4))
 
-                setTitle("session code: $lastFourDigits")
-                binding.QRimageView.visibility = View.INVISIBLE
+                setTitle("session $lastFourDigits")
 
                 Timber.i("-->>SpeechX: incomingSessionId ${this.sessionId}")
-
-                val sessionBitmapQR : Bitmap = QRgenerator().encodeToQR(this.sessionId, this)
-                binding.QRimageView.setImageBitmap(sessionBitmapQR)
 
                 MessageUploader().sendCaptions(
                     thisFirebaseDatabaseReference,
@@ -252,27 +267,12 @@ class CaptionActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
             } else {
 
                 binding.webView.visibility = View.VISIBLE
-                binding.QRimageView.visibility = View.INVISIBLE
                 this.sessionId = incomingSessionId
 
             }
             configureDatabaseSnapshotParser(this.sessionId)
         }
 
-    }
-
-    override fun onPause() {
-        super.onPause()
-        if (incomingSessionId.contentEquals(MainActivity.THIS_IS_THE_HOST)) {
-            MessageUploader().sendCaptions(thisFirebaseDatabaseReference, sessionId, "[ Session Ended ]", thisFirebaseUser)
-        }
-
-        if (thisVoiceRecorder != null) { // speech service is ON - turn it OFF
-
-            Timber.i("-->>SpeechX: onPause disable_speech")
-            binding.micButton.text = getString(R.string.disable_speech)
-            stopSession()
-        }
     }
 
     private fun startSession() {
@@ -300,11 +300,7 @@ class CaptionActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
     }
 
     private fun stopSession() {
-        Timber.i("-->>SpeechX: stopSession")
-
-        thisFirebaseDatabaseReference.child(this.sessionId).removeValue()
-
-        stopVoiceRecorder()
+        Timber.i("-->>SpeechX: stopSession ${this.sessionId}")
 
         // Stop Cloud Speech API
         if (thisSpeechService != null){
@@ -312,9 +308,10 @@ class CaptionActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
             thisSpeechService!!.stopSelf()
             unbindService(thisServiceConnection)
         }
-        thisSpeechService = null
-
         thisFirebaseAdapter.stopListening()
+        stopVoiceRecorder()
+        thisFirebaseDatabaseReference.child(this.sessionId).removeValue()
+        super.onBackPressed()
 
     }
 
@@ -419,13 +416,12 @@ class CaptionActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
                                             lastSelectedWord = wordIs
                                             binding.feedbackButton.visibility = View.VISIBLE
 
-                                            if (binding.QRimageView.visibility == View.INVISIBLE) {
-                                                val url =
-                                                    "https://duckduckgo.com/?q=define+$wordIs&t=ffab&ia=definition"
-                                                binding.webView.loadUrl(url)
-                                                binding.webView.visibility = View.VISIBLE
+                                            val url = "https://duckduckgo.com/?q=define+$wordIs&t=ffab&ia=definition"
+                                            binding.webView.loadUrl(url)
+                                            binding.webView.visibility = View.VISIBLE
 
-                                            }
+                                            MessageUploader().saveWord(thisFirebaseDatabaseReference, wordIs, thisFirebaseEmail)
+
                                         }
                                     }
                                     spanString.setSpan(

@@ -42,7 +42,7 @@
             android:id="@+id/section_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Helloooo? this is how it will look like when this text view is full of useful text and not just dummy data."
+            android:text="Placeholder intro message. Placeholder intro message. Placeholder intro message. Placeholder intro message. Placeholder intro message."
             android:textSize="18sp"
             android:gravity="center"
             android:layout_marginStart="16dp"
