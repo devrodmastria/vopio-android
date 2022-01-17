@@ -42,7 +42,6 @@ import timber.log.Timber
 
 class CaptionActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
 
-    lateinit var xingScannerView : ZXingScannerView
     lateinit var webSettings : WebSettings
     lateinit var thisFirebaseDatabaseReference : DatabaseReference
 
@@ -170,11 +169,9 @@ class CaptionActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
             val localUser = extras.getString(MainActivity.SESSION_USERNAME)
             localUser?.let {
 
-                val nameArray =
-                    localUser.split(" ").toTypedArray()
+                val nameArray = localUser.split(" ").toTypedArray()
 
-                thisFirebaseUser =
-                    if (nameArray.size > 1) nameArray[0] + " " + nameArray[1].first() else nameArray[0]
+                thisFirebaseUser = if (nameArray.size > 1) nameArray[0] + " " + nameArray[1] else nameArray[0]
 
             }
 
@@ -233,7 +230,6 @@ class CaptionActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
         val QRresult: String = p0?.text.toString()
 
         if (QRresult.length == 20) {
-            xingScannerView.stopCamera()
             setContentView(R.layout.activity_caption)
             configureDatabaseSnapshotParser(QRresult)
         }
