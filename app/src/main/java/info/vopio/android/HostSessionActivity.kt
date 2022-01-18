@@ -244,7 +244,7 @@ class HostSessionActivity : AppCompatActivity() {
     }
 
     private fun stopSession() {
-        Timber.i("-->>SpeechX: stopSession ${this.sessionId}")
+        Timber.i("-->>SpeechX: stop Session ${this.sessionId}")
 
         // Stop Cloud Speech API
         if (thisSpeechService != null){
@@ -254,8 +254,10 @@ class HostSessionActivity : AppCompatActivity() {
         }
         thisFirebaseAdapter.stopListening()
         stopVoiceRecorder()
+
         thisFirebaseDatabaseReference.child(this.sessionId).removeValue()
-        super.onBackPressed()
+
+        finish()
 
     }
 

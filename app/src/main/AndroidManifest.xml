@@ -24,7 +24,7 @@
         <activity
             android:name=".SignInActivity"
             android:noHistory="true" /> <!-- this will close the app if back navigation is pressed on sign in. -->
-        <activity android:name=".CaptionActivity" />
+        <activity android:name=".GuestSessionActivity" />
         <activity
             android:name=".MainActivity"
             android:exported="true">

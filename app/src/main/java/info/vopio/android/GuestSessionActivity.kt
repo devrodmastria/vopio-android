@@ -1,15 +1,8 @@
 package info.vopio.android
 
-import android.Manifest
-import android.content.ComponentName
-import android.content.Intent
-import android.content.ServiceConnection
-import android.content.pm.PackageManager
 import android.os.Bundle
-import android.os.IBinder
 import android.text.SpannableString
 import android.text.Spanned
-import android.text.TextUtils
 import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
 import android.view.*
@@ -19,7 +12,6 @@ import android.widget.Toast
 import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.database.FirebaseRecyclerAdapter
@@ -27,14 +19,12 @@ import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.firebase.ui.database.SnapshotParser
 import com.google.firebase.database.*
 import info.vopio.android.DataModel.MessageModel
-import info.vopio.android.Services.SpeechService
-import info.vopio.android.Services.VoiceRecorder
 import info.vopio.android.Utilities.Constants
 import info.vopio.android.Utilities.MessageUploader
-import info.vopio.android.databinding.ActivityCaptionBinding
+import info.vopio.android.databinding.ActivityGuestSessionBinding
 import timber.log.Timber
 
-class CaptionActivity : AppCompatActivity() {
+class GuestSessionActivity : AppCompatActivity() {
 
     lateinit var webSettings : WebSettings
     lateinit var thisFirebaseDatabaseReference : DatabaseReference
@@ -43,84 +33,16 @@ class CaptionActivity : AppCompatActivity() {
     lateinit var captionId : String
     lateinit var captionAuthor : String // author could be any un-muted app user in the session
 
-    private var userIsHost : Boolean = false
     lateinit var thisFirebaseUser : String
     lateinit var thisFirebaseEmail : String
     lateinit var thisFirebaseAdapter : FirebaseRecyclerAdapter<MessageModel, MessageViewHolder>
     lateinit var thisLinearLayoutManager : LinearLayoutManager
 
-    private var thisSpeechService: SpeechService? = null
-    private var thisVoiceRecorder: VoiceRecorder? = null
-
-    private lateinit var binding: ActivityCaptionBinding
-
-    var lastSelectedWord: String = "placeholder"
-
-    companion object{
-        const val REQUEST_RECORD_AUDIO_PERMISSION = 1
-    }
+    private lateinit var binding: ActivityGuestSessionBinding
 
     class MessageViewHolder(v: View) : RecyclerView.ViewHolder(v) {
         var captionTextView: TextView = itemView.findViewById(R.id.captionTextView)
         var authorTextView: TextView = itemView.findViewById(R.id.authorTextView)
-    }
-
-    private val thisVoiceCallback: VoiceRecorder.Callback = object : VoiceRecorder.Callback() {
-        override fun onVoiceStart() {
-            Timber.i("-->>SpeechX: HEARING VOICE")
-
-            if (thisSpeechService != null) {
-                thisVoiceRecorder?.sampleRate?.let { thisSpeechService?.startRecognizing(it) }
-            }
-        }
-
-        override fun onVoice(data: ByteArray?, size: Int) {
-            if (thisSpeechService != null) {
-                thisSpeechService?.recognize(data, size)
-            }
-        }
-
-        override fun onVoiceEnd() {
-            Timber.i("-->>SpeechX: NOT HEARING VOICE")
-
-            if (thisSpeechService != null) {
-                thisSpeechService?.finishRecognizing()
-            }
-        }
-    }
-
-    private val thisSpeechServiceListener: SpeechService.Listener =
-        SpeechService.Listener { text, isFinal ->
-
-            if (!TextUtils.isEmpty(text)) {
-                runOnUiThread {
-
-                    if (isFinal) {
-                        Timber.i("-->>SpeechX: CAPTION: $text")
-                        MessageUploader().sendCaptions(thisFirebaseDatabaseReference, sessionId, text, thisFirebaseUser)
-                        thisVoiceRecorder?.dismiss()
-                    } else {
-                        Timber.i("-->>SpeechX: PARTIAL CAPTION: $text")
-                    }
-
-                }
-            }
-        }
-
-    private val thisServiceConnection: ServiceConnection = object : ServiceConnection {
-
-        override fun onServiceConnected(componentName: ComponentName, binder: IBinder) {
-
-            thisSpeechService = SpeechService.from(binder)
-            thisSpeechService?.addListener(thisSpeechServiceListener)
-
-            Timber.i("-->>SpeechX: LISTENING")
-
-        }
-
-        override fun onServiceDisconnected(componentName: ComponentName) {
-            thisSpeechService = null
-        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -133,8 +55,8 @@ class CaptionActivity : AppCompatActivity() {
         when(item.itemId){
             R.id.nav_leave -> {
                 Timber.i("-->>SpeechX: LEAVE SESH")
-                // todo leave session
-
+                thisFirebaseAdapter.stopListening()
+                finish()
             }
         }
 
@@ -143,7 +65,7 @@ class CaptionActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityCaptionBinding.inflate(layoutInflater)
+        binding = ActivityGuestSessionBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
 
@@ -161,11 +83,6 @@ class CaptionActivity : AppCompatActivity() {
             localUser?.let {
                 val nameArray = localUser.split(" ").toTypedArray()
                 thisFirebaseUser = if (nameArray.size > 1) nameArray[0] + " " + nameArray[1] else nameArray[0]
-            }
-
-            val localHost = extras.getBoolean(Constants.HOST_TAG)
-            localHost.let {
-                userIsHost = it
             }
 
             val localEmail = extras.getString(Constants.SESSION_USER_EMAIL)
@@ -196,7 +113,6 @@ class CaptionActivity : AppCompatActivity() {
         super.onStart()
 
         binding.webView.visibility = View.VISIBLE
-
         configureDatabaseSnapshotParser(this.sessionId)
 
     }
@@ -225,7 +141,7 @@ class CaptionActivity : AppCompatActivity() {
                 override fun onError(error: DatabaseError) {
                     super.onError(error)
 
-                    Toast.makeText(this@CaptionActivity, "Database access denied", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@GuestSessionActivity, "Database access denied", Toast.LENGTH_SHORT).show()
                     
                 }
 
@@ -263,8 +179,6 @@ class CaptionActivity : AppCompatActivity() {
                                     val endIndex = beginIndex + wordIs.length
                                     val clickableSpan: ClickableSpan = object : ClickableSpan() {
                                         override fun onClick(@NonNull view: View) {
-
-                                            lastSelectedWord = wordIs
 
                                             val url = "https://duckduckgo.com/?q=define+$wordIs&t=ffab&ia=definition"
                                             binding.webView.loadUrl(url)

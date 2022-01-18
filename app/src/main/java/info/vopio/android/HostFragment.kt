@@ -67,7 +67,6 @@ class HostFragment : Fragment() {
             val intent = Intent(fragmentContext, HostSessionActivity::class.java)
             intent.putExtra(Constants.SESSION_USERNAME, localUsername)
             intent.putExtra(Constants.SESSION_USER_EMAIL, localUserEmail)
-            intent.putExtra(Constants.HOST_TAG, allowedToHost)
             intent.putExtra(Constants.SESSION_KEY, this.newSessionID)
             startActivity(intent)
         } else {

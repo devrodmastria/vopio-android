@@ -86,7 +86,7 @@ class GuestFragment : Fragment() {
 
                             Timber.i("-->>SpeechX: session code OK!")
 
-                            val intent = Intent(fragmentContext, CaptionActivity::class.java)
+                            val intent = Intent(fragmentContext, GuestSessionActivity::class.java)
                             intent.putExtra(Constants.SESSION_KEY, snapshot.key)
                             intent.putExtra(Constants.SESSION_USERNAME, localUsername)
                             intent.putExtra(Constants.SESSION_USER_EMAIL, localUserEmail)
