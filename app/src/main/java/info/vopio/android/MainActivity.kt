@@ -17,7 +17,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.*
+import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import com.google.zxing.Result
@@ -34,7 +36,6 @@ class MainActivity : AppCompatActivity() {
     lateinit var thisFirebaseAuth : FirebaseAuth
     lateinit var thisFirebaseDatabaseReference : DatabaseReference
     lateinit var targetFragment : Fragment
-    private var hostCode = MainActivity.NOT_HOST_TAG
 
     private lateinit var binding: ActivityMainBinding
 
@@ -43,7 +44,6 @@ class MainActivity : AppCompatActivity() {
         val SESSION_USERNAME = "SESSION_USER"
         val SESSION_USER_EMAIL = "SESSION_USER_EMAIL"
         val HOST_TAG = "_isHost_"
-        val NOT_HOST_TAG = "_notHost_"
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity() {
 
         when(item.itemId){
             R.id.nav_logout -> {
-                thisFirebaseAuth.signOut()
+                Firebase.auth.signOut()
                 startActivity(Intent(this, OnboardingActivity::class.java))
             }
         }
@@ -95,22 +95,27 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, OnboardingActivity::class.java))
             finish() // finish it before it shows on the screen
         } else {
-            localUsername = thisFirebaseUser.displayName.toString()
-            localUserEmail = thisFirebaseUser.email.toString()
+
+            thisFirebaseUser.displayName?.let {
+                localUsername = it
+            }
+            thisFirebaseUser.email?.let {
+                localUserEmail = it
+            }
         }
 
-        targetFragment = HostFragment.newInstance(hostCode, localUsername, localUserEmail)
+        targetFragment = HostFragment.newInstance(localUsername, localUserEmail)
         supportFragmentManager.beginTransaction().replace(R.id.main_fragment_container, targetFragment).commit()
 
         binding.tabNavigation.setOnItemSelectedListener {
 
             when (it.itemId){
                 R.id.tab_item_prof -> {
-                    targetFragment = HostFragment.newInstance(hostCode, localUsername, localUserEmail)
+                    targetFragment = HostFragment.newInstance(localUsername, localUserEmail)
 
                 }
                 R.id.tab_item_stu -> {
-                    targetFragment = GuestFragment.newInstance(hostCode, localUsername)
+                    targetFragment = GuestFragment.newInstance(localUsername, localUserEmail)
 
                 }
                 R.id.tab_item_lib -> {
@@ -118,7 +123,7 @@ class MainActivity : AppCompatActivity() {
 
                 }
                 else -> {
-                    targetFragment = HostFragment.newInstance(hostCode, localUsername, localUserEmail)
+                    targetFragment = HostFragment.newInstance(localUsername, localUserEmail)
                 }
             }
 

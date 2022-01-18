@@ -40,7 +40,7 @@ import info.vopio.android.databinding.ActivityCaptionBinding
 import me.dm7.barcodescanner.zxing.ZXingScannerView
 import timber.log.Timber
 
-class CaptionActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
+class CaptionActivity : AppCompatActivity() {
 
     lateinit var webSettings : WebSettings
     lateinit var thisFirebaseDatabaseReference : DatabaseReference
@@ -49,7 +49,7 @@ class CaptionActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
     lateinit var captionId : String
     lateinit var captionAuthor : String // author could be any un-muted app user in the session
 
-    lateinit var incomingSessionId : String
+    private var userIsHost : Boolean = false
     lateinit var thisFirebaseUser : String
     lateinit var thisFirebaseEmail : String
     lateinit var thisFirebaseAdapter : FirebaseRecyclerAdapter<MessageModel, MessageViewHolder>
@@ -97,15 +97,14 @@ class CaptionActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
 
     private val thisSpeechServiceListener: SpeechService.Listener =
         SpeechService.Listener { text, isFinal ->
-            if (isFinal) {
-                thisVoiceRecorder?.dismiss()
-            }
+
             if (!TextUtils.isEmpty(text)) {
                 runOnUiThread {
 
                     if (isFinal) {
                         Timber.i("-->>SpeechX: CAPTION: $text")
                         MessageUploader().sendCaptions(thisFirebaseDatabaseReference, sessionId, text, thisFirebaseUser)
+                        thisVoiceRecorder?.dismiss()
                     } else {
                         Timber.i("-->>SpeechX: PARTIAL CAPTION: $text")
                     }
@@ -168,11 +167,13 @@ class CaptionActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
 
             val localUser = extras.getString(MainActivity.SESSION_USERNAME)
             localUser?.let {
-
                 val nameArray = localUser.split(" ").toTypedArray()
-
                 thisFirebaseUser = if (nameArray.size > 1) nameArray[0] + " " + nameArray[1] else nameArray[0]
+            }
 
+            val localHost = extras.getBoolean(MainActivity.HOST_TAG)
+            localHost.let {
+                userIsHost = it
             }
 
             val localEmail = extras.getString(MainActivity.SESSION_USER_EMAIL)
@@ -180,7 +181,10 @@ class CaptionActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
                 thisFirebaseEmail = it
             }
 
-            incomingSessionId = extras.getString(MainActivity.SESSION_KEY).toString()
+            val newSessionId = extras.getString(MainActivity.SESSION_KEY)
+            newSessionId?.let {
+                sessionId = it
+            }
 
         }
 
@@ -197,13 +201,13 @@ class CaptionActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
 
                 Timber.i("-->>SpeechX: micButton disable_speech")
                 binding.micButton.text = getString(R.string.disable_speech)
-                stopSession()
+                stopVoiceRecorder()
 
             } else { // speech service is OFF - turn it ON
 
                 Timber.i("-->>SpeechX: micButton enable_speech")
                 binding.micButton.text = getString(R.string.enable_speech)
-                startSession()
+                startVoiceRecorder()
             }
 
         }
@@ -225,49 +229,34 @@ class CaptionActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
 
     }
 
-
-    override fun handleResult(p0: Result?) { //results from QR scanner
-        val QRresult: String = p0?.text.toString()
-
-        if (QRresult.length == 20) {
-            setContentView(R.layout.activity_caption)
-            configureDatabaseSnapshotParser(QRresult)
-        }
-    }
-
     override fun onStart() {
         super.onStart()
 
-        incomingSessionId.let {
+        if (userIsHost){
 
-            if (incomingSessionId.contentEquals(MainActivity.HOST_TAG)){
+            binding.webView.visibility = View.INVISIBLE
 
-                binding.webView.visibility = View.INVISIBLE
+            val lastFourDigits = sessionId.substring(sessionId.length.minus(4))
 
-                this.sessionId = thisFirebaseDatabaseReference.push().key.toString()
-                val lastFourDigits = sessionId.substring(sessionId.length.minus(4))
+            setTitle("session $lastFourDigits")
 
-                setTitle("session $lastFourDigits")
+            Timber.i("-->>SpeechX: incoming SessionId ${this.sessionId}")
 
-                Timber.i("-->>SpeechX: incomingSessionId ${this.sessionId}")
+            MessageUploader().sendCaptions(
+                thisFirebaseDatabaseReference,
+                this.sessionId, "[ Session Started ]",
+                thisFirebaseUser)
 
-                MessageUploader().sendCaptions(
-                    thisFirebaseDatabaseReference,
-                    this.sessionId, "[ Session Started ]",
-                    thisFirebaseUser)
+            Timber.i("-->>SpeechX: AUTO enable_speech")
+            binding.micButton.text = getString(R.string.disable_speech)
+            startSession()
 
-                Timber.i("-->>SpeechX: AUTO enable_speech")
-                binding.micButton.text = getString(R.string.disable_speech)
-                startSession()
+        } else {
 
-            } else {
+            binding.webView.visibility = View.VISIBLE
 
-                binding.webView.visibility = View.VISIBLE
-                this.sessionId = incomingSessionId
-
-            }
-            configureDatabaseSnapshotParser(this.sessionId)
         }
+        configureDatabaseSnapshotParser(this.sessionId)
 
     }
 
@@ -279,14 +268,16 @@ class CaptionActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
             bindService(Intent(this, SpeechService::class.java), thisServiceConnection, BIND_AUTO_CREATE)
             Timber.i("-->>SpeechX: SpeechService bindService")
 
-            MessageUploader().sendCaptions(thisFirebaseDatabaseReference, sessionId, "[ $thisFirebaseUser has joined ]", thisFirebaseUser)
+            if (!userIsHost){
+                MessageUploader().sendCaptions(thisFirebaseDatabaseReference, sessionId, "[ $thisFirebaseUser has joined ]", thisFirebaseUser)
+            }
 
             // Start listening to microphone
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
                 startVoiceRecorder()
             } else if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.RECORD_AUDIO)) {
 //                showPermissionDialog()
-                Timber.wtf("-->>startSpeechService startSession showPermissionMessageDialog")
+                Timber.wtf("-->>startSpeechService start Session showPermissionMessageDialog")
             } else {
                 Timber.wtf("-->>requestMicPermission startSpeechService else")
                 ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), REQUEST_RECORD_AUDIO_PERMISSION)
@@ -320,7 +311,7 @@ class CaptionActivity : AppCompatActivity(), ZXingScannerView.ResultHandler {
 
 
             if (permission == PackageManager.PERMISSION_GRANTED){
-                Timber.wtf("-->>onRequestPermissionsResult startSession")
+                Timber.wtf("-->>onRequestPermissionsResult start Session")
 
                 startSession()
             } else {

@@ -24,7 +24,6 @@ import info.vopio.android.Utilities.MessageUploader
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
-private const val ARG_PARAM3 = "param3"
 
 /**
  * A simple [Fragment] subclass.
@@ -33,13 +32,14 @@ private const val ARG_PARAM3 = "param3"
  */
 class HostFragment : Fragment() {
     // TODO: Rename and change types of parameters
-    private var hostCode: String? = null
     private var localUsername: String? = null
     private var localUserEmail: String? = null
+
 
     lateinit var fragmentContext: Context
     lateinit var fragmentContainer: View
     lateinit var thisFirebaseDatabaseReference : DatabaseReference
+    lateinit var newSessionID : String
     lateinit var dataSnapshotList : DataSnapshot
 
 
@@ -61,19 +61,20 @@ class HostFragment : Fragment() {
         if (allowedToHost) {
             Timber.i("-->>SpeechX: onDataChange HOST!")
 
+            this.newSessionID = thisFirebaseDatabaseReference.push().key.toString()
+
             val intent = Intent(fragmentContext, CaptionActivity::class.java)
-            intent.putExtra(MainActivity.SESSION_KEY, MainActivity.HOST_TAG)
             intent.putExtra(MainActivity.SESSION_USERNAME, localUsername)
             intent.putExtra(MainActivity.SESSION_USER_EMAIL, localUserEmail)
+            intent.putExtra(MainActivity.HOST_TAG, allowedToHost)
+            intent.putExtra(MainActivity.SESSION_KEY, this.newSessionID)
             startActivity(intent)
         } else {
-
-            Timber.wtf("-->>SpeechX: host code is:$hostCode")
 
             val alertDialogBuilder = AlertDialog.Builder(fragmentContext)
             alertDialogBuilder
                 .setTitle("Oops!")
-                .setMessage("Hosting is not available.")
+                .setMessage("Hosting is not available with your account.")
                 .setCancelable(true)
                 .setPositiveButton("Dismiss") { dialog, which ->
 
@@ -88,9 +89,8 @@ class HostFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            hostCode = it.getString(ARG_PARAM1)
-            localUsername = it.getString(ARG_PARAM2)
-            localUserEmail = it.getString(ARG_PARAM3)
+            localUsername = it.getString(ARG_PARAM1)
+            localUserEmail = it.getString(ARG_PARAM2)
         }
 
         thisFirebaseDatabaseReference = FirebaseDatabase.getInstance().reference
@@ -138,17 +138,15 @@ class HostFragment : Fragment() {
          *
          * @param param1 Parameter 1.
          * @param param2 Parameter 2.
-         * @param param3 Parameter 3.
          * @return A new instance of fragment HostFragment.
          */
         // TODO: Rename and change types and number of parameters
         @JvmStatic
-        fun newInstance(param1: String, param2: String, param3: String) =
+        fun newInstance(param1: String, param2: String) =
             HostFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_PARAM1, param1)
                     putString(ARG_PARAM2, param2)
-                    putString(ARG_PARAM3, param3)
                 }
             }
     }

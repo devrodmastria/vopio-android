@@ -30,9 +30,9 @@ private const val ARG_PARAM2 = "param2"
  */
 class GuestFragment : Fragment() {
     // TODO: Rename and change types of parameters
-    private var hostCode: String? = null
     private var localUsername: String? = null
     private var localUserEmail: String? = null
+
     lateinit var fragmentContext: Context
     lateinit var fragmentContainer: View
 
@@ -51,18 +51,7 @@ class GuestFragment : Fragment() {
             .addListenerForSingleValueEvent(object : ValueEventListener {
 
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
-
                     dataSnapshotList = dataSnapshot
-
-                    for (snapshot in dataSnapshot.getChildren()) {
-
-                        val snapshotSize = snapshot.key?.length
-
-                        val lastFourDigits = snapshot.key?.substring(snapshotSize!!.minus(4))
-
-                        Timber.i("-->>SpeechX: session id $lastFourDigits")
-
-                    }
                 }
 
                 override fun onCancelled(p0: DatabaseError) {
@@ -100,13 +89,14 @@ class GuestFragment : Fragment() {
                             intent.putExtra(MainActivity.SESSION_USERNAME, localUsername)
                             intent.putExtra(MainActivity.SESSION_USER_EMAIL, localUserEmail)
                             startActivity(intent)
+                            break
                         }
 
                     }
 
                     if (!matchFound) {
                         Timber.i("-->>SpeechX: dataSnapshotList Please try again")
-                        Snackbar.make( fragmentContainer.rootView.findViewById(android.R.id.content), "Please try again.", Snackbar.LENGTH_LONG).show()
+                        Snackbar.make( fragmentContainer.rootView.findViewById(android.R.id.content), "Session not found", Snackbar.LENGTH_LONG).show()
 
                     }
                 } else {
@@ -139,8 +129,8 @@ class GuestFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            hostCode = it.getString(ARG_PARAM1)
-            localUsername = it.getString(ARG_PARAM2)
+            localUsername = it.getString(ARG_PARAM1)
+            localUserEmail = it.getString(ARG_PARAM2)
         }
 
         thisFirebaseAuth = FirebaseAuth.getInstance()
