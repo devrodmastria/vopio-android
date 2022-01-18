@@ -116,3 +116,6 @@ ios/SeeLion.xcworkspace/xcuserdata/mini.xcuserdatad/UserInterfaceState.xcusersta
 ios/SeeLion.xcworkspace/xcuserdata/mbp.xcuserdatad/UserInterfaceState.xcuserstate
 ios/SeeLion.xcworkspace/xcuserdata/imac.xcuserdatad/UserInterfaceState.xcuserstate
 android/local.properties
+.idea/jarRepositories.xml
+.idea/misc.xml
+app/src/main/res/raw/mobile_app_credential.json
