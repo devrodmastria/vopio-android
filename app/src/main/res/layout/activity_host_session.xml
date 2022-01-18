@@ -20,15 +20,22 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@android:color/holo_blue_dark"
-            app:menu="@menu/caption_toolbar_menu"
+            app:menu="@menu/host_session_menu"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <WebView
-        android:id="@+id/webView"
-        android:layout_width="0dp"
-        android:layout_height="300dp"
+    <TextView
+        android:id="@+id/sessionIdTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:gravity="center"
+        android:text="@string/app_name"
+        android:textSize="24sp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/appBarLayout" />
@@ -39,14 +46,32 @@
         android:layout_height="0dp"
         android:layout_marginStart="4dp"
         android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
         android:layout_marginEnd="4dp"
         android:textAlignment="center"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/micButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/webView"
+        app:layout_constraintTop_toBottomOf="@+id/sessionIdTextView"
         app:spanCount="1"
-        tools:itemCount="1" />
+        tools:itemCount="1" >
+
+    </androidx.recyclerview.widget.RecyclerView>
+
+    <Button
+        android:id="@+id/micButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@android:color/holo_orange_light"
+        android:text="@string/mic_off"
+        android:textAllCaps="false"
+        android:textColor="@android:color/primary_text_light"
+        android:textSize="12sp"
+        android:textStyle="normal"
+        app:layout_constraintTop_toBottomOf="@id/messageRecyclerView"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

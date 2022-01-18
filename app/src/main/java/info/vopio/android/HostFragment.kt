@@ -18,6 +18,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.ValueEventListener
+import info.vopio.android.Utilities.Constants
 import info.vopio.android.Utilities.MessageUploader
 
 // TODO: Rename parameter arguments, choose names that match
@@ -63,11 +64,11 @@ class HostFragment : Fragment() {
 
             this.newSessionID = thisFirebaseDatabaseReference.push().key.toString()
 
-            val intent = Intent(fragmentContext, CaptionActivity::class.java)
-            intent.putExtra(MainActivity.SESSION_USERNAME, localUsername)
-            intent.putExtra(MainActivity.SESSION_USER_EMAIL, localUserEmail)
-            intent.putExtra(MainActivity.HOST_TAG, allowedToHost)
-            intent.putExtra(MainActivity.SESSION_KEY, this.newSessionID)
+            val intent = Intent(fragmentContext, HostSessionActivity::class.java)
+            intent.putExtra(Constants.SESSION_USERNAME, localUsername)
+            intent.putExtra(Constants.SESSION_USER_EMAIL, localUserEmail)
+            intent.putExtra(Constants.HOST_TAG, allowedToHost)
+            intent.putExtra(Constants.SESSION_KEY, this.newSessionID)
             startActivity(intent)
         } else {
 

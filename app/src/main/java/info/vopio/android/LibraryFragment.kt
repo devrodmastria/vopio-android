@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebSettings
 import android.webkit.WebView
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.database.*
 import info.vopio.android.Utilities.DatabaseStringAdapter
@@ -51,6 +52,9 @@ class LibraryFragment : Fragment() {
         fragmentContainer = inflater.inflate(R.layout.fragment_library, container, false)
         val wordsAdapter = WordsAdapter { word -> adapterOnClick(word) }
         val recyclerView: RecyclerView = fragmentContainer.findViewById(R.id.recyclerView)
+
+        val headerView : TextView = fragmentContainer.findViewById(R.id.headerView)
+        headerView.text = String.format(resources.getString(R.string.library_header), localUserEmail)
 
         thisFirebaseDatabaseReference = FirebaseDatabase.getInstance().reference
         thisFirebaseDatabaseReference.addValueEventListener(object : ValueEventListener {

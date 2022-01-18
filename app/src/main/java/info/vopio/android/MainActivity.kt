@@ -16,6 +16,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
+import com.firebase.ui.auth.AuthUI
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.*
@@ -39,13 +40,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
-    companion object {
-        val SESSION_KEY = "SESSION_KEY"
-        val SESSION_USERNAME = "SESSION_USER"
-        val SESSION_USER_EMAIL = "SESSION_USER_EMAIL"
-        val HOST_TAG = "_isHost_"
-    }
-
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.toolbar_menu, menu)
         return true
@@ -55,8 +49,12 @@ class MainActivity : AppCompatActivity() {
 
         when(item.itemId){
             R.id.nav_logout -> {
-                Firebase.auth.signOut()
-                startActivity(Intent(this, OnboardingActivity::class.java))
+                thisFirebaseAuth.signOut()
+                AuthUI.getInstance()
+                    .signOut(this)
+                    .addOnCompleteListener {
+                        startActivity(Intent(this, OnboardingActivity::class.java))
+                    }
             }
         }
 

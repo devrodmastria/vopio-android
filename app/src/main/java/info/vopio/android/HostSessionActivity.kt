@@ -5,6 +5,7 @@ import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.IBinder
 import android.text.SpannableString
@@ -13,11 +14,9 @@ import android.text.TextUtils
 import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
 import android.view.*
-import android.webkit.WebSettings
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.NonNull
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -25,36 +24,33 @@ import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.database.FirebaseRecyclerAdapter
 import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.firebase.ui.database.SnapshotParser
-import com.google.firebase.database.*
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import info.vopio.android.DataModel.MessageModel
 import info.vopio.android.Services.SpeechService
 import info.vopio.android.Services.VoiceRecorder
 import info.vopio.android.Utilities.Constants
 import info.vopio.android.Utilities.MessageUploader
-import info.vopio.android.databinding.ActivityCaptionBinding
+import info.vopio.android.databinding.ActivityHostSessionBinding
 import timber.log.Timber
 
-class CaptionActivity : AppCompatActivity() {
-
-    lateinit var webSettings : WebSettings
-    lateinit var thisFirebaseDatabaseReference : DatabaseReference
+class HostSessionActivity : AppCompatActivity() {
 
     lateinit var sessionId : String
     lateinit var captionId : String
     lateinit var captionAuthor : String // author could be any un-muted app user in the session
 
-    private var userIsHost : Boolean = false
     lateinit var thisFirebaseUser : String
     lateinit var thisFirebaseEmail : String
     lateinit var thisFirebaseAdapter : FirebaseRecyclerAdapter<MessageModel, MessageViewHolder>
+    lateinit var thisFirebaseDatabaseReference : DatabaseReference
     lateinit var thisLinearLayoutManager : LinearLayoutManager
 
     private var thisSpeechService: SpeechService? = null
     private var thisVoiceRecorder: VoiceRecorder? = null
 
-    private lateinit var binding: ActivityCaptionBinding
-
-    var lastSelectedWord: String = "placeholder"
+    private lateinit var binding: ActivityHostSessionBinding
 
     companion object{
         const val REQUEST_RECORD_AUDIO_PERMISSION = 1
@@ -124,16 +120,16 @@ class CaptionActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.caption_toolbar_menu, menu)
+        menuInflater.inflate(R.menu.host_session_menu, menu)
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
         when(item.itemId){
-            R.id.nav_leave -> {
+            R.id.nav_end_session -> {
                 Timber.i("-->>SpeechX: LEAVE SESH")
-                // todo leave session
+                stopSession()
 
             }
         }
@@ -143,7 +139,7 @@ class CaptionActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityCaptionBinding.inflate(layoutInflater)
+        binding = ActivityHostSessionBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
 
@@ -163,11 +159,6 @@ class CaptionActivity : AppCompatActivity() {
                 thisFirebaseUser = if (nameArray.size > 1) nameArray[0] + " " + nameArray[1] else nameArray[0]
             }
 
-            val localHost = extras.getBoolean(Constants.HOST_TAG)
-            localHost.let {
-                userIsHost = it
-            }
-
             val localEmail = extras.getString(Constants.SESSION_USER_EMAIL)
             localEmail?.let {
                 thisFirebaseEmail = it
@@ -182,8 +173,28 @@ class CaptionActivity : AppCompatActivity() {
 
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
-        webSettings = binding.webView.settings
-        webSettings.javaScriptEnabled = true
+        val lastFourDigits = sessionId.substring(sessionId.length.minus(4))
+        val sessionHeader = "session:   $lastFourDigits"
+        binding.sessionIdTextView.text = sessionHeader
+        binding.sessionIdTextView.setTextColor(getColor(R.color.purple_400))
+        binding.sessionIdTextView.setBackgroundColor(getColor(R.color.purple_50))
+
+        binding.micButton.setOnClickListener {
+
+            if (thisVoiceRecorder != null) { // speech service is ON - turn it OFF
+
+                binding.micButton.setText(getString(R.string.mic_off))
+                binding.micButton.setBackgroundColor(getColor(R.color.blue_bright))
+                stopVoiceRecorder()
+
+            } else { // speech service is OFF - turn it ON
+
+                binding.micButton.setText(getString(R.string.mic_on))
+                binding.micButton.setBackgroundColor(getColor(R.color.green))
+                startVoiceRecorder()
+            }
+
+        }
 
         // setup RecyclerView with last item showing first
         thisLinearLayoutManager = LinearLayoutManager(this)
@@ -195,10 +206,96 @@ class CaptionActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
 
-        binding.webView.visibility = View.VISIBLE
+        Timber.i("-->>SpeechX: incoming SessionId ${this.sessionId}")
+
+        MessageUploader().sendCaptions(
+            thisFirebaseDatabaseReference,
+            this.sessionId, "[ Session Started ]",
+            thisFirebaseUser)
+
+        binding.micButton.text = getString(R.string.mic_on)
+        binding.micButton.setBackgroundColor(getColor(R.color.green))
+        startSession()
 
         configureDatabaseSnapshotParser(this.sessionId)
 
+    }
+
+    private fun startSession() {
+
+        if (thisFirebaseUser.isNotEmpty()) {
+
+            // Prepare Cloud Speech API - this starts the Speech API if user is signed in with Google
+            bindService(Intent(this, SpeechService::class.java), thisServiceConnection, BIND_AUTO_CREATE)
+            Timber.i("-->>SpeechX: SpeechService bindService")
+
+            // Start listening to microphone
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+                startVoiceRecorder()
+            } else if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.RECORD_AUDIO)) {
+//                showPermissionDialog()
+                Timber.wtf("-->>startSpeechService start Session showPermissionMessageDialog")
+            } else {
+                Timber.wtf("-->>requestMicPermission startSpeechService else")
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), REQUEST_RECORD_AUDIO_PERMISSION)
+            }
+
+        }
+    }
+
+    private fun stopSession() {
+        Timber.i("-->>SpeechX: stopSession ${this.sessionId}")
+
+        // Stop Cloud Speech API
+        if (thisSpeechService != null){
+            thisSpeechService!!.removeListener(thisSpeechServiceListener)
+            thisSpeechService!!.stopSelf()
+            unbindService(thisServiceConnection)
+        }
+        thisFirebaseAdapter.stopListening()
+        stopVoiceRecorder()
+        thisFirebaseDatabaseReference.child(this.sessionId).removeValue()
+        super.onBackPressed()
+
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        for (permission in grantResults){
+
+            Timber.wtf("-->>onRequestPermissionsResult loop $permission")
+
+
+            if (permission == PackageManager.PERMISSION_GRANTED){
+                Timber.wtf("-->>onRequestPermissionsResult start Session")
+
+                startSession()
+            } else {
+                Timber.wtf("-->>onRequestPermissionsResult permission DENIED")
+                Toast.makeText(this, R.string.permission_message, Toast.LENGTH_SHORT).show()
+
+            }
+        }
+    }
+
+    private fun startVoiceRecorder() {
+
+        // reset it
+        if (thisVoiceRecorder != null) {
+            thisVoiceRecorder?.stop()
+//            thisVoiceRecorder = null
+        }
+
+        thisVoiceRecorder = VoiceRecorder(thisVoiceCallback)
+        thisVoiceRecorder?.start()
+    }
+
+    private fun stopVoiceRecorder() {
+        if (thisVoiceRecorder != null) {
+            thisVoiceRecorder?.stop()
+            thisVoiceRecorder = null
+        }
     }
 
     private fun configureDatabaseSnapshotParser(MESSAGES_CHILD: String) {
@@ -225,8 +322,8 @@ class CaptionActivity : AppCompatActivity() {
                 override fun onError(error: DatabaseError) {
                     super.onError(error)
 
-                    Toast.makeText(this@CaptionActivity, "Database access denied", Toast.LENGTH_SHORT).show()
-                    
+                    Toast.makeText(this@HostSessionActivity, "Database access denied", Toast.LENGTH_SHORT).show()
+
                 }
 
                 override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): MessageViewHolder {
@@ -253,37 +350,6 @@ class CaptionActivity : AppCompatActivity() {
                         val caption: String = friendlyMessage.text
                         val spanString = SpannableString(caption)
 
-                        if (!caption.contains("[")) { // do not hyperlink system notes
-
-                            val wordArray =
-                                caption.split(" ").toTypedArray()
-                            for (wordIs in wordArray) {
-                                if (wordIs.length > 5) {
-                                    val beginIndex = caption.indexOf(wordIs)
-                                    val endIndex = beginIndex + wordIs.length
-                                    val clickableSpan: ClickableSpan = object : ClickableSpan() {
-                                        override fun onClick(@NonNull view: View) {
-
-                                            lastSelectedWord = wordIs
-
-                                            val url = "https://duckduckgo.com/?q=define+$wordIs&t=ffab&ia=definition"
-                                            binding.webView.loadUrl(url)
-                                            binding.webView.visibility = View.VISIBLE
-
-                                            MessageUploader().saveWord(thisFirebaseDatabaseReference, wordIs, thisFirebaseEmail)
-
-                                        }
-                                    }
-                                    spanString.setSpan(
-                                        clickableSpan,
-                                        beginIndex,
-                                        endIndex,
-                                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                                    )
-                                }
-                            }
-                        }
-
                         viewHolder.authorTextView.text = captionAuthor
                         viewHolder.captionTextView.text = spanString
                         viewHolder.captionTextView.movementMethod = LinkMovementMethod.getInstance()
@@ -300,11 +366,11 @@ class CaptionActivity : AppCompatActivity() {
                 // user is at the bottom of the list, scroll to the bottom
                 // of the list to show the newly added message.
                 if (lastVisiblePosition == -1 ||
-                    positionStart >= friendlyMessageCount - 1 &&
-                    lastVisiblePosition == positionStart - 1
-                ) {
+                    positionStart >= friendlyMessageCount - 1 && lastVisiblePosition == positionStart - 1) {
+
                     binding.messageRecyclerView.scrollToPosition(positionStart)
                 }
+
             }
         })
         binding.messageRecyclerView.adapter = thisFirebaseAdapter

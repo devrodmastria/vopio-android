@@ -16,6 +16,7 @@ import androidx.appcompat.app.AlertDialog
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import info.vopio.android.Utilities.Constants
 import timber.log.Timber
 
 // TODO: Rename parameter arguments, choose names that match
@@ -47,6 +48,7 @@ class GuestFragment : Fragment() {
         //show a list of active sessions names?
         //check code against user input
 
+        // Retrieve active sessions
         thisFirebaseDatabaseReference.root
             .addListenerForSingleValueEvent(object : ValueEventListener {
 
@@ -85,9 +87,9 @@ class GuestFragment : Fragment() {
                             Timber.i("-->>SpeechX: session code OK!")
 
                             val intent = Intent(fragmentContext, CaptionActivity::class.java)
-                            intent.putExtra(MainActivity.SESSION_KEY, snapshot.key)
-                            intent.putExtra(MainActivity.SESSION_USERNAME, localUsername)
-                            intent.putExtra(MainActivity.SESSION_USER_EMAIL, localUserEmail)
+                            intent.putExtra(Constants.SESSION_KEY, snapshot.key)
+                            intent.putExtra(Constants.SESSION_USERNAME, localUsername)
+                            intent.putExtra(Constants.SESSION_USER_EMAIL, localUserEmail)
                             startActivity(intent)
                             break
                         }
@@ -135,6 +137,7 @@ class GuestFragment : Fragment() {
 
         thisFirebaseAuth = FirebaseAuth.getInstance()
         thisFirebaseDatabaseReference = FirebaseDatabase.getInstance().reference
+
     }
 
     override fun onCreateView(

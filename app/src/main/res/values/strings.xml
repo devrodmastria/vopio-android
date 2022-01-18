@@ -2,6 +2,8 @@
     <string name="app_name">vopio</string>
     <string name="join_session">Join session</string>
     <string name="scan_new_qr">Join new session</string>
+    <string name="end_session">End session</string>
+
     <string name="leave_session">Leave session</string>
     <string name="send_feedback">Notify user about pronunciation</string>
     <string name="scan_instruction">Scan code from host phone\n to join session.</string>
@@ -10,12 +12,12 @@
     <string name="logout">Logout</string>
     <string name="sample_caption">This is one interestingly long word.</string>
     <string name="permission_message">This app needs to capture audio to recognize your speech.</string>
-    <string name="disable_speech">Mute</string>
-    <string name="enable_speech">Unmute</string>
+    <string name="mic_on">Mic ON</string>
+    <string name="mic_off">Mic OFF</string>
     <string name="share_code">Share QR code</string>
     <string name="title_activity_onboarding">OnboardingActivity</string>
 
-    <string name="library_header">List of saved words</string>
+    <string name="library_header">List of words saved by\n %1$s</string>
 
     <string name="onboard_one_title">Connect To Instructor</string>
     <string name="onboard_one">Students can enter a code that the instructor generates on their smartphone.
