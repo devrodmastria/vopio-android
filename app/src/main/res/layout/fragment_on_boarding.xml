@@ -13,9 +13,9 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:layout_gravity="center"
         android:layout_marginBottom="10dp"
-        android:layout_gravity="center">
+        android:orientation="vertical">
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/imageViewOnBoard"
@@ -26,30 +26,30 @@
             android:layout_marginBottom="30dp" />
 
         <TextView
-            android:text="TextView"
+            android:id="@+id/section_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
             android:layout_marginBottom="30dp"
-            android:id="@+id/section_title"
-            android:textSize="24sp"
             android:gravity="center"
-            android:textColor="@android:color/white"
-            android:layout_gravity="center_horizontal"/>
+            android:text="TextView"
+            android:textColor="@android:color/black"
+            android:textSize="24sp" />
 
         <TextView
             android:id="@+id/section_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Placeholder intro message. Placeholder intro message. Placeholder intro message. Placeholder intro message. Placeholder intro message."
-            android:textSize="18sp"
-            android:gravity="center"
+            android:layout_gravity="center_horizontal"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
+            android:gravity="center"
             android:lineSpacingMultiplier="1.5"
-            android:textColor="@android:color/white"
-            android:layout_gravity="center_horizontal"/>
+            android:text="Placeholder intro message. Placeholder intro message. Placeholder intro message. Placeholder intro message. Placeholder intro message."
+            android:textColor="@android:color/black"
+            android:textSize="18sp" />
 
     </LinearLayout>
 

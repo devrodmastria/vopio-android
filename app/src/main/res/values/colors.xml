@@ -10,13 +10,13 @@
     <color name="orange">@android:color/holo_orange_light</color>
     <color name="green">@android:color/holo_green_light</color>
 
-    <color name="page_one">@android:color/holo_blue_dark</color>
-    <color name="page_two">@android:color/holo_green_dark</color>
-    <color name="page_three">@android:color/holo_orange_dark</color>
-
     <color name="light_purple">@color/purple_100</color>
 
     <color name="theme_purple">@color/purple_200</color>
+
+    <color name="blue_500">#2196F3</color>
+    <color name="green_500">#4CAF50</color>
+    <color name="orange_500">#FF9800</color>
 
     <color name="purple_50">#F3E5F5</color>
     <color name="purple_100">#E1BEE7</color>

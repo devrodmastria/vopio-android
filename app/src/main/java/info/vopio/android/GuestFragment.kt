@@ -62,12 +62,16 @@ class GuestFragment : Fragment() {
 
             })
 
+        val hintText = "Enter session code"
+        val dialogTitle = "Enter session code\n(case sensitive)"
+
         val textInputView = EditText(fragmentContext)
         textInputView.inputType = InputType.TYPE_CLASS_TEXT
+        textInputView.hint = hintText
 
         val alertDialogBuilder = AlertDialog.Builder(fragmentContext)
         alertDialogBuilder
-            .setTitle("Enter session code\n(case sensitive)")
+            .setTitle(dialogTitle)
             .setView(textInputView)
             .setPositiveButton("Submit") { dialog, which ->
 

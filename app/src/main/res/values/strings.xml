@@ -3,6 +3,7 @@
     <string name="join_session">Join session</string>
     <string name="scan_new_qr">Join new session</string>
     <string name="end_session">End session</string>
+    <string name="session_status">Listening</string>
 
     <string name="leave_session">Leave session</string>
     <string name="send_feedback">Notify user about pronunciation</string>

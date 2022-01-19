@@ -23,8 +23,6 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.auth.FirebaseAuth
 import info.vopio.android.databinding.ActivityOnboardingBinding
 
 
@@ -32,17 +30,13 @@ class OnboardingActivity : AppCompatActivity() {
 
     lateinit var thisSectionsPagerAdapter: SectionsPagerAdapter
     lateinit var nextBtn: Button
-    lateinit var skipBtn: Button
-    lateinit var finishBtn: Button
+    lateinit var signinBtn: Button
 
     lateinit var imageZero: ImageView
     lateinit var imageOne: ImageView
     lateinit var imageTwo: ImageView
     lateinit var indicators: Array<ImageView>
     lateinit var thisViewPager: ViewPager
-
-    lateinit var thisFirebaseAnalytics: FirebaseAnalytics
-    lateinit var thisFirebaseAuth: FirebaseAuth
 
     private var page = 0
     val SLIDER_DURATION : Long = 7000
@@ -71,12 +65,9 @@ class OnboardingActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
-        thisFirebaseAnalytics = FirebaseAnalytics.getInstance(applicationContext)
-
         thisSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
 
-        skipBtn = binding.introBtnSignIn
-        finishBtn = binding.introBtnFinish
+        signinBtn = binding.introBtnSignIn
         nextBtn = binding.introBtnNext
 
         imageZero = binding.introIndicator0
@@ -89,9 +80,9 @@ class OnboardingActivity : AppCompatActivity() {
         thisViewPager.currentItem = page
         updateIndicators(page)
 
-        val color1 = ContextCompat.getColor(this, R.color.page_one)
-        val color2 = ContextCompat.getColor(this, R.color.page_two)
-        val color3 = ContextCompat.getColor(this, R.color.page_three)
+        val color1 = ContextCompat.getColor(this, R.color.blue_500)
+        val color2 = ContextCompat.getColor(this, R.color.green_500)
+        val color3 = ContextCompat.getColor(this, R.color.orange_500)
 
         val colorList = intArrayOf(color1, color2, color3)
         val evaluator = ArgbEvaluator()
@@ -176,23 +167,9 @@ class OnboardingActivity : AppCompatActivity() {
             thisViewPager.setCurrentItem(page, true)
         }
 
-        skipBtn.setOnClickListener {
-            val eventMessage = "Skipped_onboarding"
-            val bundle = Bundle()
-            bundle.putString(FirebaseAnalytics.Param.ACHIEVEMENT_ID, "skipped_onboarding")
-            thisFirebaseAnalytics.logEvent(eventMessage, bundle)
-
-            trySignIn()
-        }
-
-        finishBtn.setOnClickListener {
-            val eventMessage = "Finished_onboarding"
-            val bundle = Bundle()
-            bundle.putString(FirebaseAnalytics.Param.ACHIEVEMENT_ID, "finished_onboard")
-            thisFirebaseAnalytics.logEvent(eventMessage, bundle)
-
-            trySignIn()
-
+        signinBtn.setOnClickListener {
+            startActivity(Intent(this, SignInActivity::class.java))
+            finish()
         }
 
     }
@@ -207,22 +184,6 @@ class OnboardingActivity : AppCompatActivity() {
         super.onResume()
         // begin auto swipe
         swipeHandler.post(autoSwipeTask)
-    }
-
-    private fun trySignIn(){
-
-        // Initialize Firebase Auth
-        thisFirebaseAuth = FirebaseAuth.getInstance()
-        val thisFirebaseUser = thisFirebaseAuth.currentUser
-        if (thisFirebaseUser == null) {
-            // Not signed in, launch the Sign In activity
-            startActivity(Intent(this, SignInActivity::class.java))
-            finish()
-        } else {
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
-        }
-
     }
 
     private fun updateIndicators(position: Int) {

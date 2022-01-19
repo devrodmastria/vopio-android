@@ -9,14 +9,11 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.IBinder
 import android.text.SpannableString
-import android.text.Spanned
 import android.text.TextUtils
 import android.text.method.LinkMovementMethod
-import android.text.style.ClickableSpan
 import android.view.*
 import android.widget.TextView
 import android.widget.Toast
-import androidx.annotation.NonNull
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -89,17 +86,21 @@ class HostSessionActivity : AppCompatActivity() {
         SpeechService.Listener { text, isFinal ->
 
             if (!TextUtils.isEmpty(text)) {
-                runOnUiThread {
 
-                    if (isFinal) {
-                        Timber.i("-->>SpeechX: CAPTION: $text")
-                        MessageUploader().sendCaptions(thisFirebaseDatabaseReference, sessionId, text, thisFirebaseUser)
-                        thisVoiceRecorder?.dismiss()
-                    } else {
-                        Timber.i("-->>SpeechX: PARTIAL CAPTION: $text")
+                if (isFinal){
+                    runOnUiThread {
+                        binding.statusView.text = getString(R.string.session_status)
                     }
 
+                    MessageUploader().sendCaptions(thisFirebaseDatabaseReference, sessionId, text, thisFirebaseUser)
+                    thisVoiceRecorder?.dismiss()
+
+                } else {
+                    runOnUiThread {
+                        binding.statusView.text = text
+                    }
                 }
+
             }
         }
 
@@ -176,25 +177,8 @@ class HostSessionActivity : AppCompatActivity() {
         val lastFourDigits = sessionId.substring(sessionId.length.minus(4))
         val sessionHeader = "session:   $lastFourDigits"
         binding.sessionIdTextView.text = sessionHeader
-        binding.sessionIdTextView.setTextColor(getColor(R.color.purple_400))
+        binding.sessionIdTextView.setTextColor(getColor(R.color.purple_500))
         binding.sessionIdTextView.setBackgroundColor(getColor(R.color.purple_50))
-
-        binding.micButton.setOnClickListener {
-
-            if (thisVoiceRecorder != null) { // speech service is ON - turn it OFF
-
-                binding.micButton.setText(getString(R.string.mic_off))
-                binding.micButton.setBackgroundColor(getColor(R.color.blue_bright))
-                stopVoiceRecorder()
-
-            } else { // speech service is OFF - turn it ON
-
-                binding.micButton.setText(getString(R.string.mic_on))
-                binding.micButton.setBackgroundColor(getColor(R.color.green))
-                startVoiceRecorder()
-            }
-
-        }
 
         // setup RecyclerView with last item showing first
         thisLinearLayoutManager = LinearLayoutManager(this)
@@ -213,8 +197,6 @@ class HostSessionActivity : AppCompatActivity() {
             this.sessionId, "[ Session Started ]",
             thisFirebaseUser)
 
-        binding.micButton.text = getString(R.string.mic_on)
-        binding.micButton.setBackgroundColor(getColor(R.color.green))
         startSession()
 
         configureDatabaseSnapshotParser(this.sessionId)
@@ -245,6 +227,7 @@ class HostSessionActivity : AppCompatActivity() {
 
     private fun stopSession() {
         Timber.i("-->>SpeechX: stop Session ${this.sessionId}")
+
 
         // Stop Cloud Speech API
         if (thisSpeechService != null){
@@ -286,7 +269,6 @@ class HostSessionActivity : AppCompatActivity() {
         // reset it
         if (thisVoiceRecorder != null) {
             thisVoiceRecorder?.stop()
-//            thisVoiceRecorder = null
         }
 
         thisVoiceRecorder = VoiceRecorder(thisVoiceCallback)

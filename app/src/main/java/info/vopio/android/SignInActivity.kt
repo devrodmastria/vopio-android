@@ -8,6 +8,7 @@ import com.firebase.ui.auth.AuthUI
 import com.google.android.material.snackbar.Snackbar
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
@@ -19,6 +20,8 @@ class SignInActivity : AppCompatActivity(){
     private val signIn: ActivityResultLauncher<Intent> = registerForActivityResult(FirebaseAuthUIActivityResultContract(), this::onSignInResult)
     private lateinit var binding: ActivitySignInBinding
 
+    lateinit var thisFirebaseAnalytics: FirebaseAnalytics
+
     companion object {
         private const val TAG = "SignInActivity"
     }
@@ -28,6 +31,8 @@ class SignInActivity : AppCompatActivity(){
         binding = ActivitySignInBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
+
+        thisFirebaseAnalytics = FirebaseAnalytics.getInstance(applicationContext)
 
     }
 
@@ -51,6 +56,12 @@ class SignInActivity : AppCompatActivity(){
 
     private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
         if (result.resultCode == RESULT_OK) {
+
+            val eventMessage = "Finished_onboarding"
+            val bundle = Bundle()
+            bundle.putString(FirebaseAnalytics.Param.ACHIEVEMENT_ID, "finished_onboard")
+            thisFirebaseAnalytics.logEvent(eventMessage, bundle)
+
             startActivity(Intent(this@SignInActivity, MainActivity::class.java))
         } else {
             Snackbar.make(binding.root, "No internet connection?", Snackbar.LENGTH_LONG).show()

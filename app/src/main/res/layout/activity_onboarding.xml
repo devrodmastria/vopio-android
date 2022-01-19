@@ -67,14 +67,6 @@
                 android:layout_marginRight="@dimen/activity_margin_half"
                 android:background="@drawable/indicator_unselected" />
 
-<!--            <ImageView-->
-<!--                android:id="@+id/intro_indicator_3"-->
-<!--                android:layout_width="8dp"-->
-<!--                android:layout_height="8dp"-->
-<!--                android:layout_marginEnd="@dimen/activity_margin_half"-->
-<!--                android:layout_marginRight="@dimen/activity_margin_half"-->
-<!--                android:background="@drawable/indicator_unselected" />-->
-
         </LinearLayout>
 
         <Button
@@ -84,18 +76,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="start|center"
             android:text="@string/sign_in"
-            android:textColor="@android:color/white" />
-
-        <!-- This overlaps the next button in the last slide -->
-        <Button
-            android:id="@+id/intro_btn_finish"
-            style="@style/Widget.AppCompat.Button.Borderless"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end|center"
-            android:text="Finish"
-            android:textColor="@android:color/white"
-            android:visibility="gone" />
+            android:textColor="@android:color/black" />
 
         <Button
             android:id="@+id/intro_btn_next"
@@ -104,7 +85,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end|center"
             android:text="Next"
-            android:textColor="@android:color/white" />
+            android:textColor="@android:color/black" />
     </FrameLayout>
 
 
