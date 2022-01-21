@@ -101,13 +101,11 @@ class GuestFragment : Fragment() {
                     }
 
                     if (!matchFound) {
-                        Timber.i("-->>SpeechX: dataSnapshotList Please try again")
                         Snackbar.make( fragmentContainer.rootView.findViewById(android.R.id.content), "Session not found", Snackbar.LENGTH_LONG).show()
-
+                        Timber.i("-->>SpeechX: dataSnapshotList Please try again")
                     }
                 } else {
-                    Toast.makeText(fragmentContext, "Sessions not available offline.", Toast.LENGTH_LONG)
-                        .show()
+                    Snackbar.make( fragmentContainer.rootView.findViewById(android.R.id.content), "Sessions not available offline.", Snackbar.LENGTH_LONG).show()
                     Timber.i("-->>SpeechX: dataSnapshotList invalid")
                 }
 
