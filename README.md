@@ -1,15 +1,11 @@
 # vopio-android
 
-**Vision**: to make on-campus college lectures truly accessible to students and professors who struggle to keep up with verbal communication.
+**Vision**:  to make on-campus college lectures more fulfilling to students and instructors.
 
-**Scope**: This mobile app is being developed as part of my project at TechTown Detroit and with advising from Lawrence Tech University Professor Oriehi Destiny.
+**Scope**: This mobile app is being developed as part of an ed-tech startup.
 
 **SRS**: Software Requirements Specification document available upon request.
 
-**iOS** codebase also available for review upon request.
-
-**Data dictionary**: the vopio name is a collage of **v** for voice and **oppia**, which means "to learn" in the Finnish language.
+**Etymology**: the word vopio is a combination of **v** for voice and **oppia**, which means "to learn" in the Finnish language.
 
 **Licensing**: This repo contains proprietary software as well as external libraries from third parties.
-
-For inquiries, please email me at rmesquita@ltu.edu
