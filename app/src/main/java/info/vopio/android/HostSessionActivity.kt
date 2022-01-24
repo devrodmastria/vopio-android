@@ -233,7 +233,7 @@ class HostSessionActivity : AppCompatActivity() {
         thisFirebaseAdapter.stopListening()
         stopVoiceRecorder()
 
-        thisFirebaseDatabaseReference.child(this.sessionId).removeValue()
+        thisFirebaseDatabaseReference.child(Constants.SESSION_LIST).child(this.sessionId).child(Constants.ACTIVE_SESSION).setValue(false)
 
         finish()
 

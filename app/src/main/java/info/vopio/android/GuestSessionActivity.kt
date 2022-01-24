@@ -121,12 +121,12 @@ class GuestSessionActivity : AppCompatActivity() {
 
         val parser: SnapshotParser<MessageModel> =
             SnapshotParser<MessageModel> { dataSnapshot ->
-                val friendlyMessage: MessageModel? = dataSnapshot.getValue(MessageModel::class.java)
+                val captionItemMessage: MessageModel? = dataSnapshot.getValue(MessageModel::class.java)
 
-                if (friendlyMessage != null) {
-                    friendlyMessage.id = dataSnapshot.key
+                if (captionItemMessage != null) {
+                    captionItemMessage.id = dataSnapshot.key
                 }
-                friendlyMessage!!
+                captionItemMessage!!
             }
 
         val messagesRef: DatabaseReference = thisFirebaseDatabaseReference.child(Constants.SESSION_LIST).child(sessionId).child(Constants.CAPTION_LIST)

@@ -8,16 +8,19 @@ android:layout_height="wrap_content">
         android:id="@+id/cardView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:minHeight="100dp"
-        android:minWidth="100dp"
-
-        android:layout_marginStart="16dp"
-        android:layout_marginBottom="4dp"
         android:layout_marginTop="4dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginBottom="8dp"
+
+        android:paddingBottom="8dp"
+
+        android:minWidth="100dp"
+        android:minHeight="80dp"
 
         app:cardBackgroundColor="@color/purple_500"
         app:cardCornerRadius="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -28,6 +31,7 @@ android:layout_height="wrap_content">
             android:layout_gravity="start"
             android:layout_marginStart="8dp"
             android:layout_marginTop="4dp"
+            android:paddingBottom="4dp"
 
             android:text="Author"
             android:textColor="#FFEB3B"
@@ -38,11 +42,13 @@ android:layout_height="wrap_content">
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="start|center"
+            android:layout_marginTop="4dp"
+            android:paddingTop="4dp"
             android:paddingStart="8dp"
             android:paddingEnd="8dp"
 
 
-            android:text="Caption"
+            android:text="Caption test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test "
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="#FFEB3B"
             android:textSize="24sp" />
