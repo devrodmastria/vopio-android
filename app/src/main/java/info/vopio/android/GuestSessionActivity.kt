@@ -113,11 +113,11 @@ class GuestSessionActivity : AppCompatActivity() {
         super.onStart()
 
         binding.webView.visibility = View.VISIBLE
-        configureDatabaseSnapshotParser(this.sessionId)
+        configureDatabaseSnapshotParser()
 
     }
 
-    private fun configureDatabaseSnapshotParser(MESSAGES_CHILD: String) {
+    private fun configureDatabaseSnapshotParser() {
 
         val parser: SnapshotParser<MessageModel> =
             SnapshotParser<MessageModel> { dataSnapshot ->
@@ -129,7 +129,7 @@ class GuestSessionActivity : AppCompatActivity() {
                 friendlyMessage!!
             }
 
-        val messagesRef: DatabaseReference = thisFirebaseDatabaseReference.child(MESSAGES_CHILD)
+        val messagesRef: DatabaseReference = thisFirebaseDatabaseReference.child(Constants.SESSION_LIST).child(sessionId).child(Constants.CAPTION_LIST)
         val options: FirebaseRecyclerOptions<MessageModel> =
             FirebaseRecyclerOptions.Builder<MessageModel>()
                 .setQuery(messagesRef, parser)

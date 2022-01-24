@@ -11,13 +11,15 @@ class MessageUploader() {
             val captionMessage =
                 MessageModel(caption, username)
 
-            sessionReferenceInDatabase.child(sessionId).push().setValue(captionMessage)
+            sessionReferenceInDatabase.child(Constants.SESSION_LIST)
+                .child(sessionId).child(Constants.CAPTION_LIST).push().setValue(captionMessage)
         }
     }
 
     fun saveWord(thisFirebaseRef : DatabaseReference, word: String, user_email: String){
 
         val userId = DatabaseStringAdapter().createUserIdFromEmail(user_email)
-        thisFirebaseRef.child("student_list").child(userId).child("saved_words").push().setValue(word)
+        thisFirebaseRef.child(Constants.STUDENT_LIST)
+            .child(userId).child(Constants.SAVED_WORDS).push().setValue(word)
     }
 }

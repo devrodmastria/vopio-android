@@ -13,6 +13,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
 import info.vopio.android.databinding.ActivitySignInBinding
+import timber.log.Timber
 
 
 class SignInActivity : AppCompatActivity(){
@@ -21,10 +22,6 @@ class SignInActivity : AppCompatActivity(){
     private lateinit var binding: ActivitySignInBinding
 
     lateinit var thisFirebaseAnalytics: FirebaseAnalytics
-
-    companion object {
-        private const val TAG = "SignInActivity"
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,6 +62,7 @@ class SignInActivity : AppCompatActivity(){
             startActivity(Intent(this@SignInActivity, MainActivity::class.java))
         } else {
             Snackbar.make(binding.root, "No internet connection?", Snackbar.LENGTH_LONG).show()
+            Timber.wtf("-->> onSignInResult " + result.resultCode)
         }
     }
 

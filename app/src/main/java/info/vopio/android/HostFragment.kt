@@ -49,9 +49,11 @@ class HostFragment : Fragment() {
         var allowedToHost = false
 
         // Loop through Real Time Database -- look for matching user emails (whitelisted) for professors.
-        for (snapshot in dataSnapshotList.child("host_list").children) {
+        for (snapshot in dataSnapshotList.children) {
 
-            val hostEmail = snapshot.child("email").value
+            var hostEmail = snapshot.key
+            hostEmail = hostEmail?.replace("+","@")
+            hostEmail = hostEmail?.replace("_",".")
 
             if (hostEmail == localUserEmail){
                 allowedToHost = true
@@ -62,7 +64,17 @@ class HostFragment : Fragment() {
         if (allowedToHost) {
             Timber.i("-->>SpeechX: onDataChange HOST!")
 
-            this.newSessionID = thisFirebaseDatabaseReference.push().key.toString()
+            // generate session ID
+            this.newSessionID = thisFirebaseDatabaseReference.child(Constants.SESSION_LIST).push().key.toString()
+
+            thisFirebaseDatabaseReference.child(Constants.SESSION_LIST).child(newSessionID).child(Constants.HOST_EMAIL).setValue(localUserEmail)
+            thisFirebaseDatabaseReference.child(Constants.SESSION_LIST).child(newSessionID).child(Constants.ACTIVE_SESSION).setValue(true)
+
+            val captionID = thisFirebaseDatabaseReference.child(Constants.SESSION_LIST).child(newSessionID).child(Constants.CAPTION_LIST).push().key.toString()
+            thisFirebaseDatabaseReference.child(Constants.SESSION_LIST).child(newSessionID).child(Constants.CAPTION_LIST).child(captionID).child(Constants.CAPTION_AUTHOR).setValue(localUsername)
+            thisFirebaseDatabaseReference.child(Constants.SESSION_LIST).child(newSessionID).child(Constants.CAPTION_LIST).child(captionID).child(Constants.CAPTION_TEXT).setValue("[ Session started ]")
+            thisFirebaseDatabaseReference.child(Constants.SESSION_LIST).child(newSessionID).child(Constants.CAPTION_LIST).child(captionID).child(Constants.CAPTION_FEEDBACK).setValue("n/a")
+
 
             val intent = Intent(fragmentContext, HostSessionActivity::class.java)
             intent.putExtra(Constants.SESSION_USERNAME, localUsername)
@@ -94,7 +106,8 @@ class HostFragment : Fragment() {
         }
 
         thisFirebaseDatabaseReference = FirebaseDatabase.getInstance().reference
-        thisFirebaseDatabaseReference.addValueEventListener(object : ValueEventListener {
+        thisFirebaseDatabaseReference.child(Constants.HOST_LIST)
+            .addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 // This method is called once with the initial value and again
                 // whenever data at this location is updated.
@@ -112,7 +125,7 @@ class HostFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?): View? {
+        savedInstanceState: Bundle?): View {
         // Inflate the layout for this fragment
 
         fragmentContainer = inflater.inflate(R.layout.fragment_host, container, false)

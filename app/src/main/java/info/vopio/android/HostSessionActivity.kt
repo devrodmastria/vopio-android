@@ -192,14 +192,9 @@ class HostSessionActivity : AppCompatActivity() {
 
         Timber.i("-->>SpeechX: incoming SessionId ${this.sessionId}")
 
-        MessageUploader().sendCaptions(
-            thisFirebaseDatabaseReference,
-            this.sessionId, "[ Session Started ]",
-            thisFirebaseUser)
-
         startSession()
 
-        configureDatabaseSnapshotParser(this.sessionId)
+        configureDatabaseSnapshotParser()
 
     }
 
@@ -282,19 +277,21 @@ class HostSessionActivity : AppCompatActivity() {
         }
     }
 
-    private fun configureDatabaseSnapshotParser(MESSAGES_CHILD: String) {
+    private fun configureDatabaseSnapshotParser() {
 
         val parser: SnapshotParser<MessageModel> =
             SnapshotParser<MessageModel> { dataSnapshot ->
-                val friendlyMessage: MessageModel? = dataSnapshot.getValue(MessageModel::class.java)
+                val captionItem: MessageModel? = dataSnapshot.getValue(MessageModel::class.java)
 
-                if (friendlyMessage != null) {
-                    friendlyMessage.id = dataSnapshot.key
+                Timber.wtf("-->> snapItem " + captionItem.toString())
+
+                if (captionItem != null) {
+                    captionItem.id = dataSnapshot.key
                 }
-                friendlyMessage!!
+                captionItem!!
             }
 
-        val messagesRef: DatabaseReference = thisFirebaseDatabaseReference.child(MESSAGES_CHILD)
+        val messagesRef: DatabaseReference = thisFirebaseDatabaseReference.child(Constants.SESSION_LIST).child(sessionId).child(Constants.CAPTION_LIST)
         val options: FirebaseRecyclerOptions<MessageModel> =
             FirebaseRecyclerOptions.Builder<MessageModel>()
                 .setQuery(messagesRef, parser)
@@ -324,14 +321,14 @@ class HostSessionActivity : AppCompatActivity() {
                 override fun onBindViewHolder(
                     viewHolder: MessageViewHolder,
                     position: Int,
-                    friendlyMessage: MessageModel
+                    captionMessage: MessageModel
                 ) {
-                    if (friendlyMessage.text != null) {
+                    if (captionMessage.text != null) {
 
-                        captionId = friendlyMessage.id
-                        captionAuthor = friendlyMessage.name
+                        captionId = captionMessage.id
+                        captionAuthor = captionMessage.name
 
-                        val caption: String = friendlyMessage.text
+                        val caption: String = captionMessage.text
                         val spanString = SpannableString(caption)
 
                         viewHolder.authorTextView.text = captionAuthor
@@ -343,14 +340,14 @@ class HostSessionActivity : AppCompatActivity() {
         thisFirebaseAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
             override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
                 super.onItemRangeInserted(positionStart, 1)
-                val friendlyMessageCount = 1 //mFirebaseAdapter.getItemCount();
+                val captionItemCount = 1 //mFirebaseAdapter.getItemCount();
                 val lastVisiblePosition: Int =
                     thisLinearLayoutManager.findLastCompletelyVisibleItemPosition()
                 // If the recycler view is initially being loaded or the
                 // user is at the bottom of the list, scroll to the bottom
                 // of the list to show the newly added message.
                 if (lastVisiblePosition == -1 ||
-                    positionStart >= friendlyMessageCount - 1 && lastVisiblePosition == positionStart - 1) {
+                    positionStart >= captionItemCount - 1 && lastVisiblePosition == positionStart - 1) {
 
                     binding.messageRecyclerView.scrollToPosition(positionStart)
                 }

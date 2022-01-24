@@ -10,6 +10,7 @@ import android.webkit.WebView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.database.*
+import info.vopio.android.Utilities.Constants
 import info.vopio.android.Utilities.DatabaseStringAdapter
 import timber.log.Timber
 
@@ -66,7 +67,7 @@ class LibraryFragment : Fragment() {
                 dataSnapshotList = dataSnapshot
 
                 val userId = DatabaseStringAdapter().createUserIdFromEmail(localUserEmail.toString())
-                val studentDataSnapshot : DataSnapshot = dataSnapshot.child("student_list").child(userId).child("saved_words")
+                val studentDataSnapshot : DataSnapshot = dataSnapshot.child(Constants.STUDENT_LIST).child(userId).child(Constants.SAVED_WORDS)
                 if (studentDataSnapshot.hasChildren()){
                     savedWordsList.clear()
                     for (word in studentDataSnapshot.children){

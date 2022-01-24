@@ -49,7 +49,7 @@ class GuestFragment : Fragment() {
         //check code against user input
 
         // Retrieve active sessions
-        thisFirebaseDatabaseReference.root
+        thisFirebaseDatabaseReference.child(Constants.SESSION_LIST)
             .addListenerForSingleValueEvent(object : ValueEventListener {
 
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
