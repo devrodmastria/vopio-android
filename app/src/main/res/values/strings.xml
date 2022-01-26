@@ -4,6 +4,7 @@
     <string name="scan_new_qr">Join new session</string>
     <string name="end_session">End session</string>
     <string name="session_status">Listening</string>
+    <string name="session_id">Session ID</string>
 
     <string name="leave_session">Leave session</string>
     <string name="send_feedback">Notify user about pronunciation</string>
@@ -46,7 +47,6 @@ values-round/strings.xml for round devices.
     <string name="about">About</string>
     <string name="invite_menu_label">Invite</string>
     <string name="schedule">Schedule</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
 

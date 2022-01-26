@@ -8,5 +8,10 @@
             android:title="@string/end_session"
             app:showAsAction="always" />
 
+        <item
+            android:id="@+id/nav_test_session"
+            android:title="Test"
+            app:showAsAction="ifRoom" />
+
     </group>
 </menu>

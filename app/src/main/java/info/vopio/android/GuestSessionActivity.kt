@@ -55,6 +55,7 @@ class GuestSessionActivity : AppCompatActivity() {
         when(item.itemId){
             R.id.nav_leave -> {
                 Timber.i("-->>SpeechX: LEAVE SESH")
+                window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
                 thisFirebaseAdapter.stopListening()
                 finish()
             }
@@ -97,7 +98,10 @@ class GuestSessionActivity : AppCompatActivity() {
 
         }
 
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        val lastFourDigits = sessionId.substring(sessionId.length.minus(4))
+        val sessionHeader = "session ID:   $lastFourDigits"
+        binding.statusBarTextView.text = sessionHeader
+        binding.statusBarTextView.setBackgroundColor(getColor(R.color.blue_500))
 
         webSettings = binding.webView.settings
         webSettings.javaScriptEnabled = true
@@ -112,9 +116,15 @@ class GuestSessionActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
 
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         binding.webView.visibility = View.VISIBLE
         configureDatabaseSnapshotParser()
 
+    }
+
+    override fun onStop() {
+        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        super.onStop()
     }
 
     private fun configureDatabaseSnapshotParser() {

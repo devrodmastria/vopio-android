@@ -133,12 +133,7 @@ class HostFragment : Fragment() {
 
         val hostBtn : Button = fragmentContainer.findViewById(R.id.hostSessionBtn)
         hostBtn.setOnClickListener {
-
             hostNewSession()
-//            MessageUploader().saveWord(thisFirebaseDatabaseReference, "new word",
-//                localUserEmail.toString()
-//            )
-
         }
 
         return fragmentContainer

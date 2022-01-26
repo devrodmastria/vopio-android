@@ -46,6 +46,7 @@ class HostSessionActivity : AppCompatActivity() {
 
     private var thisSpeechService: SpeechService? = null
     private var thisVoiceRecorder: VoiceRecorder? = null
+    private var speechIsBound = false
 
     private lateinit var binding: ActivityHostSessionBinding
 
@@ -130,8 +131,13 @@ class HostSessionActivity : AppCompatActivity() {
         when(item.itemId){
             R.id.nav_end_session -> {
                 Timber.i("-->>SpeechX: LEAVE SESH")
+                window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                MessageUploader().sendCaptions(thisFirebaseDatabaseReference, sessionId, "[ Session ended by host ]", thisFirebaseUser)
                 stopSession()
 
+            }
+            R.id.nav_test_session -> {
+                MessageUploader().sendCaptions(thisFirebaseDatabaseReference, sessionId, "This is a test - automated captions", thisFirebaseUser)
             }
         }
 
@@ -191,11 +197,29 @@ class HostSessionActivity : AppCompatActivity() {
         super.onStart()
 
         Timber.i("-->>SpeechX: incoming SessionId ${this.sessionId}")
-
         startSession()
-
         configureDatabaseSnapshotParser()
+    }
 
+    override fun onStop() {
+
+        Timber.i("-->>SpeechX: onStop -- Stop Cloud Speech API")
+
+        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
+        //Stop the microphone
+        stopVoiceRecorder()
+
+        // Stop Cloud Speech API
+        if (thisSpeechService != null){
+            thisSpeechService?.removeListener(thisSpeechServiceListener)
+            if (speechIsBound) {
+                unbindService(thisServiceConnection)
+            }
+            thisSpeechService = null
+        }
+
+        super.onStop()
     }
 
     private fun startSession() {
@@ -203,15 +227,14 @@ class HostSessionActivity : AppCompatActivity() {
         if (thisFirebaseUser.isNotEmpty()) {
 
             // Prepare Cloud Speech API - this starts the Speech API if user is signed in with Google
-            bindService(Intent(this, SpeechService::class.java), thisServiceConnection, BIND_AUTO_CREATE)
+            speechIsBound = bindService(Intent(this, SpeechService::class.java), thisServiceConnection, BIND_AUTO_CREATE)
             Timber.i("-->>SpeechX: SpeechService bindService")
 
             // Start listening to microphone
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
                 startVoiceRecorder()
             } else if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.RECORD_AUDIO)) {
-//                showPermissionDialog()
-                Timber.wtf("-->>startSpeechService start Session showPermissionMessageDialog")
+                Timber.wtf("-->>startSpeechService start Session shouldShowRequestPermissionRationale")
             } else {
                 Timber.wtf("-->>requestMicPermission startSpeechService else")
                 ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), REQUEST_RECORD_AUDIO_PERMISSION)
@@ -221,23 +244,14 @@ class HostSessionActivity : AppCompatActivity() {
     }
 
     private fun stopSession() {
-        Timber.i("-->>SpeechX: stop Session ${this.sessionId}")
-
-
-        // Stop Cloud Speech API
-        if (thisSpeechService != null){
-            thisSpeechService!!.removeListener(thisSpeechServiceListener)
-            thisSpeechService!!.stopSelf()
-            unbindService(thisServiceConnection)
-        }
-        thisFirebaseAdapter.stopListening()
-        stopVoiceRecorder()
+        Timber.i("-->>SpeechX: stopSession")
 
         thisFirebaseDatabaseReference.child(Constants.SESSION_LIST).child(this.sessionId).child(Constants.ACTIVE_SESSION).setValue(false)
-
+        thisFirebaseAdapter.stopListening()
         finish()
-
     }
+
+
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
