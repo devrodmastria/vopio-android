@@ -31,8 +31,9 @@ import timber.log.Timber
 
 class MainActivity : AppCompatActivity() {
 
-    lateinit var localUsername: String
-    lateinit var localUserEmail: String
+    private var localUsername: String = "user_name"
+    private var localUserEmail: String = "user_email"
+
     lateinit var thisFirebaseRemoteConfig: FirebaseRemoteConfig
     lateinit var thisFirebaseAuth : FirebaseAuth
     lateinit var thisFirebaseDatabaseReference : DatabaseReference
@@ -98,10 +99,11 @@ class MainActivity : AppCompatActivity() {
             thisFirebaseUser.email?.let {
                 localUserEmail = it
             }
-        }
 
-        targetFragment = HostFragment.newInstance(localUsername, localUserEmail)
-        supportFragmentManager.beginTransaction().replace(R.id.main_fragment_container, targetFragment).commit()
+            targetFragment = HostFragment.newInstance(localUsername, localUserEmail)
+            supportFragmentManager.beginTransaction().replace(R.id.main_fragment_container, targetFragment).commit()
+
+        }
 
         binding.tabNavigation.setOnItemSelectedListener {
 

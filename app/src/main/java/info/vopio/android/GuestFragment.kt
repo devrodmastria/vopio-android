@@ -48,20 +48,6 @@ class GuestFragment : Fragment() {
         //show a list of active sessions names?
         //check code against user input
 
-        // Retrieve active sessions
-        thisFirebaseDatabaseReference.child(Constants.SESSION_LIST)
-            .addListenerForSingleValueEvent(object : ValueEventListener {
-
-                override fun onDataChange(dataSnapshot: DataSnapshot) {
-                    dataSnapshotList = dataSnapshot
-                }
-
-                override fun onCancelled(p0: DatabaseError) {
-                    Timber.i("-->>SpeechX: DatabaseError ${p0.message}")
-                }
-
-            })
-
         val hintText = "Enter session code"
         val dialogTitle = "Enter session code\n(case sensitive)"
 
@@ -75,7 +61,7 @@ class GuestFragment : Fragment() {
             .setView(textInputView)
             .setPositiveButton("Submit") { dialog, which ->
 
-                if (dataSnapshotList.exists()) {
+                if (dataSnapshotList.hasChildren()) {
 
                     var matchFound = false
 
@@ -139,6 +125,20 @@ class GuestFragment : Fragment() {
 
         thisFirebaseAuth = FirebaseAuth.getInstance()
         thisFirebaseDatabaseReference = FirebaseDatabase.getInstance().reference
+
+        // Retrieve active sessions
+        thisFirebaseDatabaseReference.child(Constants.SESSION_LIST)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    dataSnapshotList = dataSnapshot
+                }
+
+                override fun onCancelled(p0: DatabaseError) {
+                    Timber.i("-->>SpeechX: DatabaseError ${p0.message}")
+                }
+
+            })
 
     }
 

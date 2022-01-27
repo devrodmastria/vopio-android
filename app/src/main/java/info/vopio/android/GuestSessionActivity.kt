@@ -7,6 +7,9 @@ import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
 import android.view.*
 import android.webkit.WebSettings
+import android.webkit.WebView
+import android.widget.Button
+import android.widget.PopupWindow
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.NonNull
@@ -26,12 +29,17 @@ import timber.log.Timber
 
 class GuestSessionActivity : AppCompatActivity() {
 
-    lateinit var webSettings : WebSettings
     lateinit var thisFirebaseDatabaseReference : DatabaseReference
 
     lateinit var sessionId : String
     lateinit var captionId : String
     lateinit var captionAuthor : String // author could be any un-muted app user in the session
+
+    private var popupWindow: PopupWindow? = null
+    private var popupView: View? = null
+    private var webView: WebView? = null
+    private var webSettings : WebSettings? = null
+
 
     lateinit var thisFirebaseUser : String
     lateinit var thisFirebaseEmail : String
@@ -54,10 +62,12 @@ class GuestSessionActivity : AppCompatActivity() {
 
         when(item.itemId){
             R.id.nav_leave -> {
+
                 Timber.i("-->>SpeechX: LEAVE SESH")
                 window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
                 thisFirebaseAdapter.stopListening()
                 finish()
+
             }
         }
 
@@ -103,13 +113,54 @@ class GuestSessionActivity : AppCompatActivity() {
         binding.statusBarTextView.text = sessionHeader
         binding.statusBarTextView.setBackgroundColor(getColor(R.color.blue_500))
 
-        webSettings = binding.webView.settings
-        webSettings.javaScriptEnabled = true
-
         // setup RecyclerView with last item showing first
         thisLinearLayoutManager = LinearLayoutManager(this)
         thisLinearLayoutManager.stackFromEnd = true
         binding.messageRecyclerView.layoutManager = thisLinearLayoutManager
+
+        initPopupWindow()
+
+    }
+
+    private fun initPopupWindow(){
+
+        popupView = layoutInflater.inflate(R.layout.dictionary_popup_window, binding.root, false)
+
+        popupView?.findViewById<Button>(R.id.closeButton)?.setOnClickListener {
+            popupWindow?.dismiss()
+        }
+
+        val viewHeight = ViewGroup.LayoutParams.WRAP_CONTENT
+        val viewWidth = ViewGroup.LayoutParams.MATCH_PARENT
+
+        popupView?.measure(viewWidth, viewHeight)
+
+        popupWindow = PopupWindow(
+            popupView,
+            viewWidth,
+            viewHeight,
+            true
+        )
+
+        webView = popupView?.findViewById<WebView>(R.id.webView)
+
+    }
+
+    private fun showInPopup(wordIs: String){
+
+        MessageUploader().saveWord(thisFirebaseDatabaseReference, wordIs, thisFirebaseEmail)
+
+        val location = IntArray(2)
+        val viewAnchor = binding.root.rootView
+        viewAnchor.getLocationInWindow(location)
+
+        popupWindow?.showAtLocation(viewAnchor, Gravity.BOTTOM, location[0], location[1])
+
+        val url = "https://duckduckgo.com/?q=define+$wordIs&t=ffab&ia=definition"
+        webView?.loadUrl(url)
+        webSettings = webView!!.settings
+        webSettings!!.javaScriptEnabled = true
+
 
     }
 
@@ -117,7 +168,6 @@ class GuestSessionActivity : AppCompatActivity() {
         super.onStart()
 
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        binding.webView.visibility = View.VISIBLE
         configureDatabaseSnapshotParser()
 
     }
@@ -190,11 +240,7 @@ class GuestSessionActivity : AppCompatActivity() {
                                     val clickableSpan: ClickableSpan = object : ClickableSpan() {
                                         override fun onClick(@NonNull view: View) {
 
-                                            val url = "https://duckduckgo.com/?q=define+$wordIs&t=ffab&ia=definition"
-                                            binding.webView.loadUrl(url)
-                                            binding.webView.visibility = View.VISIBLE
-
-                                            MessageUploader().saveWord(thisFirebaseDatabaseReference, wordIs, thisFirebaseEmail)
+                                            showInPopup(wordIs)
 
                                         }
                                     }
