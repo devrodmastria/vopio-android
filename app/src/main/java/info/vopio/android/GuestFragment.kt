@@ -147,6 +147,8 @@ class GuestFragment : Fragment() {
         savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
 
+        activity?.title = getString(R.string.tab_student)
+
         fragmentContainer = inflater.inflate(R.layout.fragment_guest, container, false)
         fragmentContext = fragmentContainer.context
 

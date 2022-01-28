@@ -6,13 +6,13 @@
     <item
         android:id="@+id/tab_item_prof"
         android:icon="@drawable/ic_baseline_school_24"
-        android:title="Professor" />
+        android:title="@string/tab_instructor" />
     <item
         android:id="@+id/tab_item_stu"
         android:icon="@drawable/ic_baseline_group_24"
-        android:title="Student" />
+        android:title="@string/tab_student" />
     <item
         android:id="@+id/tab_item_lib"
         android:icon="@drawable/ic_baseline_local_library_24"
-        android:title="Library" />
+        android:title="@string/tab_lib" />
 </menu>

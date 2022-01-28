@@ -183,8 +183,6 @@ class HostSessionActivity : AppCompatActivity() {
         val lastFourDigits = sessionId.substring(sessionId.length.minus(4))
         val sessionHeader = "session:   $lastFourDigits"
         binding.sessionIdTextView.text = sessionHeader
-        binding.sessionIdTextView.setTextColor(getColor(R.color.purple_500))
-        binding.sessionIdTextView.setBackgroundColor(getColor(R.color.purple_50))
 
         // setup RecyclerView with last item showing first
         thisLinearLayoutManager = LinearLayoutManager(this)

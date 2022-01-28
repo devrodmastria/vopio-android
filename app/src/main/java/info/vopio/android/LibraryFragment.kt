@@ -54,6 +54,8 @@ class LibraryFragment : Fragment() {
         val wordsAdapter = WordsAdapter { word -> adapterOnClick(word) }
         val recyclerView: RecyclerView = fragmentContainer.findViewById(R.id.recyclerView)
 
+        activity?.title = getString(R.string.tab_lib)
+
         val headerView : TextView = fragmentContainer.findViewById(R.id.headerView)
         headerView.text = String.format(resources.getString(R.string.library_header), localUserEmail)
 

@@ -111,7 +111,6 @@ class GuestSessionActivity : AppCompatActivity() {
         val lastFourDigits = sessionId.substring(sessionId.length.minus(4))
         val sessionHeader = "session ID:   $lastFourDigits"
         binding.statusBarTextView.text = sessionHeader
-        binding.statusBarTextView.setBackgroundColor(getColor(R.color.blue_500))
 
         // setup RecyclerView with last item showing first
         thisLinearLayoutManager = LinearLayoutManager(this)

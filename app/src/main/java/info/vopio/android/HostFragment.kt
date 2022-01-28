@@ -128,6 +128,8 @@ class HostFragment : Fragment() {
         savedInstanceState: Bundle?): View {
         // Inflate the layout for this fragment
 
+        activity?.title = getString(R.string.tab_instructor)
+
         fragmentContainer = inflater.inflate(R.layout.fragment_host, container, false)
         fragmentContext = fragmentContainer.context
 
