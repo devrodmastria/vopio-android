@@ -21,13 +21,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.database.FirebaseRecyclerAdapter
 import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.firebase.ui.database.SnapshotParser
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.*
 import info.vopio.android.DataModel.MessageModel
+import info.vopio.android.DataModel.QuestionAdapter
 import info.vopio.android.Services.SpeechService
 import info.vopio.android.Services.VoiceRecorder
 import info.vopio.android.Utilities.Constants
+import info.vopio.android.Utilities.DatabaseStringAdapter
 import info.vopio.android.Utilities.MessageUploader
 import info.vopio.android.databinding.ActivityHostSessionBinding
 import timber.log.Timber
@@ -40,9 +40,16 @@ class HostSessionActivity : AppCompatActivity() {
 
     lateinit var thisFirebaseUser : String
     lateinit var thisFirebaseEmail : String
-    lateinit var thisFirebaseAdapter : FirebaseRecyclerAdapter<MessageModel, MessageViewHolder>
     lateinit var thisFirebaseDatabaseReference : DatabaseReference
+
+    // RecyclerView for Captions
+    lateinit var thisFirebaseCaptionsAdapter : FirebaseRecyclerAdapter<MessageModel, MessageViewHolder>
     lateinit var thisLinearLayoutManager : LinearLayoutManager
+
+    // RecyclerView for Questions
+    lateinit var thisFirebaseQuestionsAdapter : FirebaseRecyclerAdapter<MessageModel, MessageViewHolder>
+    lateinit var thisQuestionsLinearLayoutManager : LinearLayoutManager
+    private val questionsList = mutableListOf<MessageModel>()
 
     private var thisSpeechService: SpeechService? = null
     private var thisVoiceRecorder: VoiceRecorder? = null
@@ -189,6 +196,11 @@ class HostSessionActivity : AppCompatActivity() {
         thisLinearLayoutManager.stackFromEnd = true
         binding.messageRecyclerView.layoutManager = thisLinearLayoutManager
 
+        // setup RecyclerView for Questions
+        thisQuestionsLinearLayoutManager = LinearLayoutManager(this)
+        thisQuestionsLinearLayoutManager.stackFromEnd = true
+        binding.questionRecyclerView.layoutManager = thisQuestionsLinearLayoutManager
+
     }
 
     override fun onStart() {
@@ -196,7 +208,8 @@ class HostSessionActivity : AppCompatActivity() {
 
         Timber.i("-->>SpeechX: incoming SessionId ${this.sessionId}")
         startSession()
-        configureDatabaseSnapshotParser()
+        configureCaptionsSnapshotParser()
+        configureQuestionsSnapshotParser()
     }
 
     override fun onStop() {
@@ -245,11 +258,10 @@ class HostSessionActivity : AppCompatActivity() {
         Timber.i("-->>SpeechX: stopSession")
 
         thisFirebaseDatabaseReference.child(Constants.SESSION_LIST).child(this.sessionId).child(Constants.ACTIVE_SESSION).setValue(false)
-        thisFirebaseAdapter.stopListening()
+        thisFirebaseCaptionsAdapter.stopListening()
+        thisFirebaseQuestionsAdapter.stopListening()
         finish()
     }
-
-
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
@@ -266,7 +278,6 @@ class HostSessionActivity : AppCompatActivity() {
             } else {
                 Timber.wtf("-->>onRequestPermissionsResult permission DENIED")
                 Toast.makeText(this, R.string.permission_message, Toast.LENGTH_SHORT).show()
-
             }
         }
     }
@@ -289,7 +300,45 @@ class HostSessionActivity : AppCompatActivity() {
         }
     }
 
-    private fun configureDatabaseSnapshotParser() {
+    private fun configureQuestionsSnapshotParser(){
+
+        val recyclerView: RecyclerView = binding.questionRecyclerView
+
+        thisFirebaseDatabaseReference.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+
+                val studentDataSnapshot : DataSnapshot = dataSnapshot.child(Constants.SESSION_LIST).child(sessionId).child(Constants.ATTENDANCE_LIST)
+                if (studentDataSnapshot.hasChildren()){
+
+                    questionsList.clear()
+
+                    for (activeStudent in studentDataSnapshot.children){
+
+                        val studentName = activeStudent.child(Constants.STUDENT_NAME).value.toString()
+
+                        if (activeStudent.hasChildren()) {
+
+                            for (question in activeStudent.child(Constants.QUESTION_LIST).children){
+                                val questionString : String = question.value.toString()
+                                questionsList.add(MessageModel(questionString, studentName))
+                            }
+                        }
+
+                    }
+
+                }
+                val questionAdapter = QuestionAdapter(questionsList)
+                recyclerView.adapter = questionAdapter
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Failed to read value
+                Timber.i("-->>SpeechX: onDataChange Failed to read value:${error.toException()}")
+            }
+        })
+    }
+
+    private fun configureCaptionsSnapshotParser() {
 
         val parser: SnapshotParser<MessageModel> =
             SnapshotParser<MessageModel> { dataSnapshot ->
@@ -309,14 +358,12 @@ class HostSessionActivity : AppCompatActivity() {
                 .setQuery(messagesRef, parser)
                 .build()
 
-        thisFirebaseAdapter =
+        thisFirebaseCaptionsAdapter =
             object : FirebaseRecyclerAdapter<MessageModel, MessageViewHolder>(options) {
 
                 override fun onError(error: DatabaseError) {
                     super.onError(error)
-
                     Toast.makeText(this@HostSessionActivity, "Database access denied", Toast.LENGTH_SHORT).show()
-
                 }
 
                 override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): MessageViewHolder {
@@ -349,7 +396,7 @@ class HostSessionActivity : AppCompatActivity() {
                     }
                 }
             }
-        thisFirebaseAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+        thisFirebaseCaptionsAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
             override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
                 super.onItemRangeInserted(positionStart, 1)
                 val captionItemCount = 1 //mFirebaseAdapter.getItemCount();
@@ -366,8 +413,8 @@ class HostSessionActivity : AppCompatActivity() {
 
             }
         })
-        binding.messageRecyclerView.adapter = thisFirebaseAdapter
-        thisFirebaseAdapter.startListening()
+        binding.messageRecyclerView.adapter = thisFirebaseCaptionsAdapter
+        thisFirebaseCaptionsAdapter.startListening()
     }
 
 }

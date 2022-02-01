@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
-import timber.log.Timber
+import info.vopio.android.DataModel.Word
 
 class WordsAdapter(private val onClick: (Word) -> Unit) :
     ListAdapter<Word, WordsAdapter.WordViewHolder>(WordDiffCallback) {

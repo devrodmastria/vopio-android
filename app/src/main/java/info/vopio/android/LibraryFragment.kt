@@ -5,27 +5,19 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.webkit.WebSettings
-import android.webkit.WebView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.database.*
+import info.vopio.android.DataModel.Word
 import info.vopio.android.Utilities.Constants
 import info.vopio.android.Utilities.DatabaseStringAdapter
 import timber.log.Timber
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+private const val ARG_USERNAME = "param1"
+private const val ARG_USER_EMAIL = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [LibraryFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class LibraryFragment : Fragment() {
-    // TODO: Rename and change types of parameters
+
     private var localUsername: String? = null
     private var localUserEmail: String? = null
 
@@ -39,8 +31,8 @@ class LibraryFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            localUsername = it.getString(ARG_PARAM1)
-            localUserEmail = it.getString(ARG_PARAM2)
+            localUsername = it.getString(ARG_USERNAME)
+            localUserEmail = it.getString(ARG_USER_EMAIL)
         }
 
     }
@@ -57,7 +49,7 @@ class LibraryFragment : Fragment() {
         activity?.title = getString(R.string.tab_lib)
 
         val headerView : TextView = fragmentContainer.findViewById(R.id.headerView)
-        headerView.text = String.format(resources.getString(R.string.library_header), localUserEmail)
+        headerView.text = String.format(resources.getString(R.string.library_header), localUsername)
 
         thisFirebaseDatabaseReference = FirebaseDatabase.getInstance().reference
         thisFirebaseDatabaseReference.addValueEventListener(object : ValueEventListener {
@@ -118,8 +110,8 @@ class LibraryFragment : Fragment() {
         fun newInstance(param1: String, param2: String) =
             LibraryFragment().apply {
                 arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+                    putString(ARG_USERNAME, param1)
+                    putString(ARG_USER_EMAIL, param2)
                 }
             }
     }

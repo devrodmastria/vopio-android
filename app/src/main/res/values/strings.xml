@@ -10,6 +10,11 @@
     <string name="tab_student">Student</string>
     <string name="tab_lib">Library</string>
 
+    <string name="got_it">Got it!</string>
+    <string name="ask_prof">Ask instructor</string>
+
+    <string name="active_students">Active Students</string>
+
     <string name="leave_session">Leave session</string>
     <string name="send_feedback">Notify user about pronunciation</string>
     <string name="scan_instruction">Scan code from host phone\n to join session.</string>

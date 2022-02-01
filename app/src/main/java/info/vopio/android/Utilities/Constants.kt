@@ -18,6 +18,9 @@ class Constants {
         val SESSION_LIST = "session_list"
         val ACTIVE_SESSION = "active_session"
         val CAPTION_LIST = "caption_list"
+        val ATTENDANCE_LIST = "attendance_list"
+        val QUESTION_LIST = "question_list"
+        val STUDENT_NAME = "student_name"
 
         val CAPTION_AUTHOR = "name"
         val CAPTION_TEXT = "text"

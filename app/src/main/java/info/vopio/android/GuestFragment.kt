@@ -11,7 +11,6 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.EditText
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
@@ -19,18 +18,11 @@ import com.google.firebase.database.*
 import info.vopio.android.Utilities.Constants
 import timber.log.Timber
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+private const val ARG_USERNAME = "param1"
+private const val ARG_USER_EMAIL = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [GuestFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class GuestFragment : Fragment() {
-    // TODO: Rename and change types of parameters
+
     private var localUsername: String? = null
     private var localUserEmail: String? = null
 
@@ -69,12 +61,12 @@ class GuestFragment : Fragment() {
 
                         val snapshotSize = snapshot.key?.length
                         val lastFourDigits = snapshot.key?.substring(snapshotSize!!.minus(4))
+                        var inputString = textInputView.text.toString()
+                        inputString = inputString.replace(" ", "")
 
-                        if (lastFourDigits == textInputView.text.toString()) {
+                        if (inputString == lastFourDigits) {
 
                             matchFound = true
-
-                            Timber.i("-->>SpeechX: session code OK!")
 
                             val intent = Intent(fragmentContext, GuestSessionActivity::class.java)
                             intent.putExtra(Constants.SESSION_KEY, snapshot.key)
@@ -88,11 +80,10 @@ class GuestFragment : Fragment() {
 
                     if (!matchFound) {
                         Snackbar.make( fragmentContainer.rootView.findViewById(android.R.id.content), "Session not found", Snackbar.LENGTH_LONG).show()
-                        Timber.i("-->>SpeechX: dataSnapshotList Please try again")
                     }
+
                 } else {
                     Snackbar.make( fragmentContainer.rootView.findViewById(android.R.id.content), "Sessions not available offline.", Snackbar.LENGTH_LONG).show()
-                    Timber.i("-->>SpeechX: dataSnapshotList invalid")
                 }
 
             }
@@ -119,8 +110,8 @@ class GuestFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            localUsername = it.getString(ARG_PARAM1)
-            localUserEmail = it.getString(ARG_PARAM2)
+            localUsername = it.getString(ARG_USERNAME)
+            localUserEmail = it.getString(ARG_USER_EMAIL)
         }
 
         thisFirebaseAuth = FirebaseAuth.getInstance()
@@ -174,8 +165,8 @@ class GuestFragment : Fragment() {
         fun newInstance(param1: String, param2: String) =
             GuestFragment().apply {
                 arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+                    putString(ARG_USERNAME, param1)
+                    putString(ARG_USER_EMAIL, param2)
                 }
             }
     }

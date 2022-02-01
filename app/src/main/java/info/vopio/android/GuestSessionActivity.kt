@@ -40,6 +40,7 @@ class GuestSessionActivity : AppCompatActivity() {
     private var webView: WebView? = null
     private var webSettings : WebSettings? = null
 
+    private var selectedWord: String = "_word_"
 
     lateinit var thisFirebaseUser : String
     lateinit var thisFirebaseEmail : String
@@ -66,6 +67,9 @@ class GuestSessionActivity : AppCompatActivity() {
                 Timber.i("-->>SpeechX: LEAVE SESH")
                 window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
                 thisFirebaseAdapter.stopListening()
+
+                leaveAttendance()
+
                 finish()
 
             }
@@ -129,6 +133,13 @@ class GuestSessionActivity : AppCompatActivity() {
             popupWindow?.dismiss()
         }
 
+        popupView?.findViewById<Button>(R.id.askProfButton)?.setOnClickListener {
+
+            val questionIs = "Please clarify: $selectedWord"
+            MessageUploader().sendQuestion(thisFirebaseDatabaseReference, sessionId, questionIs, thisFirebaseEmail)
+            popupWindow?.dismiss()
+        }
+
         val viewHeight = ViewGroup.LayoutParams.WRAP_CONTENT
         val viewWidth = ViewGroup.LayoutParams.MATCH_PARENT
 
@@ -169,11 +180,25 @@ class GuestSessionActivity : AppCompatActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         configureDatabaseSnapshotParser()
 
+        declareAttendance()
     }
 
     override fun onStop() {
-        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         super.onStop()
+        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    }
+
+    private fun declareAttendance(){
+
+        MessageUploader().setStudentName(thisFirebaseDatabaseReference, sessionId, thisFirebaseUser, thisFirebaseEmail)
+        val questionIs = "$thisFirebaseUser is here"
+        MessageUploader().sendQuestion(thisFirebaseDatabaseReference, sessionId, questionIs, thisFirebaseEmail)
+
+    }
+
+    private fun leaveAttendance(){
+        val questionIs = "$thisFirebaseUser left this session"
+        MessageUploader().sendQuestion(thisFirebaseDatabaseReference, sessionId, questionIs, thisFirebaseEmail)
     }
 
     private fun configureDatabaseSnapshotParser() {
@@ -233,12 +258,13 @@ class GuestSessionActivity : AppCompatActivity() {
                             val wordArray =
                                 caption.split(" ").toTypedArray()
                             for (wordIs in wordArray) {
-                                if (wordIs.length > 5) {
+                                if (wordIs.length > 3) {
                                     val beginIndex = caption.indexOf(wordIs)
                                     val endIndex = beginIndex + wordIs.length
                                     val clickableSpan: ClickableSpan = object : ClickableSpan() {
                                         override fun onClick(@NonNull view: View) {
 
+                                            selectedWord = wordIs
                                             showInPopup(wordIs)
 
                                         }
