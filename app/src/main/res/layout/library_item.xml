@@ -12,7 +12,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="8dp"
-        app:cardBackgroundColor="@color/purple_500"
+        app:cardBackgroundColor="@color/purple_300"
         app:cardCornerRadius="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -24,7 +24,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="word sample"
-            android:textColor="#FFEB3B"
+            android:textColor="@android:color/white"
             android:textSize="16sp" />
     </androidx.cardview.widget.CardView>
 

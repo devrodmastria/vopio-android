@@ -14,12 +14,16 @@
 
     <color name="theme_purple">@color/purple_200</color>
 
+    <color name="status_bar_color">#883997</color>
+
     <color name="blue_500">#2196F3</color>
     <color name="green_500">#4CAF50</color>
     <color name="orange_500">#FF9800</color>
 
     <color name="purple_50">#F3E5F5</color>
     <color name="purple_100">#E1BEE7</color>
+    <color name="purple_light">#ee98fb</color>
+
     <color name="purple_200">#CE93D8</color>
     <color name="purple_300">#BA68C8</color>
     <color name="purple_400">#AB47BC</color>

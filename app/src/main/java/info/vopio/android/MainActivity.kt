@@ -71,10 +71,6 @@ class MainActivity : AppCompatActivity() {
         val toolbar = findViewById<View>(R.id.toolbar) as Toolbar
         setSupportActionBar(toolbar)
 
-        val themeColor = applicationContext.getColor(R.color.purple_300)
-        window.statusBarColor = themeColor
-        toolbar.setBackgroundColor(themeColor)
-
         Timber.plant(Timber.DebugTree())
 
         thisFirebaseAuth = FirebaseAuth.getInstance()

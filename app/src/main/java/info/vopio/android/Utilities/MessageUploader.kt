@@ -20,10 +20,8 @@ class MessageUploader() {
         thisFirebaseRef.child(Constants.STUDENT_LIST).child(userId).child(Constants.SAVED_WORDS).push().setValue(word)
     }
 
-    fun sendQuestion(sessionRef : DatabaseReference, sessionId : String, questionIs: String, studentEmail: String){
-
-        val userEmail = DatabaseStringAdapter().createUserIdFromEmail(studentEmail)
-        sessionRef.child(Constants.SESSION_LIST).child(sessionId).child(Constants.ATTENDANCE_LIST).child(userEmail).child(Constants.QUESTION_LIST).push().setValue(questionIs)
+    fun sendQuestion(sessionRef : DatabaseReference, sessionId : String, questionIs: String, studentName: String){
+        sessionRef.child(Constants.SESSION_LIST).child(sessionId).child(Constants.QUESTION_LIST).push().setValue(MessageModel(questionIs, studentName))
     }
 
     fun setStudentName(sessionRef : DatabaseReference, sessionId : String, studentName: String, studentEmail: String){

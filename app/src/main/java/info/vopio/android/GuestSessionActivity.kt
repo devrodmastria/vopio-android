@@ -136,7 +136,7 @@ class GuestSessionActivity : AppCompatActivity() {
         popupView?.findViewById<Button>(R.id.askProfButton)?.setOnClickListener {
 
             val questionIs = "Please clarify: $selectedWord"
-            MessageUploader().sendQuestion(thisFirebaseDatabaseReference, sessionId, questionIs, thisFirebaseEmail)
+            MessageUploader().sendQuestion(thisFirebaseDatabaseReference, sessionId, questionIs, thisFirebaseUser)
             popupWindow?.dismiss()
         }
 
@@ -192,13 +192,13 @@ class GuestSessionActivity : AppCompatActivity() {
 
         MessageUploader().setStudentName(thisFirebaseDatabaseReference, sessionId, thisFirebaseUser, thisFirebaseEmail)
         val questionIs = "$thisFirebaseUser is here"
-        MessageUploader().sendQuestion(thisFirebaseDatabaseReference, sessionId, questionIs, thisFirebaseEmail)
+        MessageUploader().sendQuestion(thisFirebaseDatabaseReference, sessionId, questionIs, thisFirebaseUser)
 
     }
 
     private fun leaveAttendance(){
         val questionIs = "$thisFirebaseUser left this session"
-        MessageUploader().sendQuestion(thisFirebaseDatabaseReference, sessionId, questionIs, thisFirebaseEmail)
+        MessageUploader().sendQuestion(thisFirebaseDatabaseReference, sessionId, questionIs, thisFirebaseUser)
     }
 
     private fun configureDatabaseSnapshotParser() {

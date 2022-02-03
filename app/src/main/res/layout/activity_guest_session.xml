@@ -19,7 +19,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@android:color/holo_blue_dark"
+            android:background="@color/purple_300"
             app:menu="@menu/caption_toolbar_menu"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
@@ -29,10 +29,10 @@
         android:id="@+id/statusBarTextView"
         android:layout_width="0dp"
         android:layout_height="40dp"
-        android:background="@color/blue_500"
+        android:background="@color/purple_light"
         android:gravity="center"
         android:text="Session ID"
-        android:textColor="@android:color/white"
+        android:textColor="@android:color/black"
         android:textSize="17sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -35,8 +35,6 @@ import timber.log.Timber
 class HostSessionActivity : AppCompatActivity() {
 
     lateinit var sessionId : String
-    lateinit var captionId : String
-    lateinit var captionAuthor : String // author could be any un-muted app user in the session
 
     lateinit var thisFirebaseUser : String
     lateinit var thisFirebaseEmail : String
@@ -141,10 +139,13 @@ class HostSessionActivity : AppCompatActivity() {
                 window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
                 MessageUploader().sendCaptions(thisFirebaseDatabaseReference, sessionId, "[ Session ended by host ]", thisFirebaseUser)
                 stopSession()
-
             }
             R.id.nav_test_session -> {
                 MessageUploader().sendCaptions(thisFirebaseDatabaseReference, sessionId, "This is a test - automated captions", thisFirebaseUser)
+
+                MessageUploader().setStudentName(thisFirebaseDatabaseReference, sessionId, thisFirebaseUser, thisFirebaseEmail)
+                val questionIs = "This is a test - automated question - can you see this question mark ?"
+                MessageUploader().sendQuestion(thisFirebaseDatabaseReference, sessionId, questionIs, thisFirebaseUser)
             }
         }
 
@@ -190,16 +191,6 @@ class HostSessionActivity : AppCompatActivity() {
         val lastFourDigits = sessionId.substring(sessionId.length.minus(4))
         val sessionHeader = "session:   $lastFourDigits"
         binding.sessionIdTextView.text = sessionHeader
-
-        // setup RecyclerView with last item showing first
-        thisLinearLayoutManager = LinearLayoutManager(this)
-        thisLinearLayoutManager.stackFromEnd = true
-        binding.messageRecyclerView.layoutManager = thisLinearLayoutManager
-
-        // setup RecyclerView for Questions
-        thisQuestionsLinearLayoutManager = LinearLayoutManager(this)
-        thisQuestionsLinearLayoutManager.stackFromEnd = true
-        binding.questionRecyclerView.layoutManager = thisQuestionsLinearLayoutManager
 
     }
 
@@ -302,43 +293,89 @@ class HostSessionActivity : AppCompatActivity() {
 
     private fun configureQuestionsSnapshotParser(){
 
-        val recyclerView: RecyclerView = binding.questionRecyclerView
+        // setup RecyclerView for Questions
+        thisQuestionsLinearLayoutManager = LinearLayoutManager(this)
+        thisQuestionsLinearLayoutManager.stackFromEnd = true
+        binding.questionRecyclerView.layoutManager = thisQuestionsLinearLayoutManager
 
-        thisFirebaseDatabaseReference.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
+        val parser: SnapshotParser<MessageModel> =
+            SnapshotParser<MessageModel> { dataSnapshot ->
+                val questionItem: MessageModel? = dataSnapshot.getValue(MessageModel::class.java)
 
-                val studentDataSnapshot : DataSnapshot = dataSnapshot.child(Constants.SESSION_LIST).child(sessionId).child(Constants.ATTENDANCE_LIST)
-                if (studentDataSnapshot.hasChildren()){
-
-                    questionsList.clear()
-
-                    for (activeStudent in studentDataSnapshot.children){
-
-                        val studentName = activeStudent.child(Constants.STUDENT_NAME).value.toString()
-
-                        if (activeStudent.hasChildren()) {
-
-                            for (question in activeStudent.child(Constants.QUESTION_LIST).children){
-                                val questionString : String = question.value.toString()
-                                questionsList.add(MessageModel(questionString, studentName))
-                            }
-                        }
-
-                    }
-
-                }
-                val questionAdapter = QuestionAdapter(questionsList)
-                recyclerView.adapter = questionAdapter
+//                if (questionItem != null) {
+//                    questionItem.id = dataSnapshot.key
+//                }
+                questionItem!!
             }
 
-            override fun onCancelled(error: DatabaseError) {
-                // Failed to read value
-                Timber.i("-->>SpeechX: onDataChange Failed to read value:${error.toException()}")
+        val questionsRef: DatabaseReference = thisFirebaseDatabaseReference.child(Constants.SESSION_LIST).child(sessionId).child(Constants.QUESTION_LIST)
+        val options: FirebaseRecyclerOptions<MessageModel> =
+            FirebaseRecyclerOptions.Builder<MessageModel>()
+                .setQuery(questionsRef, parser)
+                .build()
+
+        thisFirebaseQuestionsAdapter =
+            object : FirebaseRecyclerAdapter<MessageModel, MessageViewHolder>(options) {
+
+                override fun onError(error: DatabaseError) {
+                    super.onError(error)
+                    Toast.makeText(this@HostSessionActivity, "Database access denied", Toast.LENGTH_SHORT).show()
+                }
+
+                override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): MessageViewHolder {
+                    val inflater = LayoutInflater.from(viewGroup.context)
+                    return MessageViewHolder(
+                        inflater.inflate(
+                            R.layout.caption_item_message,
+                            viewGroup,
+                            false
+                        )
+                    )
+                }
+
+                override fun onBindViewHolder(
+                    viewHolder: MessageViewHolder,
+                    position: Int,
+                    questionItem: MessageModel
+                ) {
+                    if (questionItem.text != null) {
+
+                        val caption: String = questionItem.text
+                        val spanString = SpannableString(caption)
+
+                        viewHolder.authorTextView.text = questionItem.name
+                        viewHolder.captionTextView.text = spanString
+                        viewHolder.captionTextView.movementMethod = LinkMovementMethod.getInstance()
+                    }
+                }
+            }
+        thisFirebaseQuestionsAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                super.onItemRangeInserted(positionStart, 1)
+                val captionItemCount = 1 //mFirebaseAdapter.getItemCount();
+                val lastVisiblePosition: Int =
+                    thisQuestionsLinearLayoutManager.findLastCompletelyVisibleItemPosition()
+                // If the recycler view is initially being loaded or the
+                // user is at the bottom of the list, scroll to the bottom
+                // of the list to show the newly added message.
+                if (lastVisiblePosition == -1 ||
+                    positionStart >= captionItemCount - 1 && lastVisiblePosition == positionStart - 1) {
+
+                    binding.questionRecyclerView.scrollToPosition(positionStart)
+                }
+
             }
         })
+        binding.questionRecyclerView.adapter = thisFirebaseQuestionsAdapter
+        thisFirebaseQuestionsAdapter.startListening()
     }
 
     private fun configureCaptionsSnapshotParser() {
+
+        // setup RecyclerView with last item showing first
+        thisLinearLayoutManager = LinearLayoutManager(this)
+        thisLinearLayoutManager.stackFromEnd = true
+        binding.messageRecyclerView.layoutManager = thisLinearLayoutManager
 
         val parser: SnapshotParser<MessageModel> =
             SnapshotParser<MessageModel> { dataSnapshot ->
@@ -384,13 +421,10 @@ class HostSessionActivity : AppCompatActivity() {
                 ) {
                     if (captionMessage.text != null) {
 
-                        captionId = captionMessage.id
-                        captionAuthor = captionMessage.name
-
                         val caption: String = captionMessage.text
                         val spanString = SpannableString(caption)
 
-                        viewHolder.authorTextView.text = captionAuthor
+                        viewHolder.authorTextView.text = captionMessage.name
                         viewHolder.captionTextView.text = spanString
                         viewHolder.captionTextView.movementMethod = LinkMovementMethod.getInstance()
                     }

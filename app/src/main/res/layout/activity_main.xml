@@ -20,7 +20,7 @@ android:background="@android:color/background_light">
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@android:color/holo_blue_dark"
+            android:background="@color/purple_300"
             app:menu="@menu/toolbar_menu"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
