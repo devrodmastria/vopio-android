@@ -4,7 +4,7 @@
     <string name="scan_new_qr">Join new session</string>
     <string name="end_session">End session</string>
     <string name="session_status">Listening</string>
-    <string name="session_id">Session ID</string>
+    <string name="session_id">Session Code</string>
 
     <string name="tab_instructor">Instructor</string>
     <string name="tab_student">Student</string>

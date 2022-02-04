@@ -29,6 +29,7 @@ import info.vopio.android.Services.VoiceRecorder
 import info.vopio.android.Utilities.Constants
 import info.vopio.android.Utilities.DatabaseStringAdapter
 import info.vopio.android.Utilities.MessageUploader
+import info.vopio.android.Utilities.PhoneticAlphabetPopup
 import info.vopio.android.databinding.ActivityHostSessionBinding
 import timber.log.Timber
 
@@ -47,7 +48,6 @@ class HostSessionActivity : AppCompatActivity() {
     // RecyclerView for Questions
     lateinit var thisFirebaseQuestionsAdapter : FirebaseRecyclerAdapter<MessageModel, MessageViewHolder>
     lateinit var thisQuestionsLinearLayoutManager : LinearLayoutManager
-    private val questionsList = mutableListOf<MessageModel>()
 
     private var thisSpeechService: SpeechService? = null
     private var thisVoiceRecorder: VoiceRecorder? = null
@@ -141,11 +141,11 @@ class HostSessionActivity : AppCompatActivity() {
                 stopSession()
             }
             R.id.nav_test_session -> {
-                MessageUploader().sendCaptions(thisFirebaseDatabaseReference, sessionId, "This is a test - automated captions", thisFirebaseUser)
 
-                MessageUploader().setStudentName(thisFirebaseDatabaseReference, sessionId, thisFirebaseUser, thisFirebaseEmail)
-                val questionIs = "This is a test - automated question - can you see this question mark ?"
-                MessageUploader().sendQuestion(thisFirebaseDatabaseReference, sessionId, questionIs, thisFirebaseUser)
+//                MessageUploader().sendCaptions(thisFirebaseDatabaseReference, sessionId, "This is a test - automated captions", thisFirebaseUser)
+//                MessageUploader().setStudentName(thisFirebaseDatabaseReference, sessionId, thisFirebaseUser, thisFirebaseEmail)
+//                val questionIs = "This is a test - automated question - can you see this question mark ?"
+//                MessageUploader().sendQuestion(thisFirebaseDatabaseReference, sessionId, questionIs, thisFirebaseUser)
             }
         }
 
@@ -190,7 +190,10 @@ class HostSessionActivity : AppCompatActivity() {
 
         val lastFourDigits = sessionId.substring(sessionId.length.minus(4))
         val sessionHeader = "session:   $lastFourDigits"
-        binding.sessionIdTextView.text = sessionHeader
+        binding.sessionCodeButton.setText(sessionHeader)
+        binding.sessionCodeButton.setOnClickListener {
+            PhoneticAlphabetPopup().showPopup(this, lastFourDigits)
+        }
 
     }
 
