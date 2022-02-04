@@ -91,7 +91,7 @@ class PhoneticAlphabetPopup() {
 
         val alertDialogBuilder = AlertDialog.Builder(viewContext)
         alertDialogBuilder
-            .setTitle("Code Breakdown")
+            .setTitle("Session Code")
             .setMessage(phoneticString)
             .setCancelable(true)
             .setPositiveButton("Got it") { dialog, which ->
