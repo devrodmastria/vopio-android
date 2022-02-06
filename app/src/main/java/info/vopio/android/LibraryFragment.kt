@@ -21,7 +21,7 @@ class LibraryFragment : Fragment() {
     private var localUsername: String? = null
     private var localUserEmail: String? = null
 
-    lateinit var thisFirebaseDatabaseReference : DatabaseReference
+    lateinit var databaseRef : DatabaseReference
     lateinit var dataSnapshotList : DataSnapshot
     private val savedWordsList = mutableListOf<Word>()
 
@@ -51,8 +51,8 @@ class LibraryFragment : Fragment() {
         val headerView : TextView = fragmentContainer.findViewById(R.id.headerView)
         headerView.text = String.format(resources.getString(R.string.library_header), localUsername)
 
-        thisFirebaseDatabaseReference = FirebaseDatabase.getInstance().reference
-        thisFirebaseDatabaseReference.addValueEventListener(object : ValueEventListener {
+        databaseRef = FirebaseDatabase.getInstance().reference
+        databaseRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 // This method is called once with the initial value and again
                 // whenever data at this location is updated.
@@ -63,15 +63,17 @@ class LibraryFragment : Fragment() {
                 val userId = DatabaseStringAdapter().createUserIdFromEmail(localUserEmail.toString())
                 val studentDataSnapshot : DataSnapshot = dataSnapshot.child(Constants.STUDENT_LIST).child(userId).child(Constants.SAVED_WORDS)
                 if (studentDataSnapshot.hasChildren()){
+
                     savedWordsList.clear()
                     for (word in studentDataSnapshot.children){
                         val wordItem = word.value.toString()
-                        savedWordsList.add(Word(wordItem))
+                        val wordKey = word.key.toString()
+                        savedWordsList.add(Word(wordItem, wordKey))
                     }
 
                 } else {
                     savedWordsList.clear()
-                    savedWordsList.add(Word("Sample"))
+                    savedWordsList.add(Word("Sample", "sample_key"))
                 }
                 wordsAdapter.submitList(savedWordsList)
                 recyclerView.adapter = wordsAdapter
@@ -91,7 +93,7 @@ class LibraryFragment : Fragment() {
     private fun adapterOnClick(word: Word){
         // display info about card
         Timber.i("-->>SpeechX: adapterOnClick CLICK:$word")
-        wordDetailFragment = WordDetailFragment.newInstance(word.content, "")
+        wordDetailFragment = WordDetailFragment.newInstance(word.content, word.itemKey)
         parentFragmentManager.beginTransaction().replace(R.id.main_fragment_container, wordDetailFragment).commit()
 
     }
