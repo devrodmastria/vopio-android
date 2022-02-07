@@ -12,7 +12,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import info.vopio.android.Utilities.Constants
-import info.vopio.android.Utilities.DatabaseStringAdapter
+import info.vopio.android.Utilities.IdentityGenerator
 import timber.log.Timber
 
 private const val ARG_WORD = "param1"
@@ -75,7 +75,7 @@ class WordDetailFragment : Fragment() {
         val delBtn : Button = fragmentContainer.findViewById(R.id.deleteWordButton)
         delBtn.setOnClickListener {
 
-            val userId = DatabaseStringAdapter().createUserIdFromEmail(localUserEmail)
+            val userId = IdentityGenerator().createUserIdFromEmail(localUserEmail)
             databaseRef.child(Constants.STUDENT_LIST).child(userId)
                 .child(Constants.SAVED_WORDS).child(selectedWordKey.toString()).setValue(null).addOnSuccessListener {
 

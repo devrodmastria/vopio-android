@@ -32,7 +32,7 @@
     <string name="share_code">Share QR code</string>
     <string name="title_activity_onboarding">OnboardingActivity</string>
 
-    <string name="library_header">List of words saved by\n %1$s</string>
+    <string name="library_header">Saved Words (by %1$s)</string>
 
     <string name="onboard_one_title">Connect To Instructor</string>
     <string name="onboard_one">Students can enter a code that the instructor generates on their smartphone.

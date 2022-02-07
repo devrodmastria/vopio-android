@@ -9,13 +9,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.view.isVisible
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import info.vopio.android.DataModel.SessionListAdapter
 import info.vopio.android.Utilities.Constants
+import info.vopio.android.Utilities.IdentityGenerator
 import timber.log.Timber
 
 private const val ARG_USERNAME = "param1"
@@ -30,10 +37,13 @@ class GuestFragment : Fragment() {
     lateinit var fragmentContainer: View
 
     lateinit var thisFirebaseAuth : FirebaseAuth
-    lateinit var thisFirebaseDatabaseReference : DatabaseReference
-    lateinit var dataSnapshotList : DataSnapshot
+    lateinit var databaseRef : DatabaseReference
+    lateinit var globalSessionListSnapshot : DataSnapshot
 
-    fun joinSession(){
+    private var inactiveSessionListSnapshot = mutableListOf<DataSnapshot>()
+    lateinit var thisLinearLayoutManager : LinearLayoutManager
+
+    private fun joinSession(){
 
         //look for active sessions
         //fetch codes for active sessions
@@ -53,11 +63,11 @@ class GuestFragment : Fragment() {
             .setView(textInputView)
             .setPositiveButton("Submit") { dialog, which ->
 
-                if (dataSnapshotList.hasChildren()) {
+                if (globalSessionListSnapshot.hasChildren()) {
 
                     var matchFound = false
 
-                    for (snapshot in dataSnapshotList.getChildren()) {
+                    for (snapshot in globalSessionListSnapshot.getChildren()) {
 
                         val snapshotSize = snapshot.key?.length
                         val lastFourDigits = snapshot.key?.substring(snapshotSize!!.minus(4))
@@ -92,13 +102,17 @@ class GuestFragment : Fragment() {
             }
 
         val alertDialog = alertDialogBuilder.create()
-        alertDialog.show()
+
+        alertDialog.setOnShowListener {
+            textInputView.requestFocus()
+        }
+
+        alertDialog.show() // show() must be called last
 
         textInputView.setOnFocusChangeListener(object : View.OnFocusChangeListener {
             override fun onFocusChange(v: View?, hasFocus: Boolean) {
                 if (hasFocus) {
-                    alertDialog.getWindow()
-                        ?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
+                    alertDialog.getWindow()?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
                 } else {
                     Timber.i("-->>SpeechX: textInputView lost focus")
                 }
@@ -115,21 +129,9 @@ class GuestFragment : Fragment() {
         }
 
         thisFirebaseAuth = FirebaseAuth.getInstance()
-        thisFirebaseDatabaseReference = FirebaseDatabase.getInstance().reference
 
         // Retrieve active sessions
-        thisFirebaseDatabaseReference.child(Constants.SESSION_LIST)
-            .addListenerForSingleValueEvent(object : ValueEventListener {
-
-                override fun onDataChange(dataSnapshot: DataSnapshot) {
-                    dataSnapshotList = dataSnapshot
-                }
-
-                override fun onCancelled(p0: DatabaseError) {
-                    Timber.i("-->>SpeechX: DatabaseError ${p0.message}")
-                }
-
-            })
+        databaseRef = FirebaseDatabase.getInstance().reference
 
     }
 
@@ -143,24 +145,63 @@ class GuestFragment : Fragment() {
         fragmentContainer = inflater.inflate(R.layout.fragment_guest, container, false)
         fragmentContext = fragmentContainer.context
 
+        thisLinearLayoutManager = LinearLayoutManager(fragmentContext)
+        thisLinearLayoutManager.stackFromEnd = false
+        val recyclerView: RecyclerView = fragmentContainer.findViewById(R.id.recyclerViewGuest)
+        recyclerView.layoutManager = thisLinearLayoutManager
+
         val joinSessionButton : Button = fragmentContainer.findViewById(R.id.joinSessionBtn)
         joinSessionButton.setOnClickListener {
             joinSession()
         }
 
+        databaseRef.child(Constants.SESSION_LIST)
+            .addValueEventListener(object : ValueEventListener {
+
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    globalSessionListSnapshot = dataSnapshot
+                    parseInactiveSessionList(dataSnapshot, recyclerView)
+                }
+
+                override fun onCancelled(p0: DatabaseError) {
+                    Timber.i("-->>SpeechX: DatabaseError ${p0.message}")
+                }
+            })
+
         return fragmentContainer
     }
 
+    private fun parseInactiveSessionList(dataSnapshot: DataSnapshot, recyclerView: RecyclerView){
+
+        val sessionAdapter: SessionListAdapter
+        val sessionDataSnapshot : DataSnapshot = dataSnapshot
+        if (sessionDataSnapshot.hasChildren()){
+
+            var matchFound = false
+            inactiveSessionListSnapshot.clear()
+
+            for (sessionItem in sessionDataSnapshot.children){
+
+                for (sessionSubItem in sessionItem.child(Constants.ATTENDANCE_LIST).children){
+
+                    val userID = IdentityGenerator().createUserIdFromEmail(localUserEmail.toString())
+                    if (sessionSubItem.key == userID){
+                        matchFound = true
+                        inactiveSessionListSnapshot.add(sessionItem)
+                    }
+
+                }
+
+            }
+            recyclerView.isVisible = matchFound
+
+            sessionAdapter = SessionListAdapter(inactiveSessionListSnapshot)
+            recyclerView.adapter = sessionAdapter
+        }
+    }
+
     companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment GuestFragment.
-         */
-        // TODO: Rename and change types and number of parameters
+
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
             GuestFragment().apply {

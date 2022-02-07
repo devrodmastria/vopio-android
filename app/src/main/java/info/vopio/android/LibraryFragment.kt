@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.database.*
 import info.vopio.android.DataModel.Word
 import info.vopio.android.Utilities.Constants
-import info.vopio.android.Utilities.DatabaseStringAdapter
+import info.vopio.android.Utilities.IdentityGenerator
 import timber.log.Timber
 
 private const val ARG_USERNAME = "param1"
@@ -44,7 +44,7 @@ class LibraryFragment : Fragment() {
 
         fragmentContainer = inflater.inflate(R.layout.fragment_library, container, false)
         val wordsAdapter = WordsAdapter { word -> adapterOnClick(word) }
-        val recyclerView: RecyclerView = fragmentContainer.findViewById(R.id.recyclerView)
+        val recyclerView: RecyclerView = fragmentContainer.findViewById(R.id.recyclerViewHost)
 
         activity?.title = getString(R.string.tab_lib)
 
@@ -60,7 +60,7 @@ class LibraryFragment : Fragment() {
                 // check email list against local user email
                 dataSnapshotList = dataSnapshot
 
-                val userId = DatabaseStringAdapter().createUserIdFromEmail(localUserEmail.toString())
+                val userId = IdentityGenerator().createUserIdFromEmail(localUserEmail.toString())
                 val studentDataSnapshot : DataSnapshot = dataSnapshot.child(Constants.STUDENT_LIST).child(userId).child(Constants.SAVED_WORDS)
                 if (studentDataSnapshot.hasChildren()){
 
@@ -99,15 +99,7 @@ class LibraryFragment : Fragment() {
     }
 
     companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment LibraryFragment.
-         */
-        // TODO: Rename and change types and number of parameters
+
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
             LibraryFragment().apply {

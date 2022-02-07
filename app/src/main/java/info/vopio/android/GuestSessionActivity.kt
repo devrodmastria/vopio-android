@@ -50,8 +50,8 @@ class GuestSessionActivity : AppCompatActivity() {
     private lateinit var binding: ActivityGuestSessionBinding
 
     class MessageViewHolder(v: View) : RecyclerView.ViewHolder(v) {
-        var captionTextView: TextView = itemView.findViewById(R.id.captionTextView)
-        var authorTextView: TextView = itemView.findViewById(R.id.authorTextView)
+        var captionTextView: TextView = itemView.findViewById(R.id.sessionIDTextView)
+        var authorTextView: TextView = itemView.findViewById(R.id.dateTextView)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -189,11 +189,7 @@ class GuestSessionActivity : AppCompatActivity() {
     }
 
     private fun declareAttendance(){
-
-        MessageUploader().setStudentName(thisFirebaseDatabaseReference, sessionId, thisFirebaseUser, thisFirebaseEmail)
-        val questionIs = "$thisFirebaseUser is here"
-        MessageUploader().sendQuestion(thisFirebaseDatabaseReference, sessionId, questionIs, thisFirebaseUser)
-
+        MessageUploader().declareAttendance(thisFirebaseDatabaseReference, sessionId, thisFirebaseUser, thisFirebaseEmail)
     }
 
     private fun leaveAttendance(){

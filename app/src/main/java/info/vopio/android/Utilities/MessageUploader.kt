@@ -16,7 +16,7 @@ class MessageUploader() {
 
     fun saveWord(thisFirebaseRef : DatabaseReference, word: String, user_email: String){
 
-        val userId = DatabaseStringAdapter().createUserIdFromEmail(user_email)
+        val userId = IdentityGenerator().createUserIdFromEmail(user_email)
         thisFirebaseRef.child(Constants.STUDENT_LIST).child(userId).child(Constants.SAVED_WORDS).push().setValue(word)
     }
 
@@ -24,10 +24,13 @@ class MessageUploader() {
         sessionRef.child(Constants.SESSION_LIST).child(sessionId).child(Constants.QUESTION_LIST).push().setValue(MessageModel(questionIs, studentName))
     }
 
-    fun setStudentName(sessionRef : DatabaseReference, sessionId : String, studentName: String, studentEmail: String){
+    fun declareAttendance(sessionRef : DatabaseReference, sessionId : String, studentName: String, studentEmail: String){
 
-            val userEmail = DatabaseStringAdapter().createUserIdFromEmail(studentEmail)
-            sessionRef.child(Constants.SESSION_LIST).child(sessionId).child(Constants.ATTENDANCE_LIST).child(userEmail).child(Constants.STUDENT_NAME).setValue(studentName)
+        val questionIs = "$studentName is here"
+        sessionRef.child(Constants.SESSION_LIST).child(sessionId).child(Constants.QUESTION_LIST).push().setValue(MessageModel(questionIs, studentName))
+
+        val userEmail = IdentityGenerator().createUserIdFromEmail(studentEmail)
+        sessionRef.child(Constants.SESSION_LIST).child(sessionId).child(Constants.ATTENDANCE_LIST).child(userEmail).child(Constants.STUDENT_NAME).setValue(studentName)
 
     }
 }

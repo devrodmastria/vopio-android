@@ -25,7 +25,10 @@
     <color name="purple_light">#ee98fb</color>
 
     <color name="purple_200">#CE93D8</color>
+
+    <!--    navigation bar -->
     <color name="purple_300">#BA68C8</color>
+
     <color name="purple_400">#AB47BC</color>
     <color name="purple_500">#9C27B0</color>
 

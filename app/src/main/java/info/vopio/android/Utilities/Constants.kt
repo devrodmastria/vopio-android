@@ -8,6 +8,7 @@ class Constants {
         val SESSION_USER_EMAIL = "SESSION_USER_EMAIL"
         val SESSION_KEY = "SESSION_KEY"
         val HOST_TAG = "_isHost_"
+        val SESSION_DATE = "session_date"
 
         val STUDENT_LIST = "student_list"
         val SAVED_WORDS = "saved_words"

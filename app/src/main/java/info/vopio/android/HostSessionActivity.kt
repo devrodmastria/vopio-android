@@ -23,11 +23,9 @@ import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.firebase.ui.database.SnapshotParser
 import com.google.firebase.database.*
 import info.vopio.android.DataModel.MessageModel
-import info.vopio.android.DataModel.QuestionAdapter
 import info.vopio.android.Services.SpeechService
 import info.vopio.android.Services.VoiceRecorder
 import info.vopio.android.Utilities.Constants
-import info.vopio.android.Utilities.DatabaseStringAdapter
 import info.vopio.android.Utilities.MessageUploader
 import info.vopio.android.Utilities.PhoneticAlphabetPopup
 import info.vopio.android.databinding.ActivityHostSessionBinding
@@ -60,8 +58,8 @@ class HostSessionActivity : AppCompatActivity() {
     }
 
     class MessageViewHolder(v: View) : RecyclerView.ViewHolder(v) {
-        var captionTextView: TextView = itemView.findViewById(R.id.captionTextView)
-        var authorTextView: TextView = itemView.findViewById(R.id.authorTextView)
+        var captionTextView: TextView = itemView.findViewById(R.id.sessionIDTextView)
+        var authorTextView: TextView = itemView.findViewById(R.id.dateTextView)
     }
 
     private val thisVoiceCallback: VoiceRecorder.Callback = object : VoiceRecorder.Callback() {
