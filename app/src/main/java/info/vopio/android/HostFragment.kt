@@ -25,6 +25,7 @@ import info.vopio.android.DataModel.SessionListAdapter
 import info.vopio.android.Utilities.Constants
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.HashMap
 
 private const val ARG_USERNAME = "param1"
 private const val ARG_USER_EMAIL = "param2"
@@ -71,14 +72,19 @@ class HostFragment : Fragment() {
             val dateFormat = SimpleDateFormat("MM.dd.yy 'at' HH:mm aa", Locale.getDefault())
             val date = dateFormat.format(calendar.time)
 
-            databaseRef.child(Constants.SESSION_LIST).child(newSessionID).child(Constants.HOST_EMAIL).setValue(localUserEmail)
-            databaseRef.child(Constants.SESSION_LIST).child(newSessionID).child(Constants.ACTIVE_SESSION).setValue(true)
-            databaseRef.child(Constants.SESSION_LIST).child(newSessionID).child(Constants.SESSION_DATE).setValue(date)
+            val postModel = hashMapOf<String, Any>()
+            postModel[Constants.HOST_EMAIL] = localUserEmail.toString()
+            postModel[Constants.ACTIVE_SESSION] = true
+            postModel[Constants.SESSION_DATE] = date
 
+            databaseRef.child(Constants.SESSION_LIST).child(newSessionID).setValue(postModel)
+
+            postModel.clear()
+            postModel[Constants.CAPTION_AUTHOR] = localUsername.toString()
+            postModel[Constants.CAPTION_TEXT] = "[ Session started by $localUsername]"
+            postModel[Constants.CAPTION_FEEDBACK] = "n/a"
             val captionID = databaseRef.child(Constants.SESSION_LIST).child(newSessionID).child(Constants.CAPTION_LIST).push().key.toString()
-            databaseRef.child(Constants.SESSION_LIST).child(newSessionID).child(Constants.CAPTION_LIST).child(captionID).child(Constants.CAPTION_AUTHOR).setValue(localUsername)
-            databaseRef.child(Constants.SESSION_LIST).child(newSessionID).child(Constants.CAPTION_LIST).child(captionID).child(Constants.CAPTION_TEXT).setValue("[ Session started ]")
-            databaseRef.child(Constants.SESSION_LIST).child(newSessionID).child(Constants.CAPTION_LIST).child(captionID).child(Constants.CAPTION_FEEDBACK).setValue("n/a")
+            databaseRef.child(Constants.SESSION_LIST).child(newSessionID).child(Constants.CAPTION_LIST).child(captionID).setValue(postModel)
 
 
             val intent = Intent(fragmentContext, HostSessionActivity::class.java)
