@@ -1,5 +1,6 @@
 package info.vopio.android
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.Spanned
@@ -13,6 +14,7 @@ import android.widget.PopupWindow
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.NonNull
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,20 +22,23 @@ import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.database.FirebaseRecyclerAdapter
 import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.firebase.ui.database.SnapshotParser
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.*
 import info.vopio.android.DataModel.MessageModel
+import info.vopio.android.DataModel.Word
 import info.vopio.android.Utilities.Constants
+import info.vopio.android.Utilities.IdentityGenerator
 import info.vopio.android.Utilities.MessageUploader
 import info.vopio.android.databinding.ActivityGuestSessionBinding
 import timber.log.Timber
 
 class GuestSessionActivity : AppCompatActivity() {
 
-    lateinit var thisFirebaseDatabaseReference : DatabaseReference
+
 
     lateinit var sessionId : String
     lateinit var captionId : String
-    lateinit var captionAuthor : String // author could be any un-muted app user in the session
+    lateinit var captionAuthor : String
 
     private var popupWindow: PopupWindow? = null
     private var popupView: View? = null
@@ -44,8 +49,16 @@ class GuestSessionActivity : AppCompatActivity() {
 
     lateinit var thisFirebaseUser : String
     lateinit var thisFirebaseEmail : String
-    lateinit var thisFirebaseAdapter : FirebaseRecyclerAdapter<MessageModel, MessageViewHolder>
-    lateinit var thisLinearLayoutManager : LinearLayoutManager
+
+    lateinit var thisCaptionsAdapter : FirebaseRecyclerAdapter<MessageModel, MessageViewHolder>
+    lateinit var thisCaptionsLinearLayoutManager : LinearLayoutManager
+
+    lateinit var thisWordsLinearLayoutManager : LinearLayoutManager
+    lateinit var recyclerView: RecyclerView
+
+    lateinit var databaseRef : DatabaseReference
+    lateinit var dataSnapshotList : DataSnapshot
+    private val savedWordsList = mutableListOf<Word>()
 
     private lateinit var binding: ActivityGuestSessionBinding
 
@@ -66,7 +79,7 @@ class GuestSessionActivity : AppCompatActivity() {
 
                 Timber.i("-->>SpeechX: LEAVE SESH")
                 window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-                thisFirebaseAdapter.stopListening()
+                thisCaptionsAdapter.stopListening()
 
                 leaveAttendance()
 
@@ -84,12 +97,14 @@ class GuestSessionActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
+        recyclerView = view.findViewById(R.id.savedWordsRecyclerView)
+
         val toolbar = findViewById<View>(R.id.toolbar) as Toolbar
         setSupportActionBar(toolbar)
 
         Timber.i("-->>SpeechX: onCreate")
 
-        thisFirebaseDatabaseReference = FirebaseDatabase.getInstance().reference
+        databaseRef = FirebaseDatabase.getInstance().reference
 
         val extras = intent.extras
         if (extras != null) {
@@ -117,15 +132,26 @@ class GuestSessionActivity : AppCompatActivity() {
         binding.statusBarTextView.text = sessionHeader
 
         // setup RecyclerView with last item showing first
-        thisLinearLayoutManager = LinearLayoutManager(this)
-        thisLinearLayoutManager.stackFromEnd = true
-        binding.messageRecyclerView.layoutManager = thisLinearLayoutManager
+        thisCaptionsLinearLayoutManager = LinearLayoutManager(this)
+        thisCaptionsLinearLayoutManager.stackFromEnd = true
+        binding.liveCaptionRecyclerView.layoutManager = thisCaptionsLinearLayoutManager
 
-        initPopupWindow()
+        thisWordsLinearLayoutManager = LinearLayoutManager(this)
+        thisWordsLinearLayoutManager.stackFromEnd = false
+        binding.savedWordsRecyclerView.layoutManager = thisWordsLinearLayoutManager
+
+        initPopupDictionary()
+
+        configureSavedWordParser()
 
     }
 
-    private fun initPopupWindow(){
+    private fun adapterOnClick(word: Word){
+        // display info about card
+        Timber.i("-->>SpeechX: adapterOnClick CLICK:$word")
+    }
+
+    private fun initPopupDictionary(){
 
         popupView = layoutInflater.inflate(R.layout.dictionary_popup_window, binding.root, false)
 
@@ -133,11 +159,24 @@ class GuestSessionActivity : AppCompatActivity() {
             popupWindow?.dismiss()
         }
 
+
+
         popupView?.findViewById<Button>(R.id.askProfButton)?.setOnClickListener {
 
             val questionIs = "Please clarify: $selectedWord"
-            MessageUploader().sendQuestion(thisFirebaseDatabaseReference, sessionId, questionIs, thisFirebaseUser)
-            popupWindow?.dismiss()
+            MessageUploader().sendQuestion(databaseRef, sessionId, questionIs, thisFirebaseUser)
+
+            val alertDialogBuilder = AlertDialog.Builder(this)
+            alertDialogBuilder
+                .setTitle(Constants.POP_TITLE_DONE)
+                .setMessage(Constants.POP_MESSAGE_SUCCESS)
+                .setNeutralButton("Ok") { dialog, which ->
+                    popupWindow?.dismiss()
+                    dialog.cancel()
+                }
+
+            val alertDialog = alertDialogBuilder.create()
+            alertDialog.show()
         }
 
         val viewHeight = ViewGroup.LayoutParams.WRAP_CONTENT
@@ -158,7 +197,7 @@ class GuestSessionActivity : AppCompatActivity() {
 
     private fun showInPopup(wordIs: String){
 
-        MessageUploader().saveWord(thisFirebaseDatabaseReference, wordIs, thisFirebaseEmail)
+        MessageUploader().saveWord(databaseRef, wordIs, thisFirebaseEmail)
 
         val location = IntArray(2)
         val viewAnchor = binding.root.rootView
@@ -178,7 +217,8 @@ class GuestSessionActivity : AppCompatActivity() {
         super.onStart()
 
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        configureDatabaseSnapshotParser()
+        configureCaptionSnapshotParser()
+        configureSavedWordParser()
 
         declareAttendance()
     }
@@ -189,15 +229,57 @@ class GuestSessionActivity : AppCompatActivity() {
     }
 
     private fun declareAttendance(){
-        MessageUploader().declareAttendance(thisFirebaseDatabaseReference, sessionId, thisFirebaseUser, thisFirebaseEmail)
+        MessageUploader().declareAttendance(databaseRef, sessionId, thisFirebaseUser, thisFirebaseEmail)
     }
 
     private fun leaveAttendance(){
         val questionIs = "$thisFirebaseUser left this session"
-        MessageUploader().sendQuestion(thisFirebaseDatabaseReference, sessionId, questionIs, thisFirebaseUser)
+        MessageUploader().sendQuestion(databaseRef, sessionId, questionIs, thisFirebaseUser)
     }
 
-    private fun configureDatabaseSnapshotParser() {
+    private fun configureSavedWordParser(){
+
+        val wordsAdapter = WordsAdapter { word -> adapterOnClick(word) }
+
+        databaseRef = FirebaseDatabase.getInstance().reference
+        databaseRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                // This method is called once with the initial value and again
+                // whenever data at this location is updated.
+
+                // check email list against local user email
+                dataSnapshotList = dataSnapshot
+
+                val userId = IdentityGenerator().createUserIdFromEmail(thisFirebaseEmail)
+                val studentDataSnapshot : DataSnapshot = dataSnapshot.child(Constants.STUDENT_LIST).child(userId).child(Constants.SAVED_WORDS)
+                if (studentDataSnapshot.hasChildren()){
+
+                    savedWordsList.clear()
+                    for (word in studentDataSnapshot.children){
+                        val wordItem = word.value.toString()
+                        val wordKey = word.key.toString()
+                        savedWordsList.add(Word(wordItem, wordKey))
+                    }
+
+                } else {
+                    savedWordsList.clear()
+                    savedWordsList.add(Word("Sample", "sample_key"))
+                }
+                wordsAdapter.submitList(savedWordsList)
+                recyclerView.adapter = wordsAdapter
+
+
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Failed to read value
+                Timber.i("-->>SpeechX: onDataChange Failed to read value:${error.toException()}")
+            }
+        })
+
+    }
+
+    private fun configureCaptionSnapshotParser() {
 
         val parser: SnapshotParser<MessageModel> =
             SnapshotParser<MessageModel> { dataSnapshot ->
@@ -209,13 +291,13 @@ class GuestSessionActivity : AppCompatActivity() {
                 captionItemMessage!!
             }
 
-        val messagesRef: DatabaseReference = thisFirebaseDatabaseReference.child(Constants.SESSION_LIST).child(sessionId).child(Constants.CAPTION_LIST)
+        val messagesRef: DatabaseReference = databaseRef.child(Constants.SESSION_LIST).child(sessionId).child(Constants.CAPTION_LIST)
         val options: FirebaseRecyclerOptions<MessageModel> =
             FirebaseRecyclerOptions.Builder<MessageModel>()
                 .setQuery(messagesRef, parser)
                 .build()
 
-        thisFirebaseAdapter =
+        thisCaptionsAdapter =
             object : FirebaseRecyclerAdapter<MessageModel, MessageViewHolder>(options) {
 
                 override fun onError(error: DatabaseError) {
@@ -281,12 +363,12 @@ class GuestSessionActivity : AppCompatActivity() {
                     }
                 }
             }
-        thisFirebaseAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+        thisCaptionsAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
             override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
                 super.onItemRangeInserted(positionStart, 1)
                 val friendlyMessageCount = 1 //mFirebaseAdapter.getItemCount();
                 val lastVisiblePosition: Int =
-                    thisLinearLayoutManager.findLastCompletelyVisibleItemPosition()
+                    thisCaptionsLinearLayoutManager.findLastCompletelyVisibleItemPosition()
                 // If the recycler view is initially being loaded or the
                 // user is at the bottom of the list, scroll to the bottom
                 // of the list to show the newly added message.
@@ -294,12 +376,12 @@ class GuestSessionActivity : AppCompatActivity() {
                     positionStart >= friendlyMessageCount - 1 &&
                     lastVisiblePosition == positionStart - 1
                 ) {
-                    binding.messageRecyclerView.scrollToPosition(positionStart)
+                    binding.liveCaptionRecyclerView.scrollToPosition(positionStart)
                 }
             }
         })
-        binding.messageRecyclerView.adapter = thisFirebaseAdapter
-        thisFirebaseAdapter.startListening()
+        binding.liveCaptionRecyclerView.adapter = thisCaptionsAdapter
+        thisCaptionsAdapter.startListening()
     }
 
 }

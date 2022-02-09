@@ -43,6 +43,7 @@ class LibraryFragment : Fragment() {
         // Inflate the layout for this fragment
 
         fragmentContainer = inflater.inflate(R.layout.fragment_library, container, false)
+
         val wordsAdapter = WordsAdapter { word -> adapterOnClick(word) }
         val recyclerView: RecyclerView = fragmentContainer.findViewById(R.id.recyclerViewHost)
 
@@ -73,7 +74,7 @@ class LibraryFragment : Fragment() {
 
                 } else {
                     savedWordsList.clear()
-                    savedWordsList.add(Word("Sample", "sample_key"))
+                    savedWordsList.add(Word(Constants.SAMPLE_WORD, Constants.SAMPLE_KEY))
                 }
                 wordsAdapter.submitList(savedWordsList)
                 recyclerView.adapter = wordsAdapter
@@ -93,7 +94,7 @@ class LibraryFragment : Fragment() {
     private fun adapterOnClick(word: Word){
         // display info about card
         Timber.i("-->>SpeechX: adapterOnClick CLICK:$word")
-        wordDetailFragment = WordDetailFragment.newInstance(word.content, word.itemKey)
+        wordDetailFragment = LibraryDetailFragment.newInstance(word.content, word.itemKey)
         parentFragmentManager.beginTransaction().replace(R.id.main_fragment_container, wordDetailFragment).commit()
 
     }

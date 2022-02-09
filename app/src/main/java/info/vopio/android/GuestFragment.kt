@@ -21,6 +21,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import info.vopio.android.DataModel.SessionListAdapter
+import info.vopio.android.DataModel.Word
 import info.vopio.android.Utilities.Constants
 import info.vopio.android.Utilities.IdentityGenerator
 import timber.log.Timber
@@ -42,6 +43,7 @@ class GuestFragment : Fragment() {
 
     private var inactiveSessionListSnapshot = mutableListOf<DataSnapshot>()
     lateinit var thisLinearLayoutManager : LinearLayoutManager
+    lateinit var sampleSnapshot : DataSnapshot
 
     private fun joinSession(){
 
@@ -173,7 +175,7 @@ class GuestFragment : Fragment() {
 
     private fun parseInactiveSessionList(dataSnapshot: DataSnapshot, recyclerView: RecyclerView){
 
-        val sessionAdapter: SessionListAdapter
+        val sessionAdapter : SessionListAdapter
         val sessionDataSnapshot : DataSnapshot = dataSnapshot
         if (sessionDataSnapshot.hasChildren()){
 
@@ -182,22 +184,39 @@ class GuestFragment : Fragment() {
 
             for (sessionItem in sessionDataSnapshot.children){
 
+                if (sessionItem.key.toString().contains(Constants.DEMO_KEY)){
+                    sampleSnapshot = sessionItem
+                }
+
                 for (sessionSubItem in sessionItem.child(Constants.ATTENDANCE_LIST).children){
 
                     val userID = IdentityGenerator().createUserIdFromEmail(localUserEmail.toString())
                     if (sessionSubItem.key == userID){
+
                         matchFound = true
                         inactiveSessionListSnapshot.add(sessionItem)
                     }
-
                 }
 
             }
-            recyclerView.isVisible = matchFound
 
-            sessionAdapter = SessionListAdapter(inactiveSessionListSnapshot)
+            if (!matchFound){
+                inactiveSessionListSnapshot.clear()
+                inactiveSessionListSnapshot.add(sampleSnapshot)
+            }
+
+            sessionAdapter = SessionListAdapter(inactiveSessionListSnapshot) { sessionId -> adapterOnClick(sessionId)}
             recyclerView.adapter = sessionAdapter
         }
+    }
+
+    private fun adapterOnClick(sessionId: String){
+
+        val intent = Intent(fragmentContext, ReviewSessionActivity::class.java)
+        intent.putExtra(Constants.SESSION_KEY, sessionId)
+        intent.putExtra(Constants.SESSION_USERNAME, localUsername)
+        intent.putExtra(Constants.SESSION_USER_EMAIL, localUserEmail)
+        startActivity(intent)
     }
 
     companion object {

@@ -18,7 +18,7 @@ import timber.log.Timber
 private const val ARG_WORD = "param1"
 private const val ARG_WORD_KEY = "param2"
 
-class WordDetailFragment : Fragment() {
+class LibraryDetailFragment : Fragment() {
 
     private var selectedWord: String? = null
     private var selectedWordKey: String? = null
@@ -73,6 +73,7 @@ class WordDetailFragment : Fragment() {
         }
 
         val delBtn : Button = fragmentContainer.findViewById(R.id.deleteWordButton)
+        delBtn.isEnabled = (selectedWord != Constants.SAMPLE_WORD)
         delBtn.setOnClickListener {
 
             val userId = IdentityGenerator().createUserIdFromEmail(localUserEmail)
@@ -91,18 +92,10 @@ class WordDetailFragment : Fragment() {
     }
 
     companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment WordDetailFragment.
-         */
-        // TODO: Rename and change types and number of parameters
+
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
-            WordDetailFragment().apply {
+            LibraryDetailFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_WORD, param1)
                     putString(ARG_WORD_KEY, param2)

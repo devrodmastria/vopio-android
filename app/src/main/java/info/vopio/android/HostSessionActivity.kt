@@ -376,7 +376,7 @@ class HostSessionActivity : AppCompatActivity() {
         // setup RecyclerView with last item showing first
         thisLinearLayoutManager = LinearLayoutManager(this)
         thisLinearLayoutManager.stackFromEnd = true
-        binding.messageRecyclerView.layoutManager = thisLinearLayoutManager
+        binding.hostCaptionRecyclerView.layoutManager = thisLinearLayoutManager
 
         val parser: SnapshotParser<MessageModel> =
             SnapshotParser<MessageModel> { dataSnapshot ->
@@ -443,12 +443,12 @@ class HostSessionActivity : AppCompatActivity() {
                 if (lastVisiblePosition == -1 ||
                     positionStart >= captionItemCount - 1 && lastVisiblePosition == positionStart - 1) {
 
-                    binding.messageRecyclerView.scrollToPosition(positionStart)
+                    binding.hostCaptionRecyclerView.scrollToPosition(positionStart)
                 }
 
             }
         })
-        binding.messageRecyclerView.adapter = thisFirebaseCaptionsAdapter
+        binding.hostCaptionRecyclerView.adapter = thisFirebaseCaptionsAdapter
         thisFirebaseCaptionsAdapter.startListening()
     }
 

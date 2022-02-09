@@ -18,6 +18,9 @@
         android:theme="@style/AppTheme.NoActionBar"
         tools:ignore="GoogleAppIndexingWarning">
         <activity
+            android:name=".ReviewSessionActivity"
+            android:exported="false" />
+        <activity
             android:name=".HostSessionActivity"
             android:exported="false" />
         <activity android:name=".OnboardingActivity" />

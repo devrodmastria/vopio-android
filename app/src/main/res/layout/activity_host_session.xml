@@ -32,7 +32,7 @@
         android:background="@color/purple_light"
         android:orientation="horizontal"
         android:gravity="center"
-        app:layout_constraintBottom_toTopOf="@+id/messageRecyclerView"
+        app:layout_constraintBottom_toTopOf="@+id/hostCaptionRecyclerView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/appBarLayout">
@@ -46,7 +46,7 @@
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/messageRecyclerView"
+        android:id="@+id/hostCaptionRecyclerView"
         android:layout_width="0dp"
         android:layout_height="250dp"
         android:layout_marginStart="4dp"
@@ -74,7 +74,7 @@
         app:layout_constraintBottom_toTopOf="@+id/questionRecyclerView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/messageRecyclerView" />
+        app:layout_constraintTop_toBottomOf="@+id/hostCaptionRecyclerView" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/questionRecyclerView"

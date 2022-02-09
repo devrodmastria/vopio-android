@@ -25,7 +25,6 @@ import info.vopio.android.DataModel.SessionListAdapter
 import info.vopio.android.Utilities.Constants
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.HashMap
 
 private const val ARG_USERNAME = "param1"
 private const val ARG_USER_EMAIL = "param2"
@@ -45,6 +44,7 @@ class HostFragment : Fragment() {
 
     private var inactiveSessionListSnapshot = mutableListOf<DataSnapshot>()
     lateinit var thisLinearLayoutManager : LinearLayoutManager
+    lateinit var sampleSnapshot : DataSnapshot
 
     private fun hostNewSession(){
 
@@ -72,19 +72,21 @@ class HostFragment : Fragment() {
             val dateFormat = SimpleDateFormat("MM.dd.yy 'at' HH:mm aa", Locale.getDefault())
             val date = dateFormat.format(calendar.time)
 
-            val postModel = hashMapOf<String, Any>()
-            postModel[Constants.HOST_EMAIL] = localUserEmail.toString()
-            postModel[Constants.ACTIVE_SESSION] = true
-            postModel[Constants.SESSION_DATE] = date
+            val sessionModel = hashMapOf<String, Any>()
+            sessionModel[Constants.HOST_EMAIL] = localUserEmail.toString()
+            sessionModel[Constants.HOST_NAME] = localUsername.toString()
+            sessionModel[Constants.ACTIVE_SESSION] = true
+            sessionModel[Constants.SESSION_DATE] = date
+            sessionModel[Constants.SESSION_TITLE] = "Session by $localUsername"
 
-            databaseRef.child(Constants.SESSION_LIST).child(newSessionID).setValue(postModel)
+            databaseRef.child(Constants.SESSION_LIST).child(newSessionID).setValue(sessionModel)
 
-            postModel.clear()
-            postModel[Constants.CAPTION_AUTHOR] = localUsername.toString()
-            postModel[Constants.CAPTION_TEXT] = "[ Session started by $localUsername]"
-            postModel[Constants.CAPTION_FEEDBACK] = "n/a"
+            sessionModel.clear()
+            sessionModel[Constants.CAPTION_AUTHOR] = localUsername.toString()
+            sessionModel[Constants.CAPTION_TEXT] = "[ Session started by $localUsername]"
+            sessionModel[Constants.CAPTION_FEEDBACK] = "n/a"
             val captionID = databaseRef.child(Constants.SESSION_LIST).child(newSessionID).child(Constants.CAPTION_LIST).push().key.toString()
-            databaseRef.child(Constants.SESSION_LIST).child(newSessionID).child(Constants.CAPTION_LIST).child(captionID).setValue(postModel)
+            databaseRef.child(Constants.SESSION_LIST).child(newSessionID).child(Constants.CAPTION_LIST).child(captionID).setValue(sessionModel)
 
 
             val intent = Intent(fragmentContext, HostSessionActivity::class.java)
@@ -207,22 +209,38 @@ class HostFragment : Fragment() {
             var matchFound = false
             inactiveSessionListSnapshot.clear()
 
-            for (session in sessionDataSnapshot.children){
+            for (sessionItem in sessionDataSnapshot.children){
 
-                val hostEmail = session.child(Constants.HOST_EMAIL).value.toString()
+                if (sessionItem.key.toString().contains(Constants.DEMO_KEY)){
+                    sampleSnapshot = sessionItem
+                }
 
+                val hostEmail = sessionItem.child(Constants.HOST_EMAIL).value.toString()
                 if (hostEmail == localUserEmail){
                     matchFound = true
-                    inactiveSessionListSnapshot.add(session)
+                    inactiveSessionListSnapshot.add(sessionItem)
                 }
 
             }
 
-            deleteBtn.isVisible = matchFound
+            deleteBtn.isVisible = matchFound // prevent user from deleting DEMO session
+            if (!matchFound){
+                inactiveSessionListSnapshot.add(sampleSnapshot)
+            }
 
-            sessionAdapter = SessionListAdapter(inactiveSessionListSnapshot)
+            sessionAdapter = SessionListAdapter(inactiveSessionListSnapshot) { sessionId -> adapterOnClick(sessionId)}
             recyclerView.adapter = sessionAdapter
         }
+    }
+
+    private fun adapterOnClick(sessionId: String){
+
+        val intent = Intent(fragmentContext, ReviewSessionActivity::class.java)
+        intent.putExtra(Constants.SESSION_KEY, sessionId)
+        intent.putExtra(Constants.SESSION_USERNAME, localUsername)
+        intent.putExtra(Constants.SESSION_USER_EMAIL, localUserEmail)
+        startActivity(intent)
+
     }
 
     companion object {
