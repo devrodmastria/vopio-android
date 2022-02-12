@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import timber.log.Timber
@@ -23,6 +24,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.ValueEventListener
 import info.vopio.android.DataModel.SessionListAdapter
 import info.vopio.android.Utilities.Constants
+import info.vopio.android.Utilities.RecyclerSwipeHelper
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -156,7 +158,8 @@ class HostFragment : Fragment() {
         fragmentContext = fragmentContainer.context
 
         thisLinearLayoutManager = LinearLayoutManager(fragmentContext)
-        thisLinearLayoutManager.stackFromEnd = false
+        thisLinearLayoutManager.reverseLayout = true // show latest item on top
+        thisLinearLayoutManager.stackFromEnd = true // required to show end as top
         val recyclerView: RecyclerView = fragmentContainer.findViewById(R.id.recyclerViewHost)
         recyclerView.layoutManager = thisLinearLayoutManager
 
@@ -197,7 +200,67 @@ class HostFragment : Fragment() {
                 }
             })
 
+        setupRecyclerSwipe(recyclerView)
         return fragmentContainer
+    }
+
+    private fun setupRecyclerSwipe(recyclerView: RecyclerView){
+        val itemTouchHelper = ItemTouchHelper(object : RecyclerSwipeHelper(recyclerView, inactiveSessionListSnapshot, databaseRef){
+            override fun instantiateMenuButton(position: Int): List<MenuButton> {
+
+                val actions: List<MenuButton>
+
+                val renameBtn = renameButtonSwipe(position)
+                val delBtn = deleteButtonSwipe(position)
+
+                actions = listOf(renameBtn, delBtn)
+
+                return actions
+            }
+        })
+        itemTouchHelper.attachToRecyclerView(recyclerView)
+    }
+
+    private fun renameButtonSwipe(position: Int): RecyclerSwipeHelper.MenuButton {
+        return RecyclerSwipeHelper.MenuButton(
+            fragmentContext,
+            "Rename",
+            18.0f,
+            android.R.color.holo_green_light,
+            object : RecyclerSwipeHelper.MenuButtonClickListener {
+                override fun onClick() {
+
+                    Timber.i("-->>SpeechX: renameButtonSwipe value:${inactiveSessionListSnapshot[position].key}")
+                }
+            })
+    }
+
+    private fun deleteButtonSwipe(position: Int): RecyclerSwipeHelper.MenuButton {
+        return RecyclerSwipeHelper.MenuButton(
+            fragmentContext,
+            "Delete",
+            18.0f,
+            android.R.color.holo_purple,
+            object : RecyclerSwipeHelper.MenuButtonClickListener {
+                override fun onClick() {
+
+                    Timber.i("-->>SpeechX: deleteButtonSwipe value:${inactiveSessionListSnapshot[position].key}")
+
+//                    deleteSingleSession(position)
+                }
+            })
+    }
+
+    private fun deleteSingleSession(itemIndexPath: Int){
+
+        val sessionKey = inactiveSessionListSnapshot[itemIndexPath].key
+        if (inactiveSessionListSnapshot.isNotEmpty()){
+
+            databaseRef.child(Constants.SESSION_LIST).child(sessionKey.toString()).setValue(null)
+                .addOnFailureListener {
+                    Timber.i("-->>HostFragment DELETE Fail")
+                }
+        }
     }
 
     private fun parseInactiveSessionList(dataSnapshot: DataSnapshot,recyclerView: RecyclerView, deleteBtn: Button){

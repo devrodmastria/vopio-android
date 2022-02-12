@@ -26,7 +26,7 @@ import timber.log.Timber
 
 class ReviewSessionActivity : AppCompatActivity() {
 
-    lateinit var thisCaptionsAdapter : FirebaseRecyclerAdapter<MessageModel, GuestSessionActivity.MessageViewHolder>
+    lateinit var thisCaptionsAdapter : FirebaseRecyclerAdapter<MessageModel, MessageViewHolder>
     lateinit var thisCaptionsLinearLayoutManager : LinearLayoutManager
     lateinit var recyclerView: RecyclerView
 
@@ -39,6 +39,11 @@ class ReviewSessionActivity : AppCompatActivity() {
     lateinit var captionAuthor : String
 
     private lateinit var binding: ActivityReviewSessionBinding
+
+    class MessageViewHolder(v: View) : RecyclerView.ViewHolder(v) {
+        var captionTextView: TextView = itemView.findViewById(R.id.sessionIDTextView)
+        var authorTextView: TextView = itemView.findViewById(R.id.dateTextView)
+    }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.caption_toolbar_menu, menu)
@@ -129,7 +134,7 @@ class ReviewSessionActivity : AppCompatActivity() {
                 .build()
 
         thisCaptionsAdapter =
-            object : FirebaseRecyclerAdapter<MessageModel, GuestSessionActivity.MessageViewHolder>(options) {
+            object : FirebaseRecyclerAdapter<MessageModel, MessageViewHolder>(options) {
 
                 override fun onError(error: DatabaseError) {
                     super.onError(error)
@@ -138,9 +143,9 @@ class ReviewSessionActivity : AppCompatActivity() {
 
                 }
 
-                override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): GuestSessionActivity.MessageViewHolder {
+                override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): MessageViewHolder {
                     val inflater = LayoutInflater.from(viewGroup.context)
-                    return GuestSessionActivity.MessageViewHolder(
+                    return MessageViewHolder(
                         inflater.inflate(
                             R.layout.caption_item_message,
                             viewGroup,
@@ -150,7 +155,7 @@ class ReviewSessionActivity : AppCompatActivity() {
                 }
 
                 override fun onBindViewHolder(
-                    viewHolder: GuestSessionActivity.MessageViewHolder,
+                    viewHolder: MessageViewHolder,
                     position: Int,
                     friendlyMessage: MessageModel
                 ) {
@@ -211,6 +216,7 @@ class ReviewSessionActivity : AppCompatActivity() {
 //                }
 //            }
 //        })
+
         binding.captionRecyclerView.adapter = thisCaptionsAdapter
         thisCaptionsAdapter.startListening()
     }

@@ -4,40 +4,41 @@ class Constants {
 
     companion object {
 
-        val HOST_TAG = "_isHost_"
+        const val HOST_TAG = "_isHost_"
 
-        val SESSION_USERNAME = "SESSION_USER"
-        val SESSION_USER_EMAIL = "SESSION_USER_EMAIL"
-        val SESSION_KEY = "SESSION_KEY"
-        val SESSION_LIST = "session_list"
-        val SESSION_DATE = "session_date"
-        val SESSION_TITLE = "session_title"
+        const val SESSION_USERNAME = "SESSION_USER"
+        const val SESSION_USER_EMAIL = "SESSION_USER_EMAIL"
+        const val SESSION_KEY = "SESSION_KEY"
+        const val SESSION_LIST = "session_list"
+        const val SESSION_DATE = "session_date"
+        const val SESSION_TITLE = "session_title"
 
-        val POP_TITLE_DONE = "Done!"
-        val POP_MESSAGE_SUCCESS = "Your question was submitted successfully."
+        const val REVIEW_MODE = "review_mode"
 
-        val DEMO_SESSION = "Jeopardy Show DEMO"
-        val DEMO_KEY = "mFMy"
+        const val POP_TITLE_DONE = "Done!"
+        const val POP_MESSAGE_SUCCESS = "Your question was submitted successfully."
 
-        val SAMPLE_WORD = "Sample"
-        val SAMPLE_KEY = "sample_key"
+        const val DEMO_KEY = "mFMy"
 
-        val STUDENT_LIST = "student_list"
-        val SAVED_WORDS = "saved_words"
+        const val SAMPLE_WORD = "Sample"
+        const val SAMPLE_KEY = "sample_key"
 
-        val HOST_LIST = "host_list"
-        val HOST_EMAIL = "host_email"
-        val HOST_NAME = "host_name"
+        const val STUDENT_LIST = "student_list"
+        const val SAVED_WORDS = "saved_words"
 
-        val ACTIVE_SESSION = "active_session"
-        val CAPTION_LIST = "caption_list"
-        val ATTENDANCE_LIST = "attendance_list"
-        val QUESTION_LIST = "question_list"
-        val STUDENT_NAME = "student_name"
+        const val HOST_LIST = "host_list"
+        const val HOST_EMAIL = "host_email"
+        const val HOST_NAME = "host_name"
 
-        val CAPTION_AUTHOR = "name"
-        val CAPTION_TEXT = "text"
-        val CAPTION_FEEDBACK = "feedback"
+        const val ACTIVE_SESSION = "active_session"
+        const val CAPTION_LIST = "caption_list"
+        const val ATTENDANCE_LIST = "attendance_list"
+        const val QUESTION_LIST = "question_list"
+        const val STUDENT_NAME = "student_name"
+
+        const val CAPTION_AUTHOR = "name"
+        const val CAPTION_TEXT = "text"
+        const val CAPTION_FEEDBACK = "feedback"
 
     }
 

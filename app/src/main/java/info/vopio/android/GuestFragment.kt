@@ -148,7 +148,8 @@ class GuestFragment : Fragment() {
         fragmentContext = fragmentContainer.context
 
         thisLinearLayoutManager = LinearLayoutManager(fragmentContext)
-        thisLinearLayoutManager.stackFromEnd = false
+        thisLinearLayoutManager.reverseLayout = true // show latest item on top
+        thisLinearLayoutManager.stackFromEnd = true // required to show end as top
         val recyclerView: RecyclerView = fragmentContainer.findViewById(R.id.recyclerViewGuest)
         recyclerView.layoutManager = thisLinearLayoutManager
 
@@ -212,10 +213,11 @@ class GuestFragment : Fragment() {
 
     private fun adapterOnClick(sessionId: String){
 
-        val intent = Intent(fragmentContext, ReviewSessionActivity::class.java)
+        val intent = Intent(fragmentContext, GuestSessionActivity::class.java)
         intent.putExtra(Constants.SESSION_KEY, sessionId)
         intent.putExtra(Constants.SESSION_USERNAME, localUsername)
         intent.putExtra(Constants.SESSION_USER_EMAIL, localUserEmail)
+        intent.putExtra(Constants.REVIEW_MODE, true)
         startActivity(intent)
     }
 

@@ -46,6 +46,7 @@ class GuestSessionActivity : AppCompatActivity() {
     private var webSettings : WebSettings? = null
 
     private var selectedWord: String = "_word_"
+    private var reviewMode = false
 
     lateinit var thisFirebaseUser : String
     lateinit var thisFirebaseEmail : String
@@ -81,7 +82,7 @@ class GuestSessionActivity : AppCompatActivity() {
                 window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
                 thisCaptionsAdapter.stopListening()
 
-                leaveAttendance()
+                if (!reviewMode){ leaveAttendance() }
 
                 finish()
 
@@ -125,15 +126,20 @@ class GuestSessionActivity : AppCompatActivity() {
                 sessionId = it
             }
 
+            val sessionMode = extras.getBoolean(Constants.REVIEW_MODE)
+            sessionMode.let {
+                reviewMode = it
+            }
+
         }
 
         val lastFourDigits = sessionId.substring(sessionId.length.minus(4))
         val sessionHeader = "session ID:   $lastFourDigits"
         binding.statusBarTextView.text = sessionHeader
 
-        // setup RecyclerView with last item showing first
+        // setup RecyclerView with last item showing first if session is not on review mode
         thisCaptionsLinearLayoutManager = LinearLayoutManager(this)
-        thisCaptionsLinearLayoutManager.stackFromEnd = true
+        thisCaptionsLinearLayoutManager.stackFromEnd = (!reviewMode)
         binding.liveCaptionRecyclerView.layoutManager = thisCaptionsLinearLayoutManager
 
         thisWordsLinearLayoutManager = LinearLayoutManager(this)
@@ -219,8 +225,7 @@ class GuestSessionActivity : AppCompatActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         configureCaptionSnapshotParser()
         configureSavedWordParser()
-
-        declareAttendance()
+        if (!reviewMode){ declareAttendance() }
     }
 
     override fun onStop() {
@@ -372,11 +377,12 @@ class GuestSessionActivity : AppCompatActivity() {
                 // If the recycler view is initially being loaded or the
                 // user is at the bottom of the list, scroll to the bottom
                 // of the list to show the newly added message.
+
                 if (lastVisiblePosition == -1 ||
                     positionStart >= friendlyMessageCount - 1 &&
                     lastVisiblePosition == positionStart - 1
                 ) {
-                    binding.liveCaptionRecyclerView.scrollToPosition(positionStart)
+                    if (!reviewMode) { binding.liveCaptionRecyclerView.scrollToPosition(positionStart) }
                 }
             }
         })

@@ -62,68 +62,6 @@ class HostSessionActivity : AppCompatActivity() {
         var authorTextView: TextView = itemView.findViewById(R.id.dateTextView)
     }
 
-    private val thisVoiceCallback: VoiceRecorder.Callback = object : VoiceRecorder.Callback() {
-        override fun onVoiceStart() {
-            Timber.i("-->>SpeechX: HEARING VOICE")
-
-            if (thisSpeechService != null) {
-                thisVoiceRecorder?.sampleRate?.let { thisSpeechService?.startRecognizing(it) }
-            }
-        }
-
-        override fun onVoice(data: ByteArray?, size: Int) {
-            if (thisSpeechService != null) {
-                thisSpeechService?.recognize(data, size)
-            }
-        }
-
-        override fun onVoiceEnd() {
-            Timber.i("-->>SpeechX: NOT HEARING VOICE")
-
-            if (thisSpeechService != null) {
-                thisSpeechService?.finishRecognizing()
-            }
-        }
-    }
-
-    private val thisSpeechServiceListener: SpeechService.Listener =
-        SpeechService.Listener { text, isFinal ->
-
-            if (!TextUtils.isEmpty(text)) {
-
-                if (isFinal){
-                    runOnUiThread {
-                        binding.statusView.text = getString(R.string.session_status)
-                    }
-
-                    MessageUploader().sendCaptions(thisFirebaseDatabaseReference, sessionId, text, thisFirebaseUser)
-                    thisVoiceRecorder?.dismiss()
-
-                } else {
-                    runOnUiThread {
-                        binding.statusView.text = text
-                    }
-                }
-
-            }
-        }
-
-    private val thisServiceConnection: ServiceConnection = object : ServiceConnection {
-
-        override fun onServiceConnected(componentName: ComponentName, binder: IBinder) {
-
-            thisSpeechService = SpeechService.from(binder)
-            thisSpeechService?.addListener(thisSpeechServiceListener)
-
-            Timber.i("-->>SpeechX: LISTENING")
-
-        }
-
-        override fun onServiceDisconnected(componentName: ComponentName) {
-            thisSpeechService = null
-        }
-    }
-
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.host_session_menu, menu)
         return true
@@ -223,6 +161,72 @@ class HostSessionActivity : AppCompatActivity() {
         }
 
         super.onStop()
+    }
+
+    private val thisVoiceCallback: VoiceRecorder.Callback = object : VoiceRecorder.Callback() {
+        override fun onVoiceStart() {
+            Timber.i("-->>SpeechX: HEARING VOICE")
+
+            if (thisSpeechService != null) {
+                thisVoiceRecorder?.sampleRate?.let { thisSpeechService?.startRecognizing(it) }
+            }
+        }
+
+        override fun onVoice(data: ByteArray?, size: Int) {
+            if (thisSpeechService != null) {
+                thisSpeechService?.recognize(data, size)
+            }
+        }
+
+        override fun onVoiceEnd() {
+            Timber.i("-->>SpeechX: NOT HEARING VOICE")
+
+            if (thisSpeechService != null) {
+                thisSpeechService?.finishRecognizing()
+            }
+        }
+    }
+
+    private val thisSpeechServiceListener: SpeechService.Listener =
+        SpeechService.Listener { text, isFinal ->
+
+            if (!TextUtils.isEmpty(text)) {
+
+                if (isFinal){
+                    runOnUiThread {
+                        binding.statusView.text = getString(R.string.session_status)
+                    }
+//
+//                    MessageUploader().sendCaptions(thisFirebaseDatabaseReference, sessionId, text, thisFirebaseUser)
+                    thisVoiceRecorder?.dismiss()
+
+                } else {
+
+                    MessageUploader().sendCaptions(thisFirebaseDatabaseReference, sessionId, text, thisFirebaseUser)
+                    thisVoiceRecorder?.dismiss()
+
+//                    runOnUiThread {
+//                        binding.statusView.text = text
+//                    }
+                }
+
+            }
+        }
+
+    private val thisServiceConnection: ServiceConnection = object : ServiceConnection {
+
+        override fun onServiceConnected(componentName: ComponentName, binder: IBinder) {
+
+            thisSpeechService = SpeechService.from(binder)
+            thisSpeechService?.addListener(thisSpeechServiceListener)
+
+            Timber.i("-->>SpeechX: LISTENING")
+
+        }
+
+        override fun onServiceDisconnected(componentName: ComponentName) {
+            thisSpeechService = null
+        }
     }
 
     private fun startSession() {
