@@ -238,6 +238,7 @@ public class SpeechService extends Service {
                         .setConfig(RecognitionConfig.newBuilder()
                                 .setLanguageCode(getDefaultLanguageCode())
                                 .setEncoding(RecognitionConfig.AudioEncoding.LINEAR16)
+                                .setMaxAlternatives(10)
                                 .setSampleRateHertz(sampleRate))
                         .setInterimResults(true)
                         .setSingleUtterance(true))

@@ -17,6 +17,7 @@ import kotlin.math.abs
 abstract class RecyclerSwipeHelper(private val recyclerView: RecyclerView, private val inactiveSessionList: List<DataSnapshot>, private val databaseRef : DatabaseReference) :
     ItemTouchHelper.SimpleCallback(ItemTouchHelper.ACTION_STATE_IDLE, ItemTouchHelper.LEFT){
 
+    private var swipeBack = false
     private var swipedPosition = -1
     private val optionsBuffer: MutableMap<Int, List<MenuButton>> = mutableMapOf()
     private val recoverQueue = object : LinkedList<Int>(){
@@ -36,7 +37,18 @@ abstract class RecyclerSwipeHelper(private val recyclerView: RecyclerView, priva
         recoverQueue.add(swipedPosition)
         swipedPosition = -1
         recoverSwipedItem()
+
+        swipeBack = (motionEvent.action == MotionEvent.ACTION_CANCEL || motionEvent.action == MotionEvent.ACTION_UP)
+
         true
+    }
+
+    private fun recoverSwipedItem(){
+
+        while (!recoverQueue.isEmpty()){
+            val position = recoverQueue.poll() ?: return
+            recyclerView.adapter?.notifyItemChanged(position)
+        }
     }
 
     init {
@@ -59,13 +71,6 @@ abstract class RecyclerSwipeHelper(private val recyclerView: RecyclerView, priva
             )
 
             right = left.toInt()
-        }
-    }
-
-    private fun recoverSwipedItem(){
-        while (!recoverQueue.isEmpty()){
-            val position = recoverQueue.poll() ?: return
-            recyclerView.adapter?.notifyItemChanged(position)
         }
     }
 
@@ -116,11 +121,21 @@ abstract class RecyclerSwipeHelper(private val recyclerView: RecyclerView, priva
 
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
 
-        val itemPosition = viewHolder.bindingAdapterPosition
+//        val itemPosition = viewHolder.bindingAdapterPosition
+//
+//        if (swipedPosition != itemPosition) recoverQueue.add(swipedPosition)
+//        swipedPosition = itemPosition
+//        recoverSwipedItem()
+    }
 
-        if (swipedPosition != itemPosition) recoverQueue.add(swipedPosition)
-        swipedPosition = itemPosition
-        recoverSwipedItem()
+    override fun convertToAbsoluteDirection(flags: Int, layoutDirection: Int): Int {
+
+        if(swipeBack){
+            swipeBack = false
+            return 0
+        }
+
+        return super.convertToAbsoluteDirection(flags, layoutDirection)
     }
 
     abstract fun instantiateMenuButton(position: Int): List<MenuButton>

@@ -2,29 +2,27 @@ package info.vopio.android
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Canvas
 import android.net.Uri
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import timber.log.Timber
-
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
-
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.ValueEventListener
+import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.database.*
 import info.vopio.android.DataModel.SessionListAdapter
 import info.vopio.android.Utilities.Constants
-import info.vopio.android.Utilities.RecyclerSwipeHelper
+import info.vopio.android.Utilities.SwipeActions
+import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -47,80 +45,6 @@ class HostFragment : Fragment() {
     private var inactiveSessionListSnapshot = mutableListOf<DataSnapshot>()
     lateinit var thisLinearLayoutManager : LinearLayoutManager
     lateinit var sampleSnapshot : DataSnapshot
-
-    private fun hostNewSession(){
-
-        var allowedToHost = false
-
-        // Loop through Real Time Database -- look for matching user emails (whitelisted) for professors.
-        for (snapshot in hostListSnapshot.children) {
-
-            var hostEmail = snapshot.key
-            hostEmail = hostEmail?.replace("+","@")
-            hostEmail = hostEmail?.replace("_",".")
-
-            if (hostEmail == localUserEmail){
-                allowedToHost = true
-                break
-            }
-        }
-
-        if (allowedToHost) {
-
-            // generate session ID
-            this.newSessionID = databaseRef.child(Constants.SESSION_LIST).push().key.toString()
-
-            val calendar = Calendar.getInstance()
-            val dateFormat = SimpleDateFormat("MM.dd.yy 'at' HH:mm aa", Locale.getDefault())
-            val date = dateFormat.format(calendar.time)
-
-            val sessionModel = hashMapOf<String, Any>()
-            sessionModel[Constants.HOST_EMAIL] = localUserEmail.toString()
-            sessionModel[Constants.HOST_NAME] = localUsername.toString()
-            sessionModel[Constants.ACTIVE_SESSION] = true
-            sessionModel[Constants.SESSION_DATE] = date
-            sessionModel[Constants.SESSION_TITLE] = "Session by $localUsername"
-
-            databaseRef.child(Constants.SESSION_LIST).child(newSessionID).setValue(sessionModel)
-
-            sessionModel.clear()
-            sessionModel[Constants.CAPTION_AUTHOR] = localUsername.toString()
-            sessionModel[Constants.CAPTION_TEXT] = "[ Session started by $localUsername]"
-            sessionModel[Constants.CAPTION_FEEDBACK] = "n/a"
-            val captionID = databaseRef.child(Constants.SESSION_LIST).child(newSessionID).child(Constants.CAPTION_LIST).push().key.toString()
-            databaseRef.child(Constants.SESSION_LIST).child(newSessionID).child(Constants.CAPTION_LIST).child(captionID).setValue(sessionModel)
-
-
-            val intent = Intent(fragmentContext, HostSessionActivity::class.java)
-            intent.putExtra(Constants.SESSION_USERNAME, localUsername)
-            intent.putExtra(Constants.SESSION_USER_EMAIL, localUserEmail)
-            intent.putExtra(Constants.SESSION_KEY, this.newSessionID)
-            startActivity(intent)
-
-        } else {
-
-            val alertDialogBuilder = AlertDialog.Builder(fragmentContext)
-            alertDialogBuilder
-                .setTitle("Oops!")
-                .setMessage("Hosting is not available with your account.")
-                .setCancelable(true)
-                .setNeutralButton("Become a host") { dialog, which ->
-                    val url : String = "https://vopio.tech/contact/"
-                    val intent = Intent(Intent.ACTION_VIEW)
-                    intent.setData(Uri.parse(url))
-                    startActivity(intent)
-
-                }
-
-                .setPositiveButton("Dismiss") { dialog, which ->
-
-                    dialog.cancel()
-                }
-
-            val alertDialog = alertDialogBuilder.create()
-            alertDialog.show()
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -204,65 +128,6 @@ class HostFragment : Fragment() {
         return fragmentContainer
     }
 
-    private fun setupRecyclerSwipe(recyclerView: RecyclerView){
-        val itemTouchHelper = ItemTouchHelper(object : RecyclerSwipeHelper(recyclerView, inactiveSessionListSnapshot, databaseRef){
-            override fun instantiateMenuButton(position: Int): List<MenuButton> {
-
-                val actions: List<MenuButton>
-
-                val renameBtn = renameButtonSwipe(position)
-                val delBtn = deleteButtonSwipe(position)
-
-                actions = listOf(renameBtn, delBtn)
-
-                return actions
-            }
-        })
-        itemTouchHelper.attachToRecyclerView(recyclerView)
-    }
-
-    private fun renameButtonSwipe(position: Int): RecyclerSwipeHelper.MenuButton {
-        return RecyclerSwipeHelper.MenuButton(
-            fragmentContext,
-            "Rename",
-            18.0f,
-            android.R.color.holo_green_light,
-            object : RecyclerSwipeHelper.MenuButtonClickListener {
-                override fun onClick() {
-
-                    Timber.i("-->>SpeechX: renameButtonSwipe value:${inactiveSessionListSnapshot[position].key}")
-                }
-            })
-    }
-
-    private fun deleteButtonSwipe(position: Int): RecyclerSwipeHelper.MenuButton {
-        return RecyclerSwipeHelper.MenuButton(
-            fragmentContext,
-            "Delete",
-            18.0f,
-            android.R.color.holo_purple,
-            object : RecyclerSwipeHelper.MenuButtonClickListener {
-                override fun onClick() {
-
-                    Timber.i("-->>SpeechX: deleteButtonSwipe value:${inactiveSessionListSnapshot[position].key}")
-
-//                    deleteSingleSession(position)
-                }
-            })
-    }
-
-    private fun deleteSingleSession(itemIndexPath: Int){
-
-        val sessionKey = inactiveSessionListSnapshot[itemIndexPath].key
-        if (inactiveSessionListSnapshot.isNotEmpty()){
-
-            databaseRef.child(Constants.SESSION_LIST).child(sessionKey.toString()).setValue(null)
-                .addOnFailureListener {
-                    Timber.i("-->>HostFragment DELETE Fail")
-                }
-        }
-    }
-
     private fun parseInactiveSessionList(dataSnapshot: DataSnapshot,recyclerView: RecyclerView, deleteBtn: Button){
 
         val sessionAdapter: SessionListAdapter
@@ -296,6 +161,114 @@ class HostFragment : Fragment() {
         }
     }
 
+    private fun setupRecyclerSwipe(recyclerView: RecyclerView){
+
+        val swipeController = SwipeHandler(object : SwipeActions() {
+
+            override fun onDeleteClicked(position: Int) {
+                super.onDeleteClicked(position)
+
+                deleteSingleSession(position)
+            }
+
+            override fun onRenameClicked(position: Int) {
+                super.onRenameClicked(position)
+
+                renameSession(position)
+            }
+        })
+
+        val itemTouchHelper = ItemTouchHelper(swipeController)
+        itemTouchHelper.attachToRecyclerView(recyclerView)
+
+        recyclerView.addItemDecoration(object : RecyclerView.ItemDecoration() {
+
+            override fun onDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
+                super.onDraw(c, parent, state)
+                swipeController.onDraw(c)
+            }
+        })
+    }
+
+    private fun renameSession(itemIndexPath: Int){
+
+        Timber.i("-->>SpeechX: onRenameClicked value:${inactiveSessionListSnapshot[itemIndexPath].key}")
+
+        val dialogTitle = "Enter new title"
+        val dialogMessage = "Title needs to have at least 4 characters"
+        val hintText = "At least 4 characters"
+
+        val textInputView = EditText(fragmentContext)
+        textInputView.inputType = InputType.TYPE_CLASS_TEXT
+        textInputView.hint = hintText
+
+        val alertDialogBuilder = AlertDialog.Builder(fragmentContext)
+        alertDialogBuilder
+            .setTitle(dialogTitle)
+            .setMessage(dialogMessage)
+            .setView(textInputView)
+            .setPositiveButton("Rename") { dialog, which ->
+
+                val inputName = textInputView.text.toString()
+                if (inputName.length >= 4){
+
+                    val sessionKey = inactiveSessionListSnapshot[itemIndexPath].key
+                    if (inactiveSessionListSnapshot.isNotEmpty()){
+
+                        databaseRef.child(Constants.SESSION_LIST).child(sessionKey.toString()).child(Constants.SESSION_TITLE).setValue(inputName)
+                            .addOnFailureListener {
+                                Timber.i("-->>HostFragment renameSession Fail")
+                            }
+                    }
+                }
+
+            }
+            .setNegativeButton("Cancel") { dialog, which ->
+                dialog.cancel()
+            }
+
+        val alertDialog = alertDialogBuilder.create()
+
+        alertDialog.setOnShowListener {
+            textInputView.requestFocus()
+        }
+
+        alertDialog.show() // show() must be called last
+
+    }
+
+    private fun deleteSingleSession(itemIndexPath: Int){
+
+        Timber.i("-->>SpeechX: onDeleteClicked value:${inactiveSessionListSnapshot[itemIndexPath].key}")
+
+        val dialogTitle = "Delete this session?"
+        val dialogMessage = "This action cannot be undone"
+
+        val alertDialogBuilder = AlertDialog.Builder(fragmentContext)
+        alertDialogBuilder
+            .setTitle(dialogTitle)
+            .setMessage(dialogMessage)
+            .setPositiveButton("Yes") { dialog, which ->
+
+                val sessionKey = inactiveSessionListSnapshot[itemIndexPath].key
+                if (inactiveSessionListSnapshot.isNotEmpty()){
+
+                    databaseRef.child(Constants.SESSION_LIST).child(sessionKey.toString()).setValue(null)
+                        .addOnFailureListener {
+                            Timber.i("-->>HostFragment DELETE Fail")
+                        }
+                }
+
+            }
+            .setNegativeButton("Cancel") { dialog, which ->
+                dialog.cancel()
+            }
+
+        val alertDialog = alertDialogBuilder.create()
+        alertDialog.show() // show() must be called last
+
+    }
+
     private fun adapterOnClick(sessionId: String){
 
         val intent = Intent(fragmentContext, ReviewSessionActivity::class.java)
@@ -304,6 +277,80 @@ class HostFragment : Fragment() {
         intent.putExtra(Constants.SESSION_USER_EMAIL, localUserEmail)
         startActivity(intent)
 
+    }
+
+    private fun hostNewSession(){
+
+        var allowedToHost = false
+
+        // Loop through Real Time Database -- look for matching user emails (whitelisted) for professors.
+        for (snapshot in hostListSnapshot.children) {
+
+            var hostEmail = snapshot.key
+            hostEmail = hostEmail?.replace("+","@")
+            hostEmail = hostEmail?.replace("_",".")
+
+            if (hostEmail == localUserEmail){
+                allowedToHost = true
+                break
+            }
+        }
+
+        if (allowedToHost) {
+
+            // generate session ID
+            this.newSessionID = databaseRef.child(Constants.SESSION_LIST).push().key.toString()
+
+            val calendar = Calendar.getInstance()
+            val dateFormat = SimpleDateFormat("MM.dd.yy 'at' HH:mm aa", Locale.getDefault())
+            val date = dateFormat.format(calendar.time)
+
+            val sessionModel = hashMapOf<String, Any>()
+            sessionModel[Constants.HOST_EMAIL] = localUserEmail.toString()
+            sessionModel[Constants.HOST_NAME] = localUsername.toString()
+            sessionModel[Constants.ACTIVE_SESSION] = true
+            sessionModel[Constants.SESSION_DATE] = date
+            sessionModel[Constants.SESSION_TITLE] = "Session by $localUsername"
+
+            databaseRef.child(Constants.SESSION_LIST).child(newSessionID).setValue(sessionModel)
+
+            sessionModel.clear()
+            sessionModel[Constants.CAPTION_AUTHOR] = localUsername.toString()
+            sessionModel[Constants.CAPTION_TEXT] = "[ Session started by $localUsername]"
+            sessionModel[Constants.CAPTION_FEEDBACK] = "n/a"
+            val captionID = databaseRef.child(Constants.SESSION_LIST).child(newSessionID).child(Constants.CAPTION_LIST).push().key.toString()
+            databaseRef.child(Constants.SESSION_LIST).child(newSessionID).child(Constants.CAPTION_LIST).child(captionID).setValue(sessionModel)
+
+
+            val intent = Intent(fragmentContext, HostSessionActivity::class.java)
+            intent.putExtra(Constants.SESSION_USERNAME, localUsername)
+            intent.putExtra(Constants.SESSION_USER_EMAIL, localUserEmail)
+            intent.putExtra(Constants.SESSION_KEY, this.newSessionID)
+            startActivity(intent)
+
+        } else {
+
+            val alertDialogBuilder = AlertDialog.Builder(fragmentContext)
+            alertDialogBuilder
+                .setTitle("Oops!")
+                .setMessage("Hosting is not available with your account.")
+                .setCancelable(true)
+                .setNeutralButton("Become a host") { dialog, which ->
+                    val url : String = "https://vopio.tech/contact/"
+                    val intent = Intent(Intent.ACTION_VIEW)
+                    intent.setData(Uri.parse(url))
+                    startActivity(intent)
+
+                }
+
+                .setPositiveButton("Dismiss") { dialog, which ->
+
+                    dialog.cancel()
+                }
+
+            val alertDialog = alertDialogBuilder.create()
+            alertDialog.show()
+        }
     }
 
     companion object {
