@@ -78,10 +78,9 @@ class HostSessionActivity : AppCompatActivity() {
             }
             R.id.nav_test_session -> {
 
-//                MessageUploader().sendCaptions(thisFirebaseDatabaseReference, sessionId, "This is a test - automated captions", thisFirebaseUser)
-//                MessageUploader().setStudentName(thisFirebaseDatabaseReference, sessionId, thisFirebaseUser, thisFirebaseEmail)
-//                val questionIs = "This is a test - automated question - can you see this question mark ?"
-//                MessageUploader().sendQuestion(thisFirebaseDatabaseReference, sessionId, questionIs, thisFirebaseUser)
+                MessageUploader().sendCaptions(thisFirebaseDatabaseReference, sessionId, "This is a test - automated captions", thisFirebaseUser)
+                val questionIs = "This is a test - can you see this question?"
+                MessageUploader().sendQuestion(thisFirebaseDatabaseReference, sessionId, questionIs, thisFirebaseUser)
             }
         }
 
@@ -196,18 +195,15 @@ class HostSessionActivity : AppCompatActivity() {
                     runOnUiThread {
                         binding.statusView.text = getString(R.string.session_status)
                     }
-//
-//                    MessageUploader().sendCaptions(thisFirebaseDatabaseReference, sessionId, text, thisFirebaseUser)
-                    thisVoiceRecorder?.dismiss()
-
-                } else {
 
                     MessageUploader().sendCaptions(thisFirebaseDatabaseReference, sessionId, text, thisFirebaseUser)
                     thisVoiceRecorder?.dismiss()
 
-//                    runOnUiThread {
-//                        binding.statusView.text = text
-//                    }
+                } else {
+
+                    runOnUiThread {
+                        binding.statusView.text = text
+                    }
                 }
 
             }

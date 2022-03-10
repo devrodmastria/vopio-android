@@ -233,17 +233,27 @@ public class SpeechService extends Service {
         // Configure the API
         mRequestObserver = mApi.streamingRecognize(mResponseObserver);
 
-        mRequestObserver.onNext(StreamingRecognizeRequest.newBuilder()
-                .setStreamingConfig(StreamingRecognitionConfig.newBuilder()
-                        .setConfig(RecognitionConfig.newBuilder()
-                                .setLanguageCode(getDefaultLanguageCode())
-                                .setEncoding(RecognitionConfig.AudioEncoding.LINEAR16)
-                                .setMaxAlternatives(10)
-                                .setSampleRateHertz(sampleRate))
-                        .setInterimResults(true)
-                        .setSingleUtterance(true))
-                .build()
-        );
+        RecognitionConfig recognitionConfig =
+                RecognitionConfig.newBuilder()
+                    .setLanguageCode(getDefaultLanguageCode())
+                    .setEncoding(RecognitionConfig.AudioEncoding.LINEAR16)
+                    .setMaxAlternatives(1)
+                    .setSampleRateHertz(sampleRate)
+                    .build();
+
+        StreamingRecognitionConfig streamingRecognitionConfig =
+            StreamingRecognitionConfig.newBuilder()
+                    .setConfig(recognitionConfig)
+                    .setInterimResults(true)
+                    .setSingleUtterance(false) // set to false to ensure API keeps running after first utterance
+                .build();
+
+        StreamingRecognizeRequest streamingRecognizeRequest =
+                StreamingRecognizeRequest.newBuilder()
+                        .setStreamingConfig(streamingRecognitionConfig)
+                        .build();
+
+        mRequestObserver.onNext(streamingRecognizeRequest);
     }
 
     /**
