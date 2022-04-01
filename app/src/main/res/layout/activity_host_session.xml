@@ -32,7 +32,6 @@
         android:background="@color/purple_light"
         android:orientation="horizontal"
         android:gravity="center"
-        app:layout_constraintBottom_toTopOf="@+id/hostCaptionRecyclerView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/appBarLayout">
@@ -45,6 +44,21 @@
             android:textAllCaps="false" />
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/statusView"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="@android:color/holo_orange_light"
+        android:gravity="center"
+        android:padding="4dp"
+        android:text="@string/session_status"
+        android:textColor="@android:color/black"
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@+id/sessionCodeView"
+        app:layout_constraintBottom_toTopOf="@id/hostCaptionRecyclerView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/hostCaptionRecyclerView"
         android:layout_width="0dp"
@@ -56,7 +70,7 @@
         app:layout_constraintBottom_toTopOf="@+id/activeUsersTextView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/sessionCodeView"
+        app:layout_constraintTop_toBottomOf="@+id/statusView"
         app:spanCount="1"
         tools:itemCount="1">
 
@@ -82,27 +96,12 @@
         android:layout_height="0dp"
         android:layout_marginStart="4dp"
         android:layout_marginEnd="4dp"
-        app:layout_constraintBottom_toTopOf="@+id/statusView"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/activeUsersTextView"
         app:spanCount="1"
         tools:itemCount="1"/>
-
-    <TextView
-        android:id="@+id/statusView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:color/holo_orange_light"
-        android:gravity="center"
-        android:padding="4dp"
-        android:text="@string/session_status"
-        android:textColor="@android:color/black"
-        android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/questionRecyclerView" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
