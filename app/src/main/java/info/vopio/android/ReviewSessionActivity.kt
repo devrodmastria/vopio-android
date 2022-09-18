@@ -199,6 +199,7 @@ class ReviewSessionActivity : AppCompatActivity() {
                     }
                 }
             }
+
 //        thisCaptionsAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
 //            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
 //                super.onItemRangeInserted(positionStart, 1)
