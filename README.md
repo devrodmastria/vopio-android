@@ -1,6 +1,6 @@
 # vopio-android
 
-**Project Goals**:  to make on-campus college lectures more fulfilling to students and instructors.
+**Project Goals**:  to make on-campus lectures more fulfilling to students and instructors.
 
 **SRS**: Software Requirements Specification document available upon request.
 
