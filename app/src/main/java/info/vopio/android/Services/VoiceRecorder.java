@@ -16,6 +16,7 @@
 
 package info.vopio.android.Services;
 
+import android.annotation.SuppressLint;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
@@ -159,6 +160,7 @@ public class VoiceRecorder {
                 continue;
             }
 
+            @SuppressLint("MissingPermission")  // permission is requested by HostSessionActivity class
             final AudioRecord audioRecord = new AudioRecord(MediaRecorder.AudioSource.VOICE_RECOGNITION,
                     sampleRate, CHANNEL, ENCODING, sizeInBytes);
             if (audioRecord.getState() == AudioRecord.STATE_INITIALIZED) {
