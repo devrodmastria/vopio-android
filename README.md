@@ -10,14 +10,25 @@
 [![Link to YouTube]()](https://youtube.com/shorts/y0wFcO1Slsg?feature=share)
 
 ## Tech Stack
+### Platform
+* Android Studio
 * Kotlin (most of the app)
 * Java (for integration with Speech API)
+* Fragments
+* AndroidX
+
+### Cloud Services
+* Google Cloud Speech API
 * Firebase Database
 * Firebase Auth
 * Firebase Remote Config
-* Google Cloud Speech API
+
+### Networking
 * OkHttp for Speech API
-* Fragments
+
+### Version control
 * Git CLI
-* AndroidX
-* Compliance with reading requirements from WCAG 2.1 (contrast ratios and font sizes for accessible reading) 
+* Android Studio's Git tools
+
+### Accessibility
+* Compliance with WCAG 2.1 for proper contrast ratios and readability
