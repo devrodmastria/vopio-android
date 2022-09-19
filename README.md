@@ -20,3 +20,4 @@
 * Fragments
 * Git CLI
 * AndroidX
+* Compliance with reading requirements from WCAG 2.1 (contrast ratios and font sizes for accessible reading) 
