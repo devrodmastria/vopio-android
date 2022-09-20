@@ -17,8 +17,9 @@ https://youtube.com/shorts/y0wFcO1Slsg?feature=share
 * Fragments
 * AndroidX
 * Media Recorder
-* Background Service (used in different repo)
-* Custom fonts (used in different repo)
+* Background Service (Audios repo)
+* Custom fonts (Audios repo)
+* Googlecode MP4Parser to remix audio files (Audios repo)
 
 ### Debugging and Performance tools
 * Timber (log generator)
@@ -27,7 +28,7 @@ https://youtube.com/shorts/y0wFcO1Slsg?feature=share
 
 ### Cloud Services
 * Google Cloud Speech API
-* Google Play Billing Library (used in different repo)
+* Google Play Billing Library (Audios repo)
 
 ### Firebase
 * Cloud Messaging
