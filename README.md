@@ -7,7 +7,7 @@
 **Etymology**: the word vopio is a combination of **v** for voice and **oppia**, which means "to learn" in the Finnish language.
 
 ## Demo Video
-[![Link to YouTube]()](https://youtube.com/shorts/y0wFcO1Slsg?feature=share)
+https://youtube.com/shorts/y0wFcO1Slsg?feature=share
 
 ## Tech Stack
 ### Platform
