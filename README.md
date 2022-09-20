@@ -22,12 +22,16 @@ https://youtube.com/shorts/y0wFcO1Slsg?feature=share
 * Android R8 enabled for reduced footprint
 * Proguard: R8 print mapping file enabled for deobfuscation
 
-### Cloud Services
+### A.I. Services
 * Google Cloud Speech API
-* Firebase Remote Config
-* Firebase Analytics
-* Firebase Database
-* Firebase Auth
+
+### Firebase
+* Cloud Messaging
+* Remote Config
+* Crashlytics
+* Analytics
+* Database
+* Auth
 
 ### Networking and Interface
 * OkHttp for Speech API

@@ -63,6 +63,11 @@ class SignInActivity : AppCompatActivity(){
         } else {
             Snackbar.make(binding.root, "No internet connection?", Snackbar.LENGTH_LONG).show()
             Timber.wtf("-->> onSignInResult " + result.resultCode)
+
+            val eventMessage = "Login_error :" + result.resultCode
+            val bundle = Bundle()
+            bundle.putString(FirebaseAnalytics.Param.ACHIEVEMENT_ID, "login_error")
+            thisFirebaseAnalytics.logEvent(eventMessage, bundle)
         }
     }
 
