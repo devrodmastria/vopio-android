@@ -17,25 +17,29 @@ https://youtube.com/shorts/y0wFcO1Slsg?feature=share
 * Fragments
 * AndroidX
 
+### Debugging and Performance tools
+* Timber (log generator)
+* Android R8 enabled for reduced footprint
+* Proguard: R8 print mapping file enabled for deobfuscation
+
 ### Cloud Services
 * Google Cloud Speech API
+* Firebase Remote Config
+* Firebase Analytics
 * Firebase Database
 * Firebase Auth
-* Firebase Remote Config
 
-### Networking
+### Networking and Interface
 * OkHttp for Speech API
+* zxing Barcode Scanner
 
 ### Version control
 * Git CLI
 * Android Studio's Git tools
 
-### Accessibility
-* Compliance with WCAG 2.1 for proper contrast ratios, readability, and clickability
+### Accessibility (WCAG 2.1)
+* Compliance for contrast ratios, readability, and clicking areas sizes
 
 ### Testing and Distribution
-* App has been tested on modern smartphone and tablet
-* Android R8 was enabled for reduced footprint
-* R8 mapping file enabled for deobfuscation
-* Google Play Console > Release > Testing > Pre-launch report > Overview
-* App is available in Google Play > Open Testing
+* Google Play Console > Release > Testing > Pre-launch report > Overview items were considered
+* App is available in Google Play > Open Testing track
