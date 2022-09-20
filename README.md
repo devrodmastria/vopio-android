@@ -31,4 +31,11 @@ https://youtube.com/shorts/y0wFcO1Slsg?feature=share
 * Android Studio's Git tools
 
 ### Accessibility
-* Compliance with WCAG 2.1 for proper contrast ratios and readability
+* Compliance with WCAG 2.1 for proper contrast ratios, readability, and clickability
+
+### Testing and Distribution
+* App has been tested on modern smartphone and tablet
+* Android R8 was enabled for reduced footprint
+* R8 mapping file enabled for deobfuscation
+* Google Play Console > Release > Testing > Pre-launch report > Overview
+* App is available in Google Play > Open Testing
