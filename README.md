@@ -16,14 +16,18 @@ https://youtube.com/shorts/y0wFcO1Slsg?feature=share
 * Java (for integration with Speech API)
 * Fragments
 * AndroidX
+* Media Recorder
+* Background Service (used in different repo)
+* Custom fonts (used in different repo)
 
 ### Debugging and Performance tools
 * Timber (log generator)
 * Android R8 enabled for reduced footprint
 * Proguard: R8 print mapping file enabled for deobfuscation
 
-### A.I. Services
+### Cloud Services
 * Google Cloud Speech API
+* Google Play Billing Library (used in different repo)
 
 ### Firebase
 * Cloud Messaging
