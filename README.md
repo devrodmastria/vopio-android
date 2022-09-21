@@ -27,9 +27,12 @@ To launch on the emulator, this project requires a credential file from your Fir
 * ASR service stops working after about 10 minutes of usage (lectures require about 1h)
 * ASR accuracy is inconsistent for users with non-native accent
 * ASR results don't show up on the screen until the host is done saying each sentence
+* Speaker diarisation/identity is not configured
 * User registration to become a host is done manually via online form
-* New users are unable to login in the app due to Firebase configuration issues
+* New users are unable to login in the app due to Firebase/SHA certificate issues
 
+## How To Contribute
+Please follow the git-flow model for naming your branch: feature/name or hotfix/name
 
 ## Tech Stack
 ### Platform
