@@ -10,8 +10,8 @@
 * The name _vopio_ is a combination of **v** for voice and **oppia**, which means "to learn" in the Finnish language.
 * The name _Audios_ represents a previous version of this project
 
-## Demo Video
-https://youtube.com/shorts/y0wFcO1Slsg?feature=share
+## Demo Video on YouTube
+[![App Demo Video](https://img.youtube.com/vi/y0wFcO1Slsg/0.jpg)](https://www.youtube.com/watch?v=y0wFcO1Slsg)
 
 ## Tech Stack
 ### Platform
@@ -62,3 +62,6 @@ https://youtube.com/shorts/y0wFcO1Slsg?feature=share
 * Agile Essentials: https://www.agilealliance.org/glossary/tdd/
 * TestFirst.org: http://testfirst.org/
 * Example Walkthrough: https://technologyconversations.com/2013/12/20/test-driven-development-tdd-example-walkthrough/
+
+## App Architecture
+<img src="https://github.com/rmesquit/vopio-android/blob/develop/MVCdiagram.png" alt="MVC">
