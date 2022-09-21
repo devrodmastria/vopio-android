@@ -21,13 +21,15 @@
 ### App
 Visit the vopio website to download the beta version: https://vopio.tech/download/
 ### Android Studio Project
-To launch on the Android emulator, this project requires a credential file from your Firebase account.
+To launch on the emulator, this project requires a credential file from your Firebase account.
 
 ## Known Issues (related to performance, UX, and scaling)
 * ASR service stops working after about 10 minutes of usage (lectures require about 1h)
 * ASR accuracy is inconsistent for users with non-native accent
 * ASR results don't show up on the screen until the host is done saying each sentence
 * User registration to become a host is done manually via online form
+* New users are unable to login in the app due to Firebase configuration issues
+
 
 ## Tech Stack
 ### Platform
