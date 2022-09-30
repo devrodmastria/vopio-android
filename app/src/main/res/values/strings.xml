@@ -18,6 +18,7 @@
     <string name="ask_prof">Ask instructor</string>
 
     <string name="active_students">Active Students</string>
+    <string name="saved_words">Saved Words</string>
 
     <string name="leave_session">Leave session</string>
     <string name="send_feedback">Notify user about pronunciation</string>

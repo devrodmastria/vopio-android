@@ -28,10 +28,10 @@
     <TextView
         android:id="@+id/statusBarTextView"
         android:layout_width="0dp"
-        android:layout_height="40dp"
+        android:layout_height="@dimen/sub_header_height"
         android:background="@color/purple_light"
         android:gravity="center"
-        android:text="Session ID"
+        tools:text="Session ID"
         android:textColor="@android:color/black"
         android:textSize="17sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -63,12 +63,12 @@
     <TextView
         android:id="@+id/textView3"
         android:layout_width="0dp"
-        android:layout_height="40dp"
+        android:layout_height="@dimen/separator_bar_height"
         android:background="@color/purple_light"
         android:gravity="center"
-        android:text="Saved Words"
+        android:text="@string/saved_words"
         android:textColor="@android:color/black"
-        android:textSize="18sp"
+        android:textSize="@dimen/separator_bar_text_size"
         app:layout_constraintBottom_toTopOf="@+id/savedWordsRecyclerView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

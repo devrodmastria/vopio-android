@@ -13,7 +13,7 @@
         <LinearLayout
             android:id="@+id/linearLayoutGuest"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="@dimen/sub_header_height"
             android:background="@color/purple_light"
             android:gravity="center_vertical"
             android:orientation="horizontal"
