@@ -11,11 +11,13 @@ android {
         versionCode 40
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary = true
+        multiDexEnabled true
     }
     buildTypes {
         debug {
             minifyEnabled false
-            multiDexEnabled true
+
         }
         release {
             minifyEnabled true

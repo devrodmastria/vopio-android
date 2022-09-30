@@ -31,6 +31,7 @@ import info.vopio.android.Utilities.PhoneticAlphabetPopup
 import info.vopio.android.databinding.ActivityHostSessionBinding
 import timber.log.Timber
 
+// Rename to SpeakerSessionActivity
 class HostSessionActivity : AppCompatActivity() {
 
     lateinit var sessionId : String

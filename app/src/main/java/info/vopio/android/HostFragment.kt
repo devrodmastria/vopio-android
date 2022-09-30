@@ -29,6 +29,7 @@ import java.util.*
 private const val ARG_USERNAME = "param1"
 private const val ARG_USER_EMAIL = "param2"
 
+// Rename to SpeakerLauncherFragment
 class HostFragment : Fragment() {
 
     private var localUsername: String? = null
@@ -87,6 +88,7 @@ class HostFragment : Fragment() {
         val recyclerView: RecyclerView = fragmentContainer.findViewById(R.id.recyclerViewHost)
         recyclerView.layoutManager = thisLinearLayoutManager
 
+        // todo: hide this delete button inside menu options
         val deleteBtn : Button = fragmentContainer.findViewById(R.id.deleteSessionsBtn)
         deleteBtn.setOnClickListener {
 
@@ -281,8 +283,11 @@ class HostFragment : Fragment() {
 
     private fun hostNewSession(){
 
+        // todo: add audios recorder system to student mode)
+
         var allowedToHost = false
 
+        // todo: Move this for-loop to onCreate block
         // Loop through Real Time Database -- look for matching user emails (whitelisted) for professors.
         for (snapshot in hostListSnapshot.children) {
 
