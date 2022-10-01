@@ -3,13 +3,10 @@ package info.vopio.android
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.SpannableString
-import android.text.Spanned
 import android.text.method.LinkMovementMethod
-import android.text.style.ClickableSpan
 import android.view.*
 import android.widget.TextView
 import android.widget.Toast
-import androidx.annotation.NonNull
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -24,7 +21,7 @@ import info.vopio.android.Utilities.Constants
 import info.vopio.android.databinding.ActivityReviewSessionBinding
 import timber.log.Timber
 
-class ReviewSessionActivity : AppCompatActivity() {
+class SessionReviewActivity : AppCompatActivity() {
 
     lateinit var thisCaptionsAdapter : FirebaseRecyclerAdapter<MessageModel, MessageViewHolder>
     lateinit var thisCaptionsLinearLayoutManager : LinearLayoutManager
@@ -139,7 +136,7 @@ class ReviewSessionActivity : AppCompatActivity() {
                 override fun onError(error: DatabaseError) {
                     super.onError(error)
 
-                    Toast.makeText(this@ReviewSessionActivity, "Database access denied", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@SessionReviewActivity, "Database access denied", Toast.LENGTH_SHORT).show()
 
                 }
 

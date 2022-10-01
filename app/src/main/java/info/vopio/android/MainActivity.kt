@@ -1,31 +1,19 @@
 package info.vopio.android
 
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
-import android.text.InputType
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.view.WindowManager
-import android.widget.Button
-import android.widget.EditText
-import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import com.firebase.ui.auth.AuthUI
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.*
-import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
-import com.google.zxing.Result
 import info.vopio.android.databinding.ActivityMainBinding
-import me.dm7.barcodescanner.zxing.ZXingScannerView
 import timber.log.Timber
 
 
@@ -97,7 +85,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             targetFragment = HostFragment.newInstance(localUsername, localUserEmail)
-            supportFragmentManager.beginTransaction().replace(R.id.main_fragment_container, targetFragment).commit()
+            supportFragmentManager.beginTransaction().replace(R.id.mainFragmentContainer, targetFragment).commit()
 
         }
 
@@ -121,7 +109,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-            supportFragmentManager.beginTransaction().replace(R.id.main_fragment_container, targetFragment).commit()
+            supportFragmentManager.beginTransaction().replace(R.id.mainFragmentContainer, targetFragment).commit()
             return@setOnItemSelectedListener true
 
         }

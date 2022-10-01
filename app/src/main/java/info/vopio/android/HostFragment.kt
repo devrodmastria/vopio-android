@@ -17,7 +17,6 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.*
 import info.vopio.android.DataModel.SessionListAdapter
 import info.vopio.android.Utilities.Constants
@@ -29,7 +28,7 @@ import java.util.*
 private const val ARG_USERNAME = "param1"
 private const val ARG_USER_EMAIL = "param2"
 
-// Rename to SpeakerLauncherFragment
+// This fragment is the Session Launcher
 class HostFragment : Fragment() {
 
     private var localUsername: String? = null
@@ -273,7 +272,7 @@ class HostFragment : Fragment() {
 
     private fun adapterOnClick(sessionId: String){
 
-        val intent = Intent(fragmentContext, ReviewSessionActivity::class.java)
+        val intent = Intent(fragmentContext, SessionReviewActivity::class.java)
         intent.putExtra(Constants.SESSION_KEY, sessionId)
         intent.putExtra(Constants.SESSION_USERNAME, localUsername)
         intent.putExtra(Constants.SESSION_USER_EMAIL, localUserEmail)
@@ -327,7 +326,7 @@ class HostFragment : Fragment() {
             databaseRef.child(Constants.SESSION_LIST).child(newSessionID).child(Constants.CAPTION_LIST).child(captionID).setValue(sessionModel)
 
 
-            val intent = Intent(fragmentContext, HostSessionActivity::class.java)
+            val intent = Intent(fragmentContext, SessionHostActivity::class.java)
             intent.putExtra(Constants.SESSION_USERNAME, localUsername)
             intent.putExtra(Constants.SESSION_USER_EMAIL, localUserEmail)
             intent.putExtra(Constants.SESSION_KEY, this.newSessionID)

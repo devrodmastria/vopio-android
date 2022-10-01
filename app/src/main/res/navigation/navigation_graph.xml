@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation"
+    app:startDestination="@id/hostFragment">
+    <fragment
+        android:id="@+id/hostFragment"
+        android:name="info.vopio.android.HostFragment"
+        android:label="fragment_host"
+        tools:layout="@layout/fragment_host" />
+    <activity
+        android:id="@+id/sessionGuestActivity"
+        android:name="info.vopio.android.SessionGuestActivity"
+        android:label="activity_session_host"
+        tools:layout="@layout/activity_session_host" />
+</navigation>

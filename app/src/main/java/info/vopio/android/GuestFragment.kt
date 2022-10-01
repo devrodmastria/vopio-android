@@ -9,19 +9,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContextCompat.getSystemService
-import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import info.vopio.android.DataModel.SessionListAdapter
-import info.vopio.android.DataModel.Word
 import info.vopio.android.Utilities.Constants
 import info.vopio.android.Utilities.IdentityGenerator
 import timber.log.Timber
@@ -29,13 +25,14 @@ import timber.log.Timber
 private const val ARG_USERNAME = "param1"
 private const val ARG_USER_EMAIL = "param2"
 
+// this fragment connects a Session Guest to a Session Host
 class GuestFragment : Fragment() {
 
     private var localUsername: String? = null
     private var localUserEmail: String? = null
 
     lateinit var fragmentContext: Context
-    lateinit var fragmentContainer: View
+    lateinit var fragmentView: View
 
     lateinit var thisFirebaseAuth : FirebaseAuth
     lateinit var databaseRef : DatabaseReference
@@ -47,10 +44,11 @@ class GuestFragment : Fragment() {
 
     private fun joinSession(){
 
-        //look for active sessions
-        //fetch codes for active sessions
-        //show a list of active sessions names?
-        //check code against user input
+        // Logic pattern:
+        // >look for active sessions
+        // >fetch codes for active sessions
+        // >show a list of active sessions names?
+        // >check code against user input
 
         val hintText = "Enter session code"
         val dialogTitle = "Enter session code\n(case sensitive)"
@@ -80,7 +78,7 @@ class GuestFragment : Fragment() {
 
                             matchFound = true
 
-                            val intent = Intent(fragmentContext, GuestSessionActivity::class.java)
+                            val intent = Intent(fragmentContext, SessionGuestActivity::class.java)
                             intent.putExtra(Constants.SESSION_KEY, snapshot.key)
                             intent.putExtra(Constants.SESSION_USERNAME, localUsername)
                             intent.putExtra(Constants.SESSION_USER_EMAIL, localUserEmail)
@@ -91,11 +89,11 @@ class GuestFragment : Fragment() {
                     }
 
                     if (!matchFound) {
-                        Snackbar.make( fragmentContainer.rootView.findViewById(android.R.id.content), "Session not found", Snackbar.LENGTH_LONG).show()
+                        Snackbar.make( fragmentView.rootView.findViewById(android.R.id.content), "Session not found", Snackbar.LENGTH_LONG).show()
                     }
 
                 } else {
-                    Snackbar.make( fragmentContainer.rootView.findViewById(android.R.id.content), "Sessions not available offline.", Snackbar.LENGTH_LONG).show()
+                    Snackbar.make( fragmentView.rootView.findViewById(android.R.id.content), "Sessions not available offline.", Snackbar.LENGTH_LONG).show()
                 }
 
             }
@@ -139,21 +137,21 @@ class GuestFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?): View? {
+        savedInstanceState: Bundle?): View {
         // Inflate the layout for this fragment
 
         activity?.title = getString(R.string.tab_student)
 
-        fragmentContainer = inflater.inflate(R.layout.fragment_guest, container, false)
-        fragmentContext = fragmentContainer.context
+        fragmentView = inflater.inflate(R.layout.fragment_guest, container, false)
+        fragmentContext = fragmentView.context
 
         thisLinearLayoutManager = LinearLayoutManager(fragmentContext)
         thisLinearLayoutManager.reverseLayout = true // show latest item on top
         thisLinearLayoutManager.stackFromEnd = true // required to show end as top
-        val recyclerView: RecyclerView = fragmentContainer.findViewById(R.id.recyclerViewGuest)
+        val recyclerView: RecyclerView = fragmentView.findViewById(R.id.recyclerViewGuest)
         recyclerView.layoutManager = thisLinearLayoutManager
 
-        val joinSessionButton : Button = fragmentContainer.findViewById(R.id.joinSessionBtn)
+        val joinSessionButton : Button = fragmentView.findViewById(R.id.joinSessionBtn)
         joinSessionButton.setOnClickListener {
             joinSession()
         }
@@ -171,7 +169,7 @@ class GuestFragment : Fragment() {
                 }
             })
 
-        return fragmentContainer
+        return fragmentView
     }
 
     private fun parseInactiveSessionList(dataSnapshot: DataSnapshot, recyclerView: RecyclerView){
@@ -213,7 +211,7 @@ class GuestFragment : Fragment() {
 
     private fun adapterOnClick(sessionId: String){
 
-        val intent = Intent(fragmentContext, GuestSessionActivity::class.java)
+        val intent = Intent(fragmentContext, SessionGuestActivity::class.java)
         intent.putExtra(Constants.SESSION_KEY, sessionId)
         intent.putExtra(Constants.SESSION_USERNAME, localUsername)
         intent.putExtra(Constants.SESSION_USER_EMAIL, localUserEmail)

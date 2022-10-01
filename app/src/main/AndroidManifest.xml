@@ -18,14 +18,14 @@
         android:theme="@style/AppTheme.NoActionBar"
         tools:ignore="GoogleAppIndexingWarning">
         <activity
-            android:name=".ReviewSessionActivity" />
+            android:name=".SessionReviewActivity" />
         <activity
-            android:name=".HostSessionActivity"/>
+            android:name=".SessionHostActivity"/>
         <activity android:name=".OnboardingActivity" />
         <activity
             android:name=".SignInActivity"
             android:noHistory="true" /> <!-- noHistory=true to close the app if back btn is pressed on sign in. -->
-        <activity android:name=".GuestSessionActivity" />
+        <activity android:name=".SessionGuestActivity" />
         <activity
             android:name=".MainActivity"
             android:exported="true">

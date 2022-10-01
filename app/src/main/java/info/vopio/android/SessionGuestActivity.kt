@@ -1,6 +1,5 @@
 package info.vopio.android
 
-import android.content.Intent
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.Spanned
@@ -13,7 +12,6 @@ import android.widget.Button
 import android.widget.PopupWindow
 import android.widget.TextView
 import android.widget.Toast
-import androidx.annotation.NonNull
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -22,17 +20,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.database.FirebaseRecyclerAdapter
 import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.firebase.ui.database.SnapshotParser
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.*
 import info.vopio.android.DataModel.MessageModel
 import info.vopio.android.DataModel.Word
 import info.vopio.android.Utilities.Constants
 import info.vopio.android.Utilities.IdentityGenerator
 import info.vopio.android.Utilities.MessageUploader
-import info.vopio.android.databinding.ActivityGuestSessionBinding
+import info.vopio.android.databinding.ActivitySessionGuestBinding
 import timber.log.Timber
 
-class GuestSessionActivity : AppCompatActivity() {
+class SessionGuestActivity : AppCompatActivity() {
 
 
 
@@ -61,7 +58,7 @@ class GuestSessionActivity : AppCompatActivity() {
     lateinit var dataSnapshotList : DataSnapshot
     private val savedWordsList = mutableListOf<Word>()
 
-    private lateinit var binding: ActivityGuestSessionBinding
+    private lateinit var binding: ActivitySessionGuestBinding
 
     class MessageViewHolder(v: View) : RecyclerView.ViewHolder(v) {
         var captionTextView: TextView = itemView.findViewById(R.id.sessionIDTextView)
@@ -94,7 +91,7 @@ class GuestSessionActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityGuestSessionBinding.inflate(layoutInflater)
+        binding = ActivitySessionGuestBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
 
@@ -308,7 +305,7 @@ class GuestSessionActivity : AppCompatActivity() {
                 override fun onError(error: DatabaseError) {
                     super.onError(error)
 
-                    Toast.makeText(this@GuestSessionActivity, "Database access denied", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@SessionGuestActivity, "Database access denied", Toast.LENGTH_SHORT).show()
                     
                 }
 
@@ -345,7 +342,7 @@ class GuestSessionActivity : AppCompatActivity() {
                                     val beginIndex = caption.indexOf(wordIs)
                                     val endIndex = beginIndex + wordIs.length
                                     val clickableSpan: ClickableSpan = object : ClickableSpan() {
-                                        override fun onClick(@NonNull view: View) {
+                                        override fun onClick(view: View) {
 
                                             selectedWord = wordIs
                                             showInPopup(wordIs)

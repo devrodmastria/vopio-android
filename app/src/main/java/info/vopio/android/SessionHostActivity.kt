@@ -28,11 +28,11 @@ import info.vopio.android.Services.VoiceRecorder
 import info.vopio.android.Utilities.Constants
 import info.vopio.android.Utilities.MessageUploader
 import info.vopio.android.Utilities.PhoneticAlphabetPopup
-import info.vopio.android.databinding.ActivityHostSessionBinding
+import info.vopio.android.databinding.ActivitySessionHostBinding
 import timber.log.Timber
 
-// Rename to SpeakerSessionActivity
-class HostSessionActivity : AppCompatActivity() {
+// This class represents: Speaker Session Activity OR Lecture Host Activity
+class SessionHostActivity : AppCompatActivity() {
 
     lateinit var sessionId : String
 
@@ -52,7 +52,7 @@ class HostSessionActivity : AppCompatActivity() {
     private var thisVoiceRecorder: VoiceRecorder? = null
     private var speechIsBound = false
 
-    private lateinit var binding: ActivityHostSessionBinding
+    private lateinit var binding: ActivitySessionHostBinding
 
     companion object{
         const val REQUEST_RECORD_AUDIO_PERMISSION = 1
@@ -90,7 +90,7 @@ class HostSessionActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityHostSessionBinding.inflate(layoutInflater)
+        binding = ActivitySessionHostBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
 
@@ -321,7 +321,7 @@ class HostSessionActivity : AppCompatActivity() {
 
                 override fun onError(error: DatabaseError) {
                     super.onError(error)
-                    Toast.makeText(this@HostSessionActivity, "Database access denied", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@SessionHostActivity, "Database access denied", Toast.LENGTH_SHORT).show()
                 }
 
                 override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): MessageViewHolder {
@@ -402,7 +402,7 @@ class HostSessionActivity : AppCompatActivity() {
 
                 override fun onError(error: DatabaseError) {
                     super.onError(error)
-                    Toast.makeText(this@HostSessionActivity, "Database access denied", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@SessionHostActivity, "Database access denied", Toast.LENGTH_SHORT).show()
                 }
 
                 override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): MessageViewHolder {

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".GuestSessionActivity">
+    tools:context=".SessionGuestActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
@@ -54,10 +54,10 @@
         android:text="@string/session_status"
         android:textColor="@android:color/black"
         android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@+id/sessionCodeView"
         app:layout_constraintBottom_toTopOf="@id/hostCaptionRecyclerView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sessionCodeView" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/hostCaptionRecyclerView"
