@@ -1,4 +1,4 @@
-package info.vopio.android
+package info.vopio.android.LibraryViews
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -14,6 +14,7 @@ import com.google.firebase.database.FirebaseDatabase
 import info.vopio.android.Utilities.Constants
 import info.vopio.android.Utilities.IdentityGenerator
 import timber.log.Timber
+import info.vopio.android.R
 
 private const val ARG_WORD = "param1"
 private const val ARG_WORD_KEY = "param2"

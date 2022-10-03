@@ -13,6 +13,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
+import info.vopio.android.LibraryViews.LibraryFragment
 import info.vopio.android.OnboardingViews.OnboardingActivity
 import info.vopio.android.databinding.ActivityMainBinding
 import timber.log.Timber

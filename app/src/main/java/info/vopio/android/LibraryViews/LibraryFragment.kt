@@ -1,4 +1,4 @@
-package info.vopio.android
+package info.vopio.android.LibraryViews
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -11,7 +11,9 @@ import com.google.firebase.database.*
 import info.vopio.android.DataModel.Word
 import info.vopio.android.Utilities.Constants
 import info.vopio.android.Utilities.IdentityGenerator
+import info.vopio.android.WordsAdapter
 import timber.log.Timber
+import info.vopio.android.R
 
 private const val ARG_USERNAME = "param1"
 private const val ARG_USER_EMAIL = "param2"
