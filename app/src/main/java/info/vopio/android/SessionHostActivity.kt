@@ -16,6 +16,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
+import androidx.navigation.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.database.FirebaseRecyclerAdapter
@@ -101,25 +102,20 @@ class SessionHostActivity : AppCompatActivity() {
 
         thisFirebaseDatabaseReference = FirebaseDatabase.getInstance().reference
 
-        val extras = intent.extras
-        if (extras != null) {
-
-            val localUser = extras.getString(Constants.SESSION_USERNAME)
-            localUser?.let {
-                val nameArray = localUser.split(" ").toTypedArray()
-                thisFirebaseUser = if (nameArray.size > 1) nameArray[0] + " " + nameArray[1] else nameArray[0]
-            }
-
-            val localEmail = extras.getString(Constants.SESSION_USER_EMAIL)
-            localEmail?.let {
-                thisFirebaseEmail = it
-            }
-
-            val newSessionId = extras.getString(Constants.SESSION_KEY)
-            newSessionId?.let {
-                sessionId = it
-            }
-
+        // Receive data from Session Launcher Fragment (HostFragment)
+        val args: SessionHostActivityArgs by navArgs()
+        val localUser = args.localUserName
+        localUser.let {
+            val nameArray = localUser.split(" ").toTypedArray()
+            thisFirebaseUser = if (nameArray.size > 1) nameArray[0] + " " + nameArray[1] else nameArray[0]
+        }
+        val localEmail = args.localUserEmail
+        localEmail.let {
+            thisFirebaseEmail = it
+        }
+        val newSessionId = args.newSessionID
+        newSessionId.let {
+            sessionId = it
         }
 
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)

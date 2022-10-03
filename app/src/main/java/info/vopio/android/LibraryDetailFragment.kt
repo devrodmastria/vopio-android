@@ -41,9 +41,7 @@ class LibraryDetailFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
+        savedInstanceState: Bundle?): View {
 
         fragmentContainer = inflater.inflate(R.layout.fragment_word_detail, container, false)
 
@@ -69,7 +67,7 @@ class LibraryDetailFragment : Fragment() {
             Timber.i("-->>SpeechX: backBtn CLICK")
 
             val libFragment = LibraryFragment.newInstance("localUsername", localUserEmail)
-            parentFragmentManager.beginTransaction().replace(R.id.main_fragment_container, libFragment).commit()
+            parentFragmentManager.beginTransaction().replace(R.id.mainFragmentContainer, libFragment).commit()
         }
 
         val delBtn : Button = fragmentContainer.findViewById(R.id.deleteWordButton)
@@ -81,7 +79,7 @@ class LibraryDetailFragment : Fragment() {
                 .child(Constants.SAVED_WORDS).child(selectedWordKey.toString()).setValue(null).addOnSuccessListener {
 
                     val libFragment = LibraryFragment.newInstance("localUsername", localUserEmail)
-                    parentFragmentManager.beginTransaction().replace(R.id.main_fragment_container, libFragment).commit()
+                    parentFragmentManager.beginTransaction().replace(R.id.mainFragmentContainer, libFragment).commit()
                 }
                 .addOnFailureListener {
                     Timber.i("-->>WordDetailFragment DELETE Fail")

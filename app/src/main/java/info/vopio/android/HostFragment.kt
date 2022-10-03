@@ -11,9 +11,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -21,6 +23,7 @@ import com.google.firebase.database.*
 import info.vopio.android.DataModel.SessionListAdapter
 import info.vopio.android.Utilities.Constants
 import info.vopio.android.Utilities.SwipeActions
+import info.vopio.android.Utilities.SwipeHandler
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
@@ -31,9 +34,8 @@ private const val ARG_USER_EMAIL = "param2"
 // This fragment is the Session Launcher
 class HostFragment : Fragment() {
 
-    private var localUsername: String? = null
-    private var localUserEmail: String? = null
-
+    private var localUsername: String = "user_name"
+    private var localUserEmail: String = "user_email"
 
     lateinit var fragmentContext: Context
     lateinit var fragmentContainer: View
@@ -48,9 +50,10 @@ class HostFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         arguments?.let {
-            localUsername = it.getString(ARG_USERNAME)
-            localUserEmail = it.getString(ARG_USER_EMAIL)
+            localUsername = it.getString(ARG_USERNAME).toString()
+            localUserEmail = it.getString(ARG_USER_EMAIL).toString()
         }
 
         databaseRef = FirebaseDatabase.getInstance().reference
@@ -104,7 +107,7 @@ class HostFragment : Fragment() {
 
         val hostBtn : Button = fragmentContainer.findViewById(R.id.hostSessionBtn)
         hostBtn.setOnClickListener {
-            hostNewSession()
+            hostNewSession(it)
         }
 
         databaseRef.child(Constants.SESSION_LIST)
@@ -164,20 +167,21 @@ class HostFragment : Fragment() {
 
     private fun setupRecyclerSwipe(recyclerView: RecyclerView){
 
-        val swipeController = SwipeHandler(object : SwipeActions() {
+        val swipeController =
+            SwipeHandler(object : SwipeActions() {
 
-            override fun onDeleteClicked(position: Int) {
-                super.onDeleteClicked(position)
+                override fun onDeleteClicked(position: Int) {
+                    super.onDeleteClicked(position)
 
-                deleteSingleSession(position)
-            }
+                    deleteSingleSession(position)
+                }
 
-            override fun onRenameClicked(position: Int) {
-                super.onRenameClicked(position)
+                override fun onRenameClicked(position: Int) {
+                    super.onRenameClicked(position)
 
-                renameSession(position)
-            }
-        })
+                    renameSession(position)
+                }
+            })
 
         val itemTouchHelper = ItemTouchHelper(swipeController)
         itemTouchHelper.attachToRecyclerView(recyclerView)
@@ -272,17 +276,13 @@ class HostFragment : Fragment() {
 
     private fun adapterOnClick(sessionId: String){
 
-        val intent = Intent(fragmentContext, SessionReviewActivity::class.java)
-        intent.putExtra(Constants.SESSION_KEY, sessionId)
-        intent.putExtra(Constants.SESSION_USERNAME, localUsername)
-        intent.putExtra(Constants.SESSION_USER_EMAIL, localUserEmail)
-        startActivity(intent)
+        Toast.makeText(fragmentContext, "No action available", Toast.LENGTH_SHORT).show()
 
     }
 
-    private fun hostNewSession(){
+    private fun hostNewSession(view: View){
 
-        // todo: add audios recorder system to student mode)
+        // todo: add audios recorder system to student mode
 
         var allowedToHost = false
 
@@ -325,12 +325,14 @@ class HostFragment : Fragment() {
             val captionID = databaseRef.child(Constants.SESSION_LIST).child(newSessionID).child(Constants.CAPTION_LIST).push().key.toString()
             databaseRef.child(Constants.SESSION_LIST).child(newSessionID).child(Constants.CAPTION_LIST).child(captionID).setValue(sessionModel)
 
+            // based on Navigation Graph
+            view.findNavController().navigate(HostFragmentDirections.actionHostFragmentToSessionHostActivity(localUserEmail, localUsername, this.newSessionID))
 
-            val intent = Intent(fragmentContext, SessionHostActivity::class.java)
-            intent.putExtra(Constants.SESSION_USERNAME, localUsername)
-            intent.putExtra(Constants.SESSION_USER_EMAIL, localUserEmail)
-            intent.putExtra(Constants.SESSION_KEY, this.newSessionID)
-            startActivity(intent)
+//            val intent = Intent(fragmentContext, SessionHostActivity::class.java)
+//            intent.putExtra(Constants.SESSION_USERNAME, localUsername)
+//            intent.putExtra(Constants.SESSION_USER_EMAIL, localUserEmail)
+//            intent.putExtra(Constants.SESSION_KEY, this.newSessionID)
+//            startActivity(intent)
 
         } else {
 

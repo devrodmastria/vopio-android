@@ -7,7 +7,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".OnboardingActivity$PlaceholderFragment">
+    tools:context=".OnboardingViews.OnboardingActivity$PlaceholderFragment">
     <!--android:background="@color/page_one">-->
 
     <LinearLayout
@@ -34,7 +34,7 @@
             android:layout_marginRight="16dp"
             android:layout_marginBottom="30dp"
             android:gravity="center"
-            android:text="TextView"
+            tools:text="TextView"
             android:textColor="@android:color/black"
             android:textSize="24sp" />
 
@@ -47,7 +47,7 @@
             android:layout_marginEnd="16dp"
             android:gravity="center"
             android:lineSpacingMultiplier="1.5"
-            android:text="Placeholder intro message. Placeholder intro message. Placeholder intro message. Placeholder intro message. Placeholder intro message."
+            tools:text="Placeholder intro message. Placeholder intro message. Placeholder intro message. Placeholder intro message. Placeholder intro message."
             android:textColor="@android:color/black"
             android:textSize="18sp" />
 
