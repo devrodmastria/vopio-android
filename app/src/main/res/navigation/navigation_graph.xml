@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation"
+    app:startDestination="@id/hostLauncherFrag">
+    <fragment
+        android:id="@+id/hostLauncherFrag"
+        android:name="info.vopio.android.HostFragment"
+        android:label="fragment_host_launch"
+        tools:layout="@layout/fragment_host">
+        <action
+            android:id="@+id/action_hostFragment_to_sessionHostActivity"
+            app:destination="@id/sessionHostActivity" />
+    </fragment>
+    <activity
+        android:id="@+id/sessionHostActivity"
+        android:name="info.vopio.android.SessionHostActivity"
+        android:label="SessionHostActivity" >
+        <argument
+            android:name="localUserEmail"
+            app:argType="string" />
+        <argument
+            android:name="localUserName"
+            app:argType="string" />
+        <argument
+            android:name="newSessionID"
+            app:argType="string" />
+    </activity>
+</navigation>

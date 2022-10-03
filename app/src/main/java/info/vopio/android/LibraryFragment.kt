@@ -34,13 +34,11 @@ class LibraryFragment : Fragment() {
             localUsername = it.getString(ARG_USERNAME)
             localUserEmail = it.getString(ARG_USER_EMAIL)
         }
-
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?): View? {
-        // Inflate the layout for this fragment
+        savedInstanceState: Bundle?): View {
 
         fragmentContainer = inflater.inflate(R.layout.fragment_library, container, false)
 
@@ -79,7 +77,6 @@ class LibraryFragment : Fragment() {
                 wordsAdapter.submitList(savedWordsList)
                 recyclerView.adapter = wordsAdapter
 
-
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -95,7 +92,7 @@ class LibraryFragment : Fragment() {
         // display info about card
         Timber.i("-->>SpeechX: adapterOnClick CLICK:$word")
         wordDetailFragment = LibraryDetailFragment.newInstance(word.content, word.itemKey)
-        parentFragmentManager.beginTransaction().replace(R.id.main_fragment_container, wordDetailFragment).commit()
+        parentFragmentManager.beginTransaction().replace(R.id.mainFragmentContainer, wordDetailFragment).commit()
 
     }
 

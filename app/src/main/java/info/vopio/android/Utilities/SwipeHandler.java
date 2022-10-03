@@ -1,4 +1,4 @@
-package info.vopio.android;
+package info.vopio.android.Utilities;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -9,15 +9,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.MotionEvent;
 import android.view.View;
 
-import info.vopio.android.Utilities.SwipeActions;
-
 enum ButtonsState {
     GONE,
     LEFT_VISIBLE,
     RIGHT_VISIBLE
 }
 
-class SwipeHandler extends ItemTouchHelper.Callback {
+public class SwipeHandler extends ItemTouchHelper.Callback {
 
     private boolean swipeBack = false;
 

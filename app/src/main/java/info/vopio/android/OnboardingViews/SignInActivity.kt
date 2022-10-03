@@ -1,4 +1,4 @@
-package info.vopio.android
+package info.vopio.android.OnboardingViews
 
 import android.content.Intent
 import android.os.Bundle
@@ -11,6 +11,8 @@ import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import info.vopio.android.MainActivity
+import info.vopio.android.R
 
 import info.vopio.android.databinding.ActivitySignInBinding
 import timber.log.Timber

@@ -17,21 +17,18 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme.NoActionBar"
         tools:ignore="GoogleAppIndexingWarning">
+
+        <activity android:name=".SessionHostActivity"/>
+        <activity android:name=".OnboardingViews.OnboardingActivity" />
         <activity
-            android:name=".ReviewSessionActivity" />
-        <activity
-            android:name=".HostSessionActivity"/>
-        <activity android:name=".OnboardingActivity" />
-        <activity
-            android:name=".SignInActivity"
+            android:name=".OnboardingViews.SignInActivity"
             android:noHistory="true" /> <!-- noHistory=true to close the app if back btn is pressed on sign in. -->
-        <activity android:name=".GuestSessionActivity" />
+        <activity android:name=".SessionGuestActivity" />
         <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

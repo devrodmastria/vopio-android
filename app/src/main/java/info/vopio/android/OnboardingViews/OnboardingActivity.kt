@@ -1,4 +1,4 @@
-package info.vopio.android
+package info.vopio.android.OnboardingViews
 
 import android.animation.ArgbEvaluator
 import android.content.Intent
@@ -23,6 +23,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
+import info.vopio.android.R
 import info.vopio.android.databinding.ActivityOnboardingBinding
 
 
@@ -269,6 +270,7 @@ class OnboardingActivity : AppCompatActivity() {
         }
     }
 
+    // todo update Fragment Pager
     class SectionsPagerAdapter(fm: FragmentManager?) : FragmentPagerAdapter(fm!!) {
         override fun getItem(position: Int): Fragment {
             // getItem is called to instantiate the fragment for the given page.
