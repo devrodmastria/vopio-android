@@ -15,6 +15,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.navigation.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.database.FirebaseRecyclerAdapter
@@ -66,7 +67,7 @@ class SessionGuestActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.caption_toolbar_menu, menu)
+        menuInflater.inflate(R.menu.guest_toolbar_menu, menu)
         return true
     }
 
@@ -104,30 +105,24 @@ class SessionGuestActivity : AppCompatActivity() {
 
         databaseRef = FirebaseDatabase.getInstance().reference
 
-        val extras = intent.extras
-        if (extras != null) {
-
-            val localUser = extras.getString(Constants.SESSION_USERNAME)
-            localUser?.let {
-                val nameArray = localUser.split(" ").toTypedArray()
-                thisFirebaseUser = if (nameArray.size > 1) nameArray[0] + " " + nameArray[1] else nameArray[0]
-            }
-
-            val localEmail = extras.getString(Constants.SESSION_USER_EMAIL)
-            localEmail?.let {
-                thisFirebaseEmail = it
-            }
-
-            val newSessionId = extras.getString(Constants.SESSION_KEY)
-            newSessionId?.let {
-                sessionId = it
-            }
-
-            val sessionMode = extras.getBoolean(Constants.REVIEW_MODE)
-            sessionMode.let {
-                reviewMode = it
-            }
-
+        // Receive data from Session Launcher Fragment (Guest Fragment)
+        val args: SessionGuestActivityArgs by navArgs()
+        val localUser = args.localUserName
+        localUser.let {
+            val nameArray = localUser.split(" ").toTypedArray()
+            thisFirebaseUser = if (nameArray.size > 1) nameArray[0] + " " + nameArray[1] else nameArray[0]
+        }
+        val localEmail = args.localUserEmail
+        localEmail.let {
+            thisFirebaseEmail = it
+        }
+        val newSessionId = args.incomingSessionID
+        newSessionId.let {
+            sessionId = it
+        }
+        val sessionMode = args.reviewMode
+        sessionMode.let {
+            reviewMode = it
         }
 
         val lastFourDigits = sessionId.substring(sessionId.length.minus(4))
