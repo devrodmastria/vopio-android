@@ -6,25 +6,32 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context=".OnboardingViews.OnboardingActivity">
+    tools:context=".onboarding.OnboardingActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/purple_200"
+            app:menu="@menu/onboarding_toolbar_menu"
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
+
+    </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:contentDescription="@string/onboarding_descriptor"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
-
-    <!-- divider -->
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_gravity="bottom"
-        android:alpha="0.12"
-        android:background="@android:color/white"
-        app:layout_constraintBottom_toTopOf="@+id/frameLayout"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <FrameLayout
         android:id="@+id/frameLayout"
@@ -48,7 +55,6 @@
                 android:layout_width="8dp"
                 android:layout_height="8dp"
                 android:layout_marginEnd="@dimen/activity_margin_half"
-                android:layout_marginRight="@dimen/activity_margin_half"
                 android:background="@drawable/indicator_selected" />
 
             <ImageView
@@ -56,7 +62,6 @@
                 android:layout_width="8dp"
                 android:layout_height="8dp"
                 android:layout_marginEnd="@dimen/activity_margin_half"
-                android:layout_marginRight="@dimen/activity_margin_half"
                 android:background="@drawable/indicator_unselected" />
 
             <ImageView
@@ -64,7 +69,6 @@
                 android:layout_width="8dp"
                 android:layout_height="8dp"
                 android:layout_marginEnd="@dimen/activity_margin_half"
-                android:layout_marginRight="@dimen/activity_margin_half"
                 android:background="@drawable/indicator_unselected" />
 
         </LinearLayout>
@@ -76,7 +80,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="start|center"
             android:text="@string/sign_in"
-            android:textColor="@android:color/black" />
+            android:textColor="@android:color/white"
+            android:layout_margin="4dp"
+            android:background="@color/purple_500"
+            android:contentDescription="@string/sign_in"/>
 
         <Button
             android:id="@+id/intro_btn_next"
@@ -84,8 +91,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end|center"
-            android:text="Next"
-            android:textColor="@android:color/black" />
+            android:text="@string/next_slide"
+            android:textColor="@android:color/black"
+            android:contentDescription="@string/next_slide"/>
     </FrameLayout>
 
 

@@ -18,20 +18,19 @@
         android:theme="@style/AppTheme.NoActionBar"
         tools:ignore="GoogleAppIndexingWarning">
 
-        <activity android:name=".SessionHostActivity"/>
-        <activity android:name=".OnboardingViews.OnboardingActivity" />
-        <activity
-            android:name=".OnboardingViews.SignInActivity"
-            android:noHistory="true" /> <!-- noHistory=true to close the app if back btn is pressed on sign in. -->
-        <activity android:name=".SessionGuestActivity" />
-        <activity
-            android:name=".MainActivity"
-            android:exported="true">
+        <activity android:name=".onboarding.OnboardingActivity"
+            android:exported="true"
+            android:noHistory="true" > <!-- noHistory=true to close the app if back btn is pressed on sign in. -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".SessionHostActivity"/>
+        <activity android:name=".SessionGuestActivity" />
+        <activity android:name=".MainActivity"
+            android:theme="@style/AppTheme"/>
 
         <service android:name=".Services.SpeechService" />
     </application>

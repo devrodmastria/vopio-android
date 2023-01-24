@@ -65,7 +65,7 @@ class SessionHostActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.host_session_menu, menu)
+        menuInflater.inflate(R.menu.host_toolbar_menu, menu)
         return true
     }
 

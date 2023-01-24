@@ -24,7 +24,7 @@
     <string name="send_feedback">Notify user about pronunciation</string>
     <string name="scan_instruction">Scan code from host phone\n to join session.</string>
     <string name="create_session">New Session</string>
-    <string name="sign_in">Sign In</string>
+    <string name="sign_in">Login</string>
     <string name="logout">Logout</string>
     <string name="sample_caption">This is one interestingly long word.</string>
     <string name="permission_message">This app needs to capture audio to recognize your speech.</string>
@@ -35,17 +35,14 @@
 
     <string name="library_header">Saved Words (by %1$s)</string>
 
-    <string name="onboard_one_title">Connect To Instructor</string>
-    <string name="onboard_one">Students can enter a code that the instructor generates on their smartphone.
-        The captions then appear on the student\'s phone</string>
+    <string name="onboard_one_title">Interactive captions</string>
+    <string name="onboard_one">For curious students\nwho prefer to learn quietly</string>
 
+    <string name="onboard_two_title">STEM simplified</string>
+    <string name="onboard_two">A simple way to expand\nvocabulary during class</string>
 
-    <string name="onboard_two_title">Enjoy Interactive Learning</string>
-    <string name="onboard_two">Captions are hyperlinked to an online dictionary so students can select those words
-        and get instant definitions in the app</string>
-
-    <string name="onboard_three_title">Build Your Dictionary</string>
-    <string name="onboard_three">The selected words are saved into a curated study guide in the app</string>
+    <string name="onboard_three_title">College success</string>
+    <string name="onboard_three">Less learning barriers.\nHigher comprehension</string>
 
     <!--
 This string is used for square devices and overridden by hello_world in
@@ -62,6 +59,10 @@ values-round/strings.xml for round devices.
     <string name="invite_menu_label">Invite</string>
     <string name="schedule">Schedule</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="navigation_header_label">navigation header</string>
+    <string name="about_app">About</string>
+    <string name="next_slide">Next</string>
+    <string name="onboarding_descriptor">Onboarding</string>
 
 
 </resources>
