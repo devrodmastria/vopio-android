@@ -7,7 +7,7 @@
     <fragment
         android:id="@+id/hostLauncherFrag"
         android:name="info.vopio.android.HostFragment"
-        android:label="fragment_host_launch"
+        android:label="Instructor"
         tools:layout="@layout/fragment_host">
         <action
             android:id="@+id/action_hostFragment_to_sessionHostActivity"
@@ -16,7 +16,8 @@
     <activity
         android:id="@+id/sessionHostActivity"
         android:name="info.vopio.android.SessionHostActivity"
-        android:label="SessionHostActivity" >
+        android:label="SessionHostActivity"
+        tools:layout="@layout/activity_session_host">
         <argument
             android:name="localUserEmail"
             app:argType="string" />
@@ -26,5 +27,32 @@
         <argument
             android:name="newSessionID"
             app:argType="string" />
+    </activity>
+    <fragment
+        android:id="@+id/guestFragment"
+        android:name="info.vopio.android.GuestFragment"
+        android:label="fragment_guest"
+        tools:layout="@layout/fragment_guest" >
+        <action
+            android:id="@+id/action_guestFragment_to_sessionGuestActivity"
+            app:destination="@id/sessionGuestActivity" />
+    </fragment>
+    <activity
+        android:id="@+id/sessionGuestActivity"
+        android:name="info.vopio.android.SessionGuestActivity"
+        android:label="activity_session_guest"
+        tools:layout="@layout/activity_session_guest" >
+        <argument
+            android:name="localUserEmail"
+            app:argType="string" />
+        <argument
+            android:name="localUserName"
+            app:argType="string" />
+        <argument
+            android:name="incomingSessionID"
+            app:argType="string" />
+        <argument
+            android:name="reviewMode"
+            app:argType="boolean" />
     </activity>
 </navigation>

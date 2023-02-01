@@ -4,21 +4,25 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
 import com.firebase.ui.auth.AuthUI
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
-import info.vopio.android.OnboardingViews.OnboardingActivity
+import info.vopio.android.LibraryViews.LibraryFragment
 import info.vopio.android.databinding.ActivityMainBinding
+import info.vopio.android.onboarding.OnboardingActivity
 import timber.log.Timber
 
 
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var appBarConfiguration : AppBarConfiguration
 
     private var localUsername: String = "user_name"
     private var localUserEmail: String = "user_email"
@@ -31,14 +35,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.toolbar_menu, menu)
+        menuInflater.inflate(R.menu.option_menu_items, menu)
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
         when(item.itemId){
-            R.id.nav_logout -> {
+            R.id.option_logout -> {
                 thisFirebaseAuth.signOut()
                 AuthUI.getInstance()
                     .signOut(this)
@@ -53,12 +57,13 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        val rootView = binding.root
-        setContentView(rootView)
 
-        val toolbar = findViewById<View>(R.id.toolbar) as Toolbar
-        setSupportActionBar(toolbar)
+        binding = DataBindingUtil.setContentView<ActivityMainBinding>(this, R.layout.activity_main)
+
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.mainFragmentContainer) as NavHostFragment
+        val navController = navHostFragment.navController
+//        appBarConfiguration = AppBarConfiguration(
+//            setOf(R.id._about_app), binding.drawerLayout)
 
         Timber.plant(Timber.DebugTree())
 
@@ -109,7 +114,7 @@ class MainActivity : AppCompatActivity() {
                     targetFragment = HostFragment.newInstance(localUsername, localUserEmail)
                 }
             }
-
+            
             supportFragmentManager.beginTransaction().replace(R.id.mainFragmentContainer, targetFragment).commit()
             return@setOnItemSelectedListener true
 

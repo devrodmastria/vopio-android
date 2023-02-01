@@ -1,9 +1,8 @@
-package info.vopio.android.OnboardingViews
+package info.vopio.android.onboarding
 
 import android.animation.ArgbEvaluator
 import android.content.Intent
 import android.graphics.Typeface
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -14,6 +13,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.content.ContextCompat
@@ -22,12 +22,25 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
-import androidx.viewpager.widget.ViewPager.OnPageChangeListener
+import androidx.viewpager.widget.ViewPager.*
+import com.firebase.ui.auth.AuthUI
+import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
+import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
+import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import info.vopio.android.MainActivity
 import info.vopio.android.R
 import info.vopio.android.databinding.ActivityOnboardingBinding
+import timber.log.Timber
 
 
 class OnboardingActivity : AppCompatActivity() {
+
+    private val signIn: ActivityResultLauncher<Intent> = registerForActivityResult(
+        FirebaseAuthUIActivityResultContract(), this::onSignInResult)
+    lateinit var thisFirebaseAnalytics: FirebaseAnalytics
 
     lateinit var thisSectionsPagerAdapter: SectionsPagerAdapter
     lateinit var nextBtn: Button
@@ -40,7 +53,7 @@ class OnboardingActivity : AppCompatActivity() {
     lateinit var thisViewPager: ViewPager
 
     private var page = 0
-    val SLIDER_DURATION : Long = 7000
+    val SLIDER_DURATION : Long = 10000
 
     private lateinit var binding: ActivityOnboardingBinding
 
@@ -66,6 +79,9 @@ class OnboardingActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
+        binding.toolbar.title = getString(R.string.app_name)
+
+        thisFirebaseAnalytics = FirebaseAnalytics.getInstance(applicationContext)
         thisSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
 
         signinBtn = binding.introBtnSignIn
@@ -79,24 +95,12 @@ class OnboardingActivity : AppCompatActivity() {
         thisViewPager = binding.container
         thisViewPager.adapter = thisSectionsPagerAdapter
         thisViewPager.currentItem = page
+
         updateIndicators(page)
 
-        val color1 = ContextCompat.getColor(this, R.color.blue_500)
-        val color2 = ContextCompat.getColor(this, R.color.green_500)
-        val color3 = ContextCompat.getColor(this, R.color.orange_500)
-
-        val colorList = intArrayOf(color1, color2, color3)
+        val purpleX = ContextCompat.getColor(this, R.color.purple_100)
+        val colorList = intArrayOf(purpleX, purpleX, purpleX)
         val evaluator = ArgbEvaluator()
-
-        // setup action bar color to match first viewpager fragment
-        supportActionBar?.setBackgroundDrawable(
-            ColorDrawable(
-                ContextCompat.getColor(
-                    applicationContext,
-                    android.R.color.holo_blue_dark
-                )
-            )
-        )
 
         swipeHandler = Handler(Looper.getMainLooper())
 
@@ -120,43 +124,6 @@ class OnboardingActivity : AppCompatActivity() {
             override fun onPageSelected(position: Int) {
                 page = position
                 updateIndicators(page)
-                when (position) {
-                    0 -> {
-                        thisViewPager.setBackgroundColor(color1)
-
-                        // make sure to change this in the onCreate section whenever it's changed here.
-                        supportActionBar?.setBackgroundDrawable(
-                            ColorDrawable(
-                                ContextCompat.getColor(
-                                    applicationContext,
-                                    android.R.color.holo_blue_dark
-                                )
-                            )
-                        )
-                    }
-                    1 -> {
-                        thisViewPager.setBackgroundColor(color2)
-                        supportActionBar?.setBackgroundDrawable(
-                            ColorDrawable(
-                                ContextCompat.getColor(
-                                    applicationContext,
-                                    android.R.color.holo_green_dark
-                                )
-                            )
-                        )
-                    }
-                    2 -> {
-                        thisViewPager.setBackgroundColor(color3)
-                        supportActionBar?.setBackgroundDrawable(
-                            ColorDrawable(
-                                ContextCompat.getColor(
-                                    applicationContext,
-                                    android.R.color.holo_orange_dark
-                                )
-                            )
-                        )
-                    }
-                }
                 nextBtn.visibility = if (position == 2) View.GONE else View.VISIBLE
             }
 
@@ -169,10 +136,55 @@ class OnboardingActivity : AppCompatActivity() {
         }
 
         signinBtn.setOnClickListener {
-            startActivity(Intent(this, SignInActivity::class.java))
+            if (Firebase.auth.currentUser == null) {
+                openLogin()
+            }
+        }
+        checkLoginStatus()
+
+    }
+
+    private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
+        if (result.resultCode == RESULT_OK) {
+
+            val eventMessage = "Finished_onboarding"
+            val bundle = Bundle()
+            bundle.putString(FirebaseAnalytics.Param.ACHIEVEMENT_ID, "finished_onboard")
+            thisFirebaseAnalytics.logEvent(eventMessage, bundle)
+            Timber.wtf("-->> onSignInResult Finished_onboarding")
+
+            startActivity(Intent(this@OnboardingActivity, MainActivity::class.java))
+            finish()
+        } else {
+            Snackbar.make(binding.root, "No internet connection?", Snackbar.LENGTH_LONG).show()
+            Timber.wtf("-->> onSignInResult " + result.resultCode)
+
+            val eventMessage = "Login_error :" + result.resultCode
+            val bundle = Bundle()
+            bundle.putString(FirebaseAnalytics.Param.ACHIEVEMENT_ID, "login_error")
+            thisFirebaseAnalytics.logEvent(eventMessage, bundle)
+        }
+    }
+
+    private fun openLogin(){
+
+        val signInIntent = AuthUI.getInstance()
+            .createSignInIntentBuilder()
+            .setLogo(R.mipmap.ic_launcher)
+            .setAvailableProviders(listOf(
+                AuthUI.IdpConfig.GoogleBuilder().build(),)).build()
+
+        Timber.wtf("-->> SignInActivity current user NULL")
+
+        signIn.launch(signInIntent)
+    }
+
+    private fun checkLoginStatus(){
+        if (Firebase.auth.currentUser != null) {
+            Timber.wtf("-->> SignInActivity current user OK")
+            startActivity(Intent(this@OnboardingActivity, MainActivity::class.java))
             finish()
         }
-
     }
 
     override fun onPause() {
@@ -230,14 +242,14 @@ class OnboardingActivity : AppCompatActivity() {
                     // Icon made by https://creativemarket.com/eucalyp
                     textView.text = res.getString(R.string.onboard_two)
                     textTitle.text = getString(R.string.onboard_two_title)
-                    imageView.setBackgroundResource(R.drawable.ic_support)
+                    imageView.setBackgroundResource(R.drawable.ic_search_engine)
                 }
                 3 -> {
                     // Icon made by https://www.flaticon.com/authors/smashicons
                     // icon made by www.freepik.com
                     textView.text = getString(R.string.onboard_three)
                     textTitle.text = getString(R.string.onboard_three_title)
-                    imageView.setBackgroundResource(R.drawable.ic_search_engine)
+                    imageView.setBackgroundResource(R.drawable.ic_support)
                 }
 
                 else -> {

@@ -69,7 +69,7 @@ class HostFragment : Fragment() {
 
             override fun onCancelled(error: DatabaseError) {
                 // Failed to read value
-                Timber.i("-->>SpeechX: onDataChange Failed to read value:${error.toException()}")
+                Timber.i("-->>SpeechX: onCancelled:${error.toException()}")
             }
         })
 
@@ -326,13 +326,8 @@ class HostFragment : Fragment() {
             databaseRef.child(Constants.SESSION_LIST).child(newSessionID).child(Constants.CAPTION_LIST).child(captionID).setValue(sessionModel)
 
             // based on Navigation Graph
-            view.findNavController().navigate(HostFragmentDirections.actionHostFragmentToSessionHostActivity(localUserEmail, localUsername, this.newSessionID))
-
-//            val intent = Intent(fragmentContext, SessionHostActivity::class.java)
-//            intent.putExtra(Constants.SESSION_USERNAME, localUsername)
-//            intent.putExtra(Constants.SESSION_USER_EMAIL, localUserEmail)
-//            intent.putExtra(Constants.SESSION_KEY, this.newSessionID)
-//            startActivity(intent)
+            view.findNavController().navigate(HostFragmentDirections
+                .actionHostFragmentToSessionHostActivity(localUserEmail, localUsername, this.newSessionID))
 
         } else {
 

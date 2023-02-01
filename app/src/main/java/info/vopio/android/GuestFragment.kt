@@ -217,6 +217,10 @@ class GuestFragment : Fragment() {
         intent.putExtra(Constants.SESSION_USER_EMAIL, localUserEmail)
         intent.putExtra(Constants.REVIEW_MODE, true)
         startActivity(intent)
+
+        // based on Navigation Graph
+//        fragmentView.findFragment<NavHostFragment>().navController.navigate(
+//            GuestFragmentDirections.actionGuestFragmentToSessionGuestActivity(localUserEmail.toString(), localUsername.toString(), sessionId, true) )
     }
 
     companion object {
