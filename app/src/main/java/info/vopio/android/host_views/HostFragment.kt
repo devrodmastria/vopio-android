@@ -1,4 +1,4 @@
-package info.vopio.android
+package info.vopio.android.host_views
 
 import android.content.Context
 import android.content.Intent
@@ -20,16 +20,14 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.database.*
-import info.vopio.android.DataModel.SessionListAdapter
-import info.vopio.android.Utilities.Constants
-import info.vopio.android.Utilities.SwipeActions
-import info.vopio.android.Utilities.SwipeHandler
+import info.vopio.android.data_model.SessionListAdapter
+import info.vopio.android.R
+import info.vopio.android.utilities.Constants
+import info.vopio.android.utilities.SwipeActions
+import info.vopio.android.utilities.SwipeHandler
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
-
-private const val ARG_USERNAME = "param1"
-private const val ARG_USER_EMAIL = "param2"
 
 // This fragment is the Session Launcher
 class HostFragment : Fragment() {
@@ -132,7 +130,7 @@ class HostFragment : Fragment() {
         return fragmentContainer
     }
 
-    private fun parseInactiveSessionList(dataSnapshot: DataSnapshot,recyclerView: RecyclerView, deleteBtn: Button){
+    private fun parseInactiveSessionList(dataSnapshot: DataSnapshot, recyclerView: RecyclerView, deleteBtn: Button){
 
         val sessionAdapter: SessionListAdapter
         val sessionDataSnapshot : DataSnapshot = dataSnapshot
@@ -160,7 +158,9 @@ class HostFragment : Fragment() {
                 inactiveSessionListSnapshot.add(sampleSnapshot)
             }
 
-            sessionAdapter = SessionListAdapter(inactiveSessionListSnapshot) { sessionId -> adapterOnClick(sessionId)}
+            sessionAdapter = SessionListAdapter(inactiveSessionListSnapshot) { sessionId ->
+                adapterOnClick(sessionId)
+            }
             recyclerView.adapter = sessionAdapter
         }
     }
@@ -220,7 +220,9 @@ class HostFragment : Fragment() {
                     val sessionKey = inactiveSessionListSnapshot[itemIndexPath].key
                     if (inactiveSessionListSnapshot.isNotEmpty()){
 
-                        databaseRef.child(Constants.SESSION_LIST).child(sessionKey.toString()).child(Constants.SESSION_TITLE).setValue(inputName)
+                        databaseRef.child(Constants.SESSION_LIST).child(sessionKey.toString()).child(
+                            Constants.SESSION_TITLE
+                        ).setValue(inputName)
                             .addOnFailureListener {
                                 Timber.i("-->>HostFragment renameSession Fail")
                             }
@@ -322,12 +324,19 @@ class HostFragment : Fragment() {
             sessionModel[Constants.CAPTION_AUTHOR] = localUsername.toString()
             sessionModel[Constants.CAPTION_TEXT] = "[ Session started by $localUsername]"
             sessionModel[Constants.CAPTION_FEEDBACK] = "n/a"
-            val captionID = databaseRef.child(Constants.SESSION_LIST).child(newSessionID).child(Constants.CAPTION_LIST).push().key.toString()
+            val captionID = databaseRef.child(Constants.SESSION_LIST).child(newSessionID).child(
+                Constants.CAPTION_LIST
+            ).push().key.toString()
             databaseRef.child(Constants.SESSION_LIST).child(newSessionID).child(Constants.CAPTION_LIST).child(captionID).setValue(sessionModel)
 
             // based on Navigation Graph
-            view.findNavController().navigate(HostFragmentDirections
-                .actionHostFragmentToSessionHostActivity(localUserEmail, localUsername, this.newSessionID))
+            view.findNavController().navigate(
+                HostFragmentDirections.actionHostFragmentToSessionHostActivity(
+                    localUserEmail,
+                    localUsername,
+                    this.newSessionID
+                )
+            )
 
         } else {
 
@@ -364,5 +373,8 @@ class HostFragment : Fragment() {
                     putString(ARG_USER_EMAIL, param2)
                 }
             }
+
+        private const val ARG_USERNAME = "param1"
+        private const val ARG_USER_EMAIL = "param2"
     }
 }

@@ -6,7 +6,7 @@
     app:startDestination="@id/hostLauncherFrag">
     <fragment
         android:id="@+id/hostLauncherFrag"
-        android:name="info.vopio.android.HostFragment"
+        android:name="info.vopio.android.host_views.HostFragment"
         android:label="Instructor"
         tools:layout="@layout/fragment_host">
         <action
@@ -15,7 +15,7 @@
     </fragment>
     <activity
         android:id="@+id/sessionHostActivity"
-        android:name="info.vopio.android.SessionHostActivity"
+        android:name="info.vopio.android.host_views.SessionHostActivity"
         android:label="SessionHostActivity"
         tools:layout="@layout/activity_session_host">
         <argument
@@ -30,7 +30,7 @@
     </activity>
     <fragment
         android:id="@+id/guestFragment"
-        android:name="info.vopio.android.GuestFragment"
+        android:name="info.vopio.android.guest_views.GuestFragment"
         android:label="fragment_guest"
         tools:layout="@layout/fragment_guest" >
         <action
@@ -39,7 +39,7 @@
     </fragment>
     <activity
         android:id="@+id/sessionGuestActivity"
-        android:name="info.vopio.android.SessionGuestActivity"
+        android:name="info.vopio.android.guest_views.SessionGuestActivity"
         android:label="activity_session_guest"
         tools:layout="@layout/activity_session_guest" >
         <argument

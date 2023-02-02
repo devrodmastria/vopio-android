@@ -1,4 +1,4 @@
-package info.vopio.android.LibraryViews
+package info.vopio.android.library_views
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -11,8 +11,8 @@ import android.widget.Button
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
-import info.vopio.android.Utilities.Constants
-import info.vopio.android.Utilities.IdentityGenerator
+import info.vopio.android.utilities.Constants
+import info.vopio.android.utilities.IdentityGenerator
 import timber.log.Timber
 import info.vopio.android.R
 

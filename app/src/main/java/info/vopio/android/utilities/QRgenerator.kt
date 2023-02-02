@@ -1,4 +1,4 @@
-package info.vopio.android.Utilities
+package info.vopio.android.utilities
 
 import android.content.Context
 import android.graphics.Bitmap

@@ -1,10 +1,8 @@
-package info.vopio.android.Utilities
+package info.vopio.android.utilities
 
 class Constants {
 
     companion object {
-
-        const val HOST_TAG = "_isHost_"
 
         const val SESSION_USERNAME = "SESSION_USER"
         const val SESSION_USER_EMAIL = "SESSION_USER_EMAIL"

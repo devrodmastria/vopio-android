@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-// Excellent documentation: https://cloud.google.com/speech-to-text/docs
+// Good Documentation: https://cloud.google.com/speech-to-text/docs
 
-//Average documentation:
+// OK documentation:
 // https://github.com/GoogleCloudPlatform/android-docs-samples/tree/master/speech/Speech
 // https://cloud.google.com/speech-to-text/docs/samples
 

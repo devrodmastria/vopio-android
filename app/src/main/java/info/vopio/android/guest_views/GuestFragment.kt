@@ -1,10 +1,9 @@
-package info.vopio.android
+package info.vopio.android.guest_views
 
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,20 +11,19 @@ import android.view.WindowManager
 import android.widget.Button
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
-import info.vopio.android.DataModel.SessionListAdapter
-import info.vopio.android.Utilities.Constants
-import info.vopio.android.Utilities.IdentityGenerator
+import info.vopio.android.data_model.SessionListAdapter
+import info.vopio.android.utilities.Constants
+import info.vopio.android.utilities.IdentityGenerator
 import timber.log.Timber
 
-private const val ARG_USERNAME = "param1"
-private const val ARG_USER_EMAIL = "param2"
-
 // this fragment connects a Session Guest to a Session Host
+
 class GuestFragment : Fragment() {
 
     private var localUsername: String? = null
@@ -89,11 +87,19 @@ class GuestFragment : Fragment() {
                     }
 
                     if (!matchFound) {
-                        Snackbar.make( fragmentView.rootView.findViewById(android.R.id.content), "Session not found", Snackbar.LENGTH_LONG).show()
+                        Snackbar.make(
+                            fragmentView.rootView.findViewById(android.R.id.content),
+                            "Session not found",
+                            Snackbar.LENGTH_LONG
+                        ).show()
                     }
 
                 } else {
-                    Snackbar.make( fragmentView.rootView.findViewById(android.R.id.content), "Sessions not available offline.", Snackbar.LENGTH_LONG).show()
+                    Snackbar.make(
+                        fragmentView.rootView.findViewById(android.R.id.content),
+                        "Sessions not available offline.",
+                        Snackbar.LENGTH_LONG
+                    ).show()
                 }
 
             }
@@ -140,18 +146,18 @@ class GuestFragment : Fragment() {
         savedInstanceState: Bundle?): View {
         // Inflate the layout for this fragment
 
-        activity?.title = getString(R.string.tab_student)
+        activity?.title = getString(info.vopio.android.R.string.tab_student)
 
-        fragmentView = inflater.inflate(R.layout.fragment_guest, container, false)
+        fragmentView = inflater.inflate(info.vopio.android.R.layout.fragment_guest, container, false)
         fragmentContext = fragmentView.context
 
         thisLinearLayoutManager = LinearLayoutManager(fragmentContext)
         thisLinearLayoutManager.reverseLayout = true // show latest item on top
         thisLinearLayoutManager.stackFromEnd = true // required to show end as top
-        val recyclerView: RecyclerView = fragmentView.findViewById(R.id.recyclerViewGuest)
+        val recyclerView: RecyclerView = fragmentView.findViewById(info.vopio.android.R.id.recyclerViewGuest)
         recyclerView.layoutManager = thisLinearLayoutManager
 
-        val joinSessionButton : Button = fragmentView.findViewById(R.id.joinSessionBtn)
+        val joinSessionButton : Button = fragmentView.findViewById(info.vopio.android.R.id.joinSessionBtn)
         joinSessionButton.setOnClickListener {
             joinSession()
         }
@@ -204,7 +210,9 @@ class GuestFragment : Fragment() {
                 inactiveSessionListSnapshot.add(sampleSnapshot)
             }
 
-            sessionAdapter = SessionListAdapter(inactiveSessionListSnapshot) { sessionId -> adapterOnClick(sessionId)}
+            sessionAdapter = SessionListAdapter(inactiveSessionListSnapshot) { sessionId ->
+                adapterOnClick(sessionId)
+            }
             recyclerView.adapter = sessionAdapter
         }
     }
@@ -233,5 +241,9 @@ class GuestFragment : Fragment() {
                     putString(ARG_USER_EMAIL, param2)
                 }
             }
+
+        private const val ARG_USERNAME = "param1"
+        private const val ARG_USER_EMAIL = "param2"
+
     }
 }

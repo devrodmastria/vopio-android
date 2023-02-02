@@ -1,4 +1,4 @@
-package info.vopio.android
+package info.vopio.android.guest_views
 
 import android.os.Bundle
 import android.text.SpannableString
@@ -22,11 +22,13 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter
 import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.firebase.ui.database.SnapshotParser
 import com.google.firebase.database.*
-import info.vopio.android.DataModel.MessageModel
-import info.vopio.android.DataModel.Word
-import info.vopio.android.Utilities.Constants
-import info.vopio.android.Utilities.IdentityGenerator
-import info.vopio.android.Utilities.MessageUploader
+import info.vopio.android.data_model.MessageModel
+import info.vopio.android.data_model.SavedWord
+import info.vopio.android.R
+import info.vopio.android.data_model.SavedWordsAdapter
+import info.vopio.android.utilities.Constants
+import info.vopio.android.utilities.IdentityGenerator
+import info.vopio.android.utilities.MessageUploader
 import info.vopio.android.databinding.ActivitySessionGuestBinding
 import timber.log.Timber
 
@@ -57,7 +59,7 @@ class SessionGuestActivity : AppCompatActivity() {
 
     lateinit var databaseRef : DatabaseReference
     lateinit var dataSnapshotList : DataSnapshot
-    private val savedWordsList = mutableListOf<Word>()
+    private val savedWordsList = mutableListOf<SavedWord>()
 
     private lateinit var binding: ActivitySessionGuestBinding
 
@@ -144,9 +146,9 @@ class SessionGuestActivity : AppCompatActivity() {
 
     }
 
-    private fun adapterOnClick(word: Word){
+    private fun adapterOnClick(savedWord: SavedWord){
         // display info about card
-        Timber.i("-->>SpeechX: adapterOnClick CLICK:$word")
+        Timber.i("-->>SpeechX: adapterOnClick CLICK:$savedWord")
     }
 
     private fun initPopupDictionary(){
@@ -236,7 +238,7 @@ class SessionGuestActivity : AppCompatActivity() {
 
     private fun configureSavedWordParser(){
 
-        val wordsAdapter = WordsAdapter { word -> adapterOnClick(word) }
+        val savedWordsAdapter = SavedWordsAdapter { word -> adapterOnClick(word) }
 
         databaseRef = FirebaseDatabase.getInstance().reference
         databaseRef.addValueEventListener(object : ValueEventListener {
@@ -255,15 +257,15 @@ class SessionGuestActivity : AppCompatActivity() {
                     for (word in studentDataSnapshot.children){
                         val wordItem = word.value.toString()
                         val wordKey = word.key.toString()
-                        savedWordsList.add(Word(wordItem, wordKey))
+                        savedWordsList.add(SavedWord(wordItem, wordKey))
                     }
 
                 } else {
                     savedWordsList.clear()
-                    savedWordsList.add(Word("Sample", "sample_key"))
+                    savedWordsList.add(SavedWord("Sample", "sample_key"))
                 }
-                wordsAdapter.submitList(savedWordsList)
-                recyclerView.adapter = wordsAdapter
+                savedWordsAdapter.submitList(savedWordsList)
+                recyclerView.adapter = savedWordsAdapter
 
 
             }

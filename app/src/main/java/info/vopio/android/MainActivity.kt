@@ -14,7 +14,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
-import info.vopio.android.LibraryViews.LibraryFragment
+import info.vopio.android.guest_views.GuestFragment
+import info.vopio.android.host_views.HostFragment
+import info.vopio.android.library_views.LibraryFragment
 import info.vopio.android.databinding.ActivityMainBinding
 import info.vopio.android.onboarding.OnboardingActivity
 import timber.log.Timber

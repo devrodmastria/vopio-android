@@ -27,8 +27,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".SessionHostActivity"/>
-        <activity android:name=".SessionGuestActivity" />
+        <activity android:name=".host_views.SessionHostActivity"/>
+        <activity android:name=".guest_views.SessionGuestActivity" />
         <activity android:name=".MainActivity"
             android:theme="@style/AppTheme"/>
 

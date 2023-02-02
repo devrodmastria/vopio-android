@@ -2,7 +2,7 @@
 
 ## Overview
 
-**Project Goals**: to make lectures more fulfilling to students and instructors with interactive captions for live classes.
+**Project Description**: Interactive captions for college lectures.
 
 **SRS**: Software Requirements Specification document available upon request.
 

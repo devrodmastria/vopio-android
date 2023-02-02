@@ -1,4 +1,4 @@
-package info.vopio.android.Utilities;
+package info.vopio.android.utilities;
 
 import android.graphics.Canvas;
 import android.graphics.Color;

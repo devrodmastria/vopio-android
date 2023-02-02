@@ -1,4 +1,4 @@
-package info.vopio.android.LibraryViews
+package info.vopio.android.library_views
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -8,10 +8,10 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.database.*
-import info.vopio.android.DataModel.Word
-import info.vopio.android.Utilities.Constants
-import info.vopio.android.Utilities.IdentityGenerator
-import info.vopio.android.WordsAdapter
+import info.vopio.android.data_model.SavedWord
+import info.vopio.android.utilities.Constants
+import info.vopio.android.utilities.IdentityGenerator
+import info.vopio.android.data_model.SavedWordsAdapter
 import timber.log.Timber
 import info.vopio.android.R
 
@@ -25,7 +25,7 @@ class LibraryFragment : Fragment() {
 
     lateinit var databaseRef : DatabaseReference
     lateinit var dataSnapshotList : DataSnapshot
-    private val savedWordsList = mutableListOf<Word>()
+    private val savedWordsList = mutableListOf<SavedWord>()
 
     lateinit var fragmentContainer: View
     lateinit var wordDetailFragment : Fragment
@@ -44,7 +44,7 @@ class LibraryFragment : Fragment() {
 
         fragmentContainer = inflater.inflate(R.layout.fragment_library, container, false)
 
-        val wordsAdapter = WordsAdapter { word -> adapterOnClick(word) }
+        val wordsAdapter = SavedWordsAdapter { word -> adapterOnClick(word) }
         val recyclerView: RecyclerView = fragmentContainer.findViewById(R.id.recyclerViewHost)
 
         activity?.title = getString(R.string.tab_lib)
@@ -69,12 +69,12 @@ class LibraryFragment : Fragment() {
                     for (word in studentDataSnapshot.children){
                         val wordItem = word.value.toString()
                         val wordKey = word.key.toString()
-                        savedWordsList.add(Word(wordItem, wordKey))
+                        savedWordsList.add(SavedWord(wordItem, wordKey))
                     }
 
                 } else {
                     savedWordsList.clear()
-                    savedWordsList.add(Word(Constants.SAMPLE_WORD, Constants.SAMPLE_KEY))
+                    savedWordsList.add(SavedWord(Constants.SAMPLE_WORD, Constants.SAMPLE_KEY))
                 }
                 wordsAdapter.submitList(savedWordsList)
                 recyclerView.adapter = wordsAdapter
@@ -90,10 +90,10 @@ class LibraryFragment : Fragment() {
         return fragmentContainer
     }
 
-    private fun adapterOnClick(word: Word){
+    private fun adapterOnClick(savedWord: SavedWord){
         // display info about card
-        Timber.i("-->>SpeechX: adapterOnClick CLICK:$word")
-        wordDetailFragment = LibraryDetailFragment.newInstance(word.content, word.itemKey)
+        Timber.i("-->>SpeechX: adapterOnClick CLICK:$savedWord")
+        wordDetailFragment = LibraryDetailFragment.newInstance(savedWord.content, savedWord.itemKey)
         parentFragmentManager.beginTransaction().replace(R.id.mainFragmentContainer, wordDetailFragment).commit()
 
     }

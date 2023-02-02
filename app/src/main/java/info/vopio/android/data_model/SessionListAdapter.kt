@@ -1,14 +1,13 @@
-package info.vopio.android.DataModel
+package info.vopio.android.data_model
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.database.DataSnapshot
 import info.vopio.android.R
-import info.vopio.android.Utilities.Constants
+import info.vopio.android.utilities.Constants
 
 class SessionListAdapter(private val sessionSet: List<DataSnapshot>, private val onClick: (String) -> Unit) :
     RecyclerView.Adapter<SessionListAdapter.ViewHolder>() {
@@ -16,7 +15,7 @@ class SessionListAdapter(private val sessionSet: List<DataSnapshot>, private val
     class ViewHolder(itemView: View, val onClick: (String) -> Unit):
         RecyclerView.ViewHolder(itemView){
         private val dateTextView: TextView = itemView.findViewById(R.id.dateTextView)
-        private val seshTitleTextView: TextView = itemView.findViewById(R.id.sessionTitleTextView)
+        private val sessionTitleTextView: TextView = itemView.findViewById(R.id.sessionTitleTextView)
 
         private var sessionID: String? = null
 
@@ -40,7 +39,7 @@ class SessionListAdapter(private val sessionSet: List<DataSnapshot>, private val
                 sessionTitle = "Sample: $sessionTitle"
             }
 
-            seshTitleTextView.text = sessionTitle
+            sessionTitleTextView.text = sessionTitle
 
         }
 

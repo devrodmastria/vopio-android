@@ -1,4 +1,4 @@
-package info.vopio.android.Utilities
+package info.vopio.android.utilities
 
 class IdentityGenerator() {
     fun createUserIdFromEmail(userEmail: String) : String{

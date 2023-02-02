@@ -1,4 +1,4 @@
-package info.vopio.android
+package info.vopio.android.data_model
 
 import android.view.LayoutInflater
 import androidx.recyclerview.widget.ListAdapter
@@ -7,27 +7,27 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
-import info.vopio.android.DataModel.Word
+import info.vopio.android.R
 
-class WordsAdapter(private val onClick: (Word) -> Unit) :
-    ListAdapter<Word, WordsAdapter.WordViewHolder>(WordDiffCallback) {
+class SavedWordsAdapter(private val onClick: (SavedWord) -> Unit) :
+    ListAdapter<SavedWord, SavedWordsAdapter.WordViewHolder>(WordDiffCallback) {
 
-    class WordViewHolder(itemView: View, val onClick: (Word) -> Unit):
+    class WordViewHolder(itemView: View, val onClick: (SavedWord) -> Unit):
             RecyclerView.ViewHolder(itemView){
                 private val wordTextView : TextView = itemView.findViewById(R.id.cardText)
-                private var currentWord: Word? = null
+                private var currentSavedWord: SavedWord? = null
 
                 init {
                     itemView.setOnClickListener {
-                        currentWord?.let {
+                        currentSavedWord?.let {
                             onClick(it)
                         }
                     }
                 }
 
-                fun bind(word: Word){
-                    currentWord = word
-                    wordTextView.text = word.content
+                fun bind(savedWord: SavedWord){
+                    currentSavedWord = savedWord
+                    wordTextView.text = savedWord.content
                 }
 
             }
@@ -44,12 +44,12 @@ class WordsAdapter(private val onClick: (Word) -> Unit) :
 
 }
 
-object WordDiffCallback : DiffUtil.ItemCallback<Word>(){
-    override fun areItemsTheSame(oldItem: Word, newItem: Word): Boolean {
+object WordDiffCallback : DiffUtil.ItemCallback<SavedWord>(){
+    override fun areItemsTheSame(oldItem: SavedWord, newItem: SavedWord): Boolean {
         return oldItem == newItem
     }
 
-    override fun areContentsTheSame(oldItem: Word, newItem: Word): Boolean {
+    override fun areContentsTheSame(oldItem: SavedWord, newItem: SavedWord): Boolean {
         return oldItem.content == newItem.content
     }
 

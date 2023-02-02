@@ -1,7 +1,7 @@
-package info.vopio.android.Utilities
+package info.vopio.android.utilities
 
 import com.google.firebase.database.DatabaseReference
-import info.vopio.android.DataModel.MessageModel
+import info.vopio.android.data_model.MessageModel
 
 class MessageUploader() {
 

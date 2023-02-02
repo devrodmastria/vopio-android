@@ -1,4 +1,4 @@
-package info.vopio.android
+package info.vopio.android.host_views
 
 import android.Manifest
 import android.content.ComponentName
@@ -23,17 +23,22 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter
 import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.firebase.ui.database.SnapshotParser
 import com.google.firebase.database.*
-import info.vopio.android.DataModel.MessageModel
+import info.vopio.android.data_model.MessageModel
+import info.vopio.android.R
 import info.vopio.android.Services.SpeechService
 import info.vopio.android.Services.VoiceRecorder
-import info.vopio.android.Utilities.Constants
-import info.vopio.android.Utilities.MessageUploader
-import info.vopio.android.Utilities.PhoneticAlphabetPopup
+import info.vopio.android.utilities.Constants
+import info.vopio.android.utilities.MessageUploader
+import info.vopio.android.utilities.PhoneticAlphabetPopup
 import info.vopio.android.databinding.ActivitySessionHostBinding
 import timber.log.Timber
 
 // This class represents: Speaker Session Activity OR Lecture Host Activity
 class SessionHostActivity : AppCompatActivity() {
+
+    //todo -- RENAME to HostSessionActivity
+    //todo -- RENAME to HostLauncherFragment
+    //todo -- etc
 
     lateinit var sessionId : String
 
