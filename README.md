@@ -24,6 +24,7 @@ To launch on the emulator, this project requires a credential file from your Fir
 (Onboarding issues)
 * User registration to become a host is done manually via online form
 * New users are unable to login in the app due to Firebase/SHA certificate issues
+
 (ASR issues)
 * ASR service stops working after about 10 minutes of usage (lectures require about 1 hour)
 * ASR accuracy is inconsistent for users with non-native accent
