@@ -14,9 +14,6 @@
 ## Demo Video on YouTube
 [![App Demo Video](https://img.youtube.com/vi/y0wFcO1Slsg/0.jpg)](https://www.youtube.com/watch?v=y0wFcO1Slsg)
 
-## App Architecture
-<img src="https://github.com/rmesquit/vopio-android/blob/develop/MVCdiagram.png" alt="MVC">
-
 ## Installation Instructions
 ### App
 Visit the vopio website to download the beta version: https://vopio.tech/download/
