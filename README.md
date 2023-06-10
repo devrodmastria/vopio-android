@@ -15,18 +15,20 @@
 [![App Demo Video](https://img.youtube.com/vi/y0wFcO1Slsg/0.jpg)](https://www.youtube.com/watch?v=y0wFcO1Slsg)
 
 ## Installation Instructions
-### App
+### For the App
 Visit the vopio website to download the beta version: https://vopio.tech/download/
-### Android Studio Project
+### For the Android Studio Project
 To launch on the emulator, this project requires a credential file from your Firebase account.
 
 ## Known Issues (related to performance, UX, and scaling)
-* ASR service stops working after about 10 minutes of usage (lectures require about 1h)
+(Onboarding issues)
+* User registration to become a host is done manually via online form
+* New users are unable to login in the app due to Firebase/SHA certificate issues
+(ASR issues)
+* ASR service stops working after about 10 minutes of usage (lectures require about 1 hour)
 * ASR accuracy is inconsistent for users with non-native accent
 * ASR results don't show up on the screen until the host is done saying each sentence
 * Speaker diarisation/identity is not configured
-* User registration to become a host is done manually via online form
-* New users are unable to login in the app due to Firebase/SHA certificate issues
 
 ## How To Contribute
 Please follow the git-flow model for naming your branch: feature/name or hotfix/name
@@ -76,8 +78,3 @@ Please follow the git-flow model for naming your branch: feature/name or hotfix/
 ### Testing and Distribution
 * Test results obtained from Google Play Console > Release > Testing > Pre-launch report > Overview
 * App available from Google Play > Open Testing track
-
-### Test-Driven Development Resources
-* Agile Essentials: https://www.agilealliance.org/glossary/tdd/
-* TestFirst.org: http://testfirst.org/
-* Example Walkthrough: https://technologyconversations.com/2013/12/20/test-driven-development-tdd-example-walkthrough/
