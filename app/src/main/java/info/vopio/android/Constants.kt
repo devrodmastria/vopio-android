@@ -1,4 +1,4 @@
-package info.vopio.android.utilities
+package info.vopio.android
 
 class Constants {
 
@@ -27,6 +27,7 @@ class Constants {
         const val HOST_LIST = "host_list"
         const val HOST_EMAIL = "host_email"
         const val HOST_NAME = "host_name"
+        const val BECOME_HOST = "https://vopio.wordpress.com/contact/"
 
         const val ACTIVE_SESSION = "active_session"
         const val CAPTION_LIST = "caption_list"

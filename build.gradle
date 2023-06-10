@@ -6,11 +6,14 @@ buildscript {
 
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.4.0'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.10" // last stable version was 1.6.0
+
+        classpath 'com.android.tools.build:gradle:8.0.2'
+        // 7.4.2 is the latest compatible version for JDK Zulu 19 as of June 9 2023
+
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.10'
         classpath 'com.google.gms:google-services:4.3.15'
-        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.8' // used by Google Speech API
-        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:2.5.3"
+        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.9.3' // used by Google Speech API
+        classpath 'androidx.navigation:navigation-safe-args-gradle-plugin:2.6.0'
     }
 }
 

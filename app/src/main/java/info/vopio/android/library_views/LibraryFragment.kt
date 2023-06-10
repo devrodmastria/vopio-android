@@ -9,7 +9,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.database.*
 import info.vopio.android.data_model.SavedWord
-import info.vopio.android.utilities.Constants
+import info.vopio.android.Constants
 import info.vopio.android.utilities.IdentityGenerator
 import info.vopio.android.data_model.SavedWordsAdapter
 import timber.log.Timber
@@ -23,12 +23,12 @@ class LibraryFragment : Fragment() {
     private var localUsername: String? = null
     private var localUserEmail: String? = null
 
-    lateinit var databaseRef : DatabaseReference
+    private lateinit var databaseRef : DatabaseReference
     lateinit var dataSnapshotList : DataSnapshot
     private val savedWordsList = mutableListOf<SavedWord>()
 
-    lateinit var fragmentContainer: View
-    lateinit var wordDetailFragment : Fragment
+    private lateinit var fragmentContainer: View
+    private lateinit var wordDetailFragment : Fragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,7 +62,8 @@ class LibraryFragment : Fragment() {
                 dataSnapshotList = dataSnapshot
 
                 val userId = IdentityGenerator().createUserIdFromEmail(localUserEmail.toString())
-                val studentDataSnapshot : DataSnapshot = dataSnapshot.child(Constants.STUDENT_LIST).child(userId).child(Constants.SAVED_WORDS)
+                val studentDataSnapshot : DataSnapshot = dataSnapshot.child(Constants.STUDENT_LIST).child(userId).child(
+                    Constants.SAVED_WORDS)
                 if (studentDataSnapshot.hasChildren()){
 
                     savedWordsList.clear()

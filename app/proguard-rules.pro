@@ -27,6 +27,10 @@
   io.grpc.okhttp.OkHttpChannelBuilder transportExecutor(java.util.concurrent.Executor);
 }
 
+-dontwarn io.grpc.ClientStreamTracer$InternalLimitedInfoFactory
+-dontwarn io.grpc.internal.BaseDnsNameResolverProvider
+-dontwarn reactor.blockhound.integration.BlockHoundIntegration
+
 -keepattributes LineNumberTable,SourceFile
 -renamesourcefileattribute SourceFile
 -printmapping mapping.txt

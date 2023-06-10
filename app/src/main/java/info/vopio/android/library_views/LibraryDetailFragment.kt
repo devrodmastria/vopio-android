@@ -11,7 +11,7 @@ import android.widget.Button
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
-import info.vopio.android.utilities.Constants
+import info.vopio.android.Constants
 import info.vopio.android.utilities.IdentityGenerator
 import timber.log.Timber
 import info.vopio.android.R
@@ -24,10 +24,10 @@ class LibraryDetailFragment : Fragment() {
     private var selectedWord: String? = null
     private var selectedWordKey: String? = null
 
-    lateinit var fragmentContainer: View
-    lateinit var webSettings : WebSettings
-    lateinit var localUserEmail: String
-    lateinit var databaseRef : DatabaseReference
+    private lateinit var fragmentContainer: View
+    private lateinit var webSettings : WebSettings
+    private lateinit var localUserEmail: String
+    private lateinit var databaseRef : DatabaseReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

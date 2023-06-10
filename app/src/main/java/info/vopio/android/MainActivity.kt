@@ -29,10 +29,10 @@ class MainActivity : AppCompatActivity() {
     private var localUsername: String = "user_name"
     private var localUserEmail: String = "user_email"
 
-    lateinit var thisFirebaseRemoteConfig: FirebaseRemoteConfig
-    lateinit var thisFirebaseAuth : FirebaseAuth
-    lateinit var thisFirebaseDatabaseReference : DatabaseReference
-    lateinit var targetFragment : Fragment
+    private lateinit var thisFirebaseRemoteConfig: FirebaseRemoteConfig
+    private lateinit var thisFirebaseAuth : FirebaseAuth
+    private lateinit var thisFirebaseDatabaseReference : DatabaseReference
+    private lateinit var targetFragment : Fragment
 
     private lateinit var binding: ActivityMainBinding
 

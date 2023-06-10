@@ -18,7 +18,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import info.vopio.android.data_model.SessionListAdapter
-import info.vopio.android.utilities.Constants
+import info.vopio.android.Constants
 import info.vopio.android.utilities.IdentityGenerator
 import timber.log.Timber
 
@@ -29,16 +29,16 @@ class GuestFragment : Fragment() {
     private var localUsername: String? = null
     private var localUserEmail: String? = null
 
-    lateinit var fragmentContext: Context
-    lateinit var fragmentView: View
+    private lateinit var fragmentContext: Context
+    private lateinit var fragmentView: View
 
-    lateinit var thisFirebaseAuth : FirebaseAuth
-    lateinit var databaseRef : DatabaseReference
+    private lateinit var thisFirebaseAuth : FirebaseAuth
+    private lateinit var databaseRef : DatabaseReference
     lateinit var globalSessionListSnapshot : DataSnapshot
 
     private var inactiveSessionListSnapshot = mutableListOf<DataSnapshot>()
-    lateinit var thisLinearLayoutManager : LinearLayoutManager
-    lateinit var sampleSnapshot : DataSnapshot
+    private lateinit var thisLinearLayoutManager : LinearLayoutManager
+    private lateinit var sampleSnapshot : DataSnapshot
 
     private fun joinSession(){
 

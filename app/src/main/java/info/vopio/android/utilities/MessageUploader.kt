@@ -1,6 +1,7 @@
 package info.vopio.android.utilities
 
 import com.google.firebase.database.DatabaseReference
+import info.vopio.android.Constants
 import info.vopio.android.data_model.MessageModel
 
 class MessageUploader() {
@@ -10,7 +11,8 @@ class MessageUploader() {
 
             val captionMessage = MessageModel(caption, username)
 
-            sessionReferenceInDatabase.child(Constants.SESSION_LIST).child(sessionId).child(Constants.CAPTION_LIST).push().setValue(captionMessage)
+            sessionReferenceInDatabase.child(Constants.SESSION_LIST).child(sessionId).child(
+                Constants.CAPTION_LIST).push().setValue(captionMessage)
         }
     }
 
@@ -30,7 +32,8 @@ class MessageUploader() {
         sessionRef.child(Constants.SESSION_LIST).child(sessionId).child(Constants.QUESTION_LIST).push().setValue(MessageModel(questionIs, studentName))
 
         val userEmail = IdentityGenerator().createUserIdFromEmail(studentEmail)
-        sessionRef.child(Constants.SESSION_LIST).child(sessionId).child(Constants.ATTENDANCE_LIST).child(userEmail).child(Constants.STUDENT_NAME).setValue(studentName)
+        sessionRef.child(Constants.SESSION_LIST).child(sessionId).child(Constants.ATTENDANCE_LIST).child(userEmail).child(
+            Constants.STUDENT_NAME).setValue(studentName)
 
     }
 }

@@ -27,31 +27,29 @@ import info.vopio.android.data_model.MessageModel
 import info.vopio.android.R
 import info.vopio.android.Services.SpeechService
 import info.vopio.android.Services.VoiceRecorder
-import info.vopio.android.utilities.Constants
+import info.vopio.android.Constants
 import info.vopio.android.utilities.MessageUploader
 import info.vopio.android.utilities.PhoneticAlphabetPopup
 import info.vopio.android.databinding.ActivitySessionHostBinding
 import timber.log.Timber
 
-// This class represents: Speaker Session Activity OR Lecture Host Activity
+// Purpose: this class handles the session created by users with the Hosting permission.
+// Purpose: this class represents Speaker Session Activity OR Lecture Host Activity
+
 class SessionHostActivity : AppCompatActivity() {
 
-    //todo -- RENAME to HostSessionActivity
-    //todo -- RENAME to HostLauncherFragment
-    //todo -- etc
+    private lateinit var sessionId : String
 
-    lateinit var sessionId : String
-
-    lateinit var thisFirebaseUser : String
-    lateinit var thisFirebaseEmail : String
-    lateinit var thisFirebaseDatabaseReference : DatabaseReference
+    private lateinit var thisFirebaseUser : String
+    private lateinit var thisFirebaseEmail : String
+    private lateinit var thisFirebaseDatabaseReference : DatabaseReference
 
     // RecyclerView for Captions
-    lateinit var thisFirebaseCaptionsAdapter : FirebaseRecyclerAdapter<MessageModel, MessageViewHolder>
+    private lateinit var thisFirebaseCaptionsAdapter : FirebaseRecyclerAdapter<MessageModel, MessageViewHolder>
     lateinit var thisLinearLayoutManager : LinearLayoutManager
 
     // RecyclerView for Questions
-    lateinit var thisFirebaseQuestionsAdapter : FirebaseRecyclerAdapter<MessageModel, MessageViewHolder>
+    private lateinit var thisFirebaseQuestionsAdapter : FirebaseRecyclerAdapter<MessageModel, MessageViewHolder>
     lateinit var thisQuestionsLinearLayoutManager : LinearLayoutManager
 
     private var thisSpeechService: SpeechService? = null
@@ -127,7 +125,7 @@ class SessionHostActivity : AppCompatActivity() {
 
         val lastFourDigits = sessionId.substring(sessionId.length.minus(4))
         val sessionHeader = "session:   $lastFourDigits"
-        binding.sessionCodeButton.setText(sessionHeader)
+        binding.sessionCodeButton.text = sessionHeader
         binding.sessionCodeButton.setOnClickListener {
             PhoneticAlphabetPopup().showPopup(this, lastFourDigits)
         }
@@ -251,7 +249,8 @@ class SessionHostActivity : AppCompatActivity() {
     private fun stopSession() {
         Timber.i("-->>SpeechX: stopSession")
 
-        thisFirebaseDatabaseReference.child(Constants.SESSION_LIST).child(this.sessionId).child(Constants.ACTIVE_SESSION).setValue(false)
+        thisFirebaseDatabaseReference.child(Constants.SESSION_LIST).child(this.sessionId).child(
+            Constants.ACTIVE_SESSION).setValue(false)
         thisFirebaseCaptionsAdapter.stopListening()
         thisFirebaseQuestionsAdapter.stopListening()
         finish()
@@ -311,7 +310,8 @@ class SessionHostActivity : AppCompatActivity() {
                 questionItem!!
             }
 
-        val questionsRef: DatabaseReference = thisFirebaseDatabaseReference.child(Constants.SESSION_LIST).child(sessionId).child(Constants.QUESTION_LIST)
+        val questionsRef: DatabaseReference = thisFirebaseDatabaseReference.child(Constants.SESSION_LIST).child(sessionId).child(
+            Constants.QUESTION_LIST)
         val options: FirebaseRecyclerOptions<MessageModel> =
             FirebaseRecyclerOptions.Builder<MessageModel>()
                 .setQuery(questionsRef, parser)
@@ -392,7 +392,8 @@ class SessionHostActivity : AppCompatActivity() {
                 captionItem!!
             }
 
-        val messagesRef: DatabaseReference = thisFirebaseDatabaseReference.child(Constants.SESSION_LIST).child(sessionId).child(Constants.CAPTION_LIST)
+        val messagesRef: DatabaseReference = thisFirebaseDatabaseReference.child(Constants.SESSION_LIST).child(sessionId).child(
+            Constants.CAPTION_LIST)
         val options: FirebaseRecyclerOptions<MessageModel> =
             FirebaseRecyclerOptions.Builder<MessageModel>()
                 .setQuery(messagesRef, parser)

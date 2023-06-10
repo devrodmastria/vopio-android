@@ -26,7 +26,7 @@ import info.vopio.android.data_model.MessageModel
 import info.vopio.android.data_model.SavedWord
 import info.vopio.android.R
 import info.vopio.android.data_model.SavedWordsAdapter
-import info.vopio.android.utilities.Constants
+import info.vopio.android.Constants
 import info.vopio.android.utilities.IdentityGenerator
 import info.vopio.android.utilities.MessageUploader
 import info.vopio.android.databinding.ActivitySessionGuestBinding
@@ -36,7 +36,7 @@ class SessionGuestActivity : AppCompatActivity() {
 
 
 
-    lateinit var sessionId : String
+    private lateinit var sessionId : String
     lateinit var captionId : String
     lateinit var captionAuthor : String
 
@@ -48,16 +48,16 @@ class SessionGuestActivity : AppCompatActivity() {
     private var selectedWord: String = "_word_"
     private var reviewMode = false
 
-    lateinit var thisFirebaseUser : String
+    private lateinit var thisFirebaseUser : String
     lateinit var thisFirebaseEmail : String
 
-    lateinit var thisCaptionsAdapter : FirebaseRecyclerAdapter<MessageModel, MessageViewHolder>
+    private lateinit var thisCaptionsAdapter : FirebaseRecyclerAdapter<MessageModel, MessageViewHolder>
     lateinit var thisCaptionsLinearLayoutManager : LinearLayoutManager
 
-    lateinit var thisWordsLinearLayoutManager : LinearLayoutManager
+    private lateinit var thisWordsLinearLayoutManager : LinearLayoutManager
     lateinit var recyclerView: RecyclerView
 
-    lateinit var databaseRef : DatabaseReference
+    private lateinit var databaseRef : DatabaseReference
     lateinit var dataSnapshotList : DataSnapshot
     private val savedWordsList = mutableListOf<SavedWord>()
 
@@ -250,7 +250,8 @@ class SessionGuestActivity : AppCompatActivity() {
                 dataSnapshotList = dataSnapshot
 
                 val userId = IdentityGenerator().createUserIdFromEmail(thisFirebaseEmail)
-                val studentDataSnapshot : DataSnapshot = dataSnapshot.child(Constants.STUDENT_LIST).child(userId).child(Constants.SAVED_WORDS)
+                val studentDataSnapshot : DataSnapshot = dataSnapshot.child(Constants.STUDENT_LIST).child(userId).child(
+                    Constants.SAVED_WORDS)
                 if (studentDataSnapshot.hasChildren()){
 
                     savedWordsList.clear()
@@ -290,7 +291,8 @@ class SessionGuestActivity : AppCompatActivity() {
                 captionItemMessage!!
             }
 
-        val messagesRef: DatabaseReference = databaseRef.child(Constants.SESSION_LIST).child(sessionId).child(Constants.CAPTION_LIST)
+        val messagesRef: DatabaseReference = databaseRef.child(Constants.SESSION_LIST).child(sessionId).child(
+            Constants.CAPTION_LIST)
         val options: FirebaseRecyclerOptions<MessageModel> =
             FirebaseRecyclerOptions.Builder<MessageModel>()
                 .setQuery(messagesRef, parser)

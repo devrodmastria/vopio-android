@@ -22,29 +22,29 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.database.*
 import info.vopio.android.data_model.SessionListAdapter
 import info.vopio.android.R
-import info.vopio.android.utilities.Constants
+import info.vopio.android.Constants
 import info.vopio.android.utilities.SwipeActions
 import info.vopio.android.utilities.SwipeHandler
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
 
-// This fragment is the Session Launcher
+// This fragment allows users to launch a new session
 class HostFragment : Fragment() {
 
     private var localUsername: String = "user_name"
     private var localUserEmail: String = "user_email"
 
-    lateinit var fragmentContext: Context
-    lateinit var fragmentContainer: View
-    lateinit var databaseRef : DatabaseReference
-    lateinit var newSessionID : String
+    private lateinit var fragmentContext: Context
+    private lateinit var fragmentContainer: View
+    private lateinit var databaseRef : DatabaseReference
+    private lateinit var newSessionID : String
     lateinit var hostListSnapshot : DataSnapshot
     lateinit var globalSessionListSnapshot : DataSnapshot
 
     private var inactiveSessionListSnapshot = mutableListOf<DataSnapshot>()
-    lateinit var thisLinearLayoutManager : LinearLayoutManager
-    lateinit var sampleSnapshot : DataSnapshot
+    private lateinit var thisLinearLayoutManager : LinearLayoutManager
+    private lateinit var sampleSnapshot : DataSnapshot
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -278,13 +278,14 @@ class HostFragment : Fragment() {
 
     private fun adapterOnClick(sessionId: String){
 
-        Toast.makeText(fragmentContext, "No action available", Toast.LENGTH_SHORT).show()
+        val lastFourDigits = sessionId.substring(sessionId.length.minus(4))
+        Toast.makeText(fragmentContext, "Session $lastFourDigits", Toast.LENGTH_SHORT).show()
 
     }
 
     private fun hostNewSession(view: View){
 
-        // todo: add audios recorder system to student mode
+        // todo: add audios app recorder system to student mode
 
         var allowedToHost = false
 
@@ -312,8 +313,8 @@ class HostFragment : Fragment() {
             val date = dateFormat.format(calendar.time)
 
             val sessionModel = hashMapOf<String, Any>()
-            sessionModel[Constants.HOST_EMAIL] = localUserEmail.toString()
-            sessionModel[Constants.HOST_NAME] = localUsername.toString()
+            sessionModel[Constants.HOST_EMAIL] = localUserEmail
+            sessionModel[Constants.HOST_NAME] = localUsername
             sessionModel[Constants.ACTIVE_SESSION] = true
             sessionModel[Constants.SESSION_DATE] = date
             sessionModel[Constants.SESSION_TITLE] = "Session by $localUsername"
@@ -321,7 +322,7 @@ class HostFragment : Fragment() {
             databaseRef.child(Constants.SESSION_LIST).child(newSessionID).setValue(sessionModel)
 
             sessionModel.clear()
-            sessionModel[Constants.CAPTION_AUTHOR] = localUsername.toString()
+            sessionModel[Constants.CAPTION_AUTHOR] = localUsername
             sessionModel[Constants.CAPTION_TEXT] = "[ Session started by $localUsername]"
             sessionModel[Constants.CAPTION_FEEDBACK] = "n/a"
             val captionID = databaseRef.child(Constants.SESSION_LIST).child(newSessionID).child(
@@ -346,9 +347,9 @@ class HostFragment : Fragment() {
                 .setMessage("Hosting is not available with your account.")
                 .setCancelable(true)
                 .setNeutralButton("Become a host") { dialog, which ->
-                    val url : String = "https://vopio.tech/contact/"
+                    val url = Constants.BECOME_HOST
                     val intent = Intent(Intent.ACTION_VIEW)
-                    intent.setData(Uri.parse(url))
+                    intent.data = Uri.parse(url)
                     startActivity(intent)
 
                 }

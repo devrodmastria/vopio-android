@@ -7,7 +7,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.database.DataSnapshot
 import info.vopio.android.R
-import info.vopio.android.utilities.Constants
+import info.vopio.android.Constants
 
 class SessionListAdapter(private val sessionSet: List<DataSnapshot>, private val onClick: (String) -> Unit) :
     RecyclerView.Adapter<SessionListAdapter.ViewHolder>() {
