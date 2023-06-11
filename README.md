@@ -16,7 +16,7 @@
 
 ## Installation Instructions
 ### For the App
-Visit the vopio website to download the beta version: https://vopio.tech/download/
+Visit the vopio website to download the beta version: https://vopio.wordpress.com/download/
 ### For the Android Studio Project
 To launch on the emulator, this project requires a credential file from your Firebase account.
 
