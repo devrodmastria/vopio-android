@@ -20,7 +20,7 @@ Visit the vopio website to download the beta version: https://vopio.wordpress.co
 ### For the Android Studio Project
 To launch on the emulator, this project requires a credential file from your Firebase account.
 
-## Known Issues (related to performance, UX, and scaling)
+## Known Issues (related to performance, UX, and speech)
 (Onboarding issues)
 * User registration to become a host is done manually via online form
 * New users are unable to login in the app due to Firebase/SHA certificate issues
